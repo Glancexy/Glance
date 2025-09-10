@@ -211,15 +211,96 @@
         
         <!-- Tela Principal - Comunidades -->
         <div data-page="communities" class="page flex-col items-center justify-start p-4 pt-16 h-full scroll-container">
-            <h2 class="text-3xl font-bold mb-4 text-black dark:text-white">Comunidades</h2>
-            <div class="space-y-4 w-full max-w-md">
-                <div class="bg-gray-300 dark:bg-gray-700 p-4 rounded-xl shadow-lg text-black dark:text-white">
-                    <p class="font-semibold">Comunidade de Fotografia</p>
-                </div>
-                <div class="bg-gray-300 dark:bg-gray-700 p-4 rounded-xl shadow-lg text-black dark:text-white">
-                    <p class="font-semibold">Comunidade de Tecnologia</p>
-                </div>
+            <h2 class="text-3xl font-bold mb-4 text-black dark:text-white">Glance Videos</h2>
+            <div id="glance-videos-carousel" class="flex flex-row overflow-x-auto snap-x snap-mandatory w-full h-[40vh] px-4 space-x-8" style="scroll-behavior:smooth;">
+                <!-- Vídeos de exemplo -->
             </div>
+            <div id="glance-videos-categories" class="w-full flex flex-row items-center overflow-x-auto space-x-4 py-4 px-4" style="height:30vh;background:rgba(245,245,255,0.95);border-radius:2rem;">
+                <!-- Stories/Categorias -->
+            </div>
+            <script>
+            // Categorias de exemplo
+            const videoCategories = [
+                { name: 'Todos', icon: '🌎' },
+                { name: 'Música', icon: '🎵' },
+                { name: 'Humor', icon: '😂' },
+                { name: 'Esportes', icon: '🏀' },
+                { name: 'Tecnologia', icon: '🤖' },
+                { name: 'Viagem', icon: '✈️' },
+                { name: 'Culinária', icon: '🍔' },
+                { name: 'Pets', icon: '🐶' },
+                { name: 'Educação', icon: '📚' }
+            ];
+
+            let selectedCategory = 'Todos';
+
+            function renderVideoCategories() {
+                const catBar = document.getElementById('glance-videos-categories');
+                if (!catBar) return;
+                catBar.innerHTML = '';
+                videoCategories.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'flex flex-col items-center justify-center px-4 py-2 rounded-2xl shadow-md bg-white hover:bg-blue-100 transition-all duration-200 border-2 border-blue-200';
+                    if (cat.name === selectedCategory) {
+                        btn.classList.add('bg-blue-500','text-white','border-blue-500');
+                    }
+                    btn.innerHTML = `<span class="text-3xl mb-1">${cat.icon}</span><span class="text-xs font-bold">${cat.name}</span>`;
+                    btn.onclick = () => {
+                        selectedCategory = cat.name;
+                        renderVideoCategories();
+                        renderGlanceVideos();
+                    };
+                    catBar.appendChild(btn);
+                });
+            }
+
+            function renderGlanceVideos() {
+                const container = document.getElementById('glance-videos-carousel');
+                if (!container) return;
+                container.innerHTML = '';
+                // Busca todos os vídeos publicados no feed
+                if (typeof posts !== 'undefined' && Array.isArray(posts)) {
+                    let videoPosts = posts.filter(p => p.type === 'video');
+                    if (selectedCategory !== 'Todos') {
+                        videoPosts = videoPosts.filter(p => {
+                            // Exemplo: filtra por categoria no texto
+                            return p.text && p.text.toLowerCase().includes(selectedCategory.toLowerCase());
+                        });
+                    }
+                    videoPosts.forEach(post => {
+                        const div = document.createElement('div');
+                        div.className = 'snap-center flex-shrink-0 w-[320px] h-[40vh] flex flex-col items-center justify-center bg-black rounded-2xl shadow-xl relative';
+                        div.innerHTML = `
+                            <video src="${post.media}" controls autoplay muted playsinline class="w-full h-full object-contain rounded-xl bg-black"></video>
+                            <div class="absolute bottom-4 left-4 right-4 bg-black/60 rounded-xl p-3">
+                                <h3 class="text-lg font-bold">${users[post.user]?.name === undefined ? '@'+post.user : users[post.user].name}</h3>
+                                <p class="text-sm">${post.text}</p>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            }
+            // Garante renderização ao abrir a aba
+            window._oldShowPage = window._oldShowPage || window.showPage;
+            window.showPage = function(page) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                const el = document.querySelector(`[data-page="${page}"]`);
+                if (el) el.classList.add('active');
+                if (page === 'communities') {
+                    setTimeout(() => {
+                        renderVideoCategories();
+                        renderGlanceVideos();
+                        const catBar = document.getElementById('glance-videos-categories');
+                        if (catBar) catBar.style.display = '';
+                    }, 0);
+                } else {
+                    const catBar = document.getElementById('glance-videos-categories');
+                    if (catBar) catBar.style.display = 'none';
+                }
+                if (window._oldShowPage) window._oldShowPage(page);
+            };
+            </script>
         </div>
 
         <!-- Tela Principal - Perfil -->
@@ -335,7 +416,7 @@
         const users = {
             "usuario_glance": {
                 username: "usuario_glance",
-                name: "Lucas Silva",
+                name: "@usuario_glance",
                 bio: "Um olhar para o mundo da tecnologia.",
                 avatar: "https://placehold.co/150x150/A0B2C3/FFFFFF?text=EU",
                 posts: 0, // Inicia em 0, será atualizado dinamicamente
@@ -934,6 +1015,7 @@
                             }
                             generateFeedContent();
                             updateProfilePage(window.loggedInUser);
+                            if (typeof renderGlanceVideos === 'function') renderGlanceVideos();
                             showPage('feed');
                             glanceDescModal.classList.add('hidden');
                             uploadedFileData = null;
@@ -996,6 +1078,7 @@
                     }
                     generateFeedContent();
                     updateProfilePage(window.loggedInUser);
+                    if (typeof renderGlanceVideos === 'function') renderGlanceVideos();
                     showPage('feed');
                     glanceDescModal.classList.add('hidden');
                     uploadedFileData = null;
@@ -1394,7 +1477,7 @@ function showVideoTrimModal(file, onTrimmed) {
                             <span class="text-xs text-gray-200 dark:text-gray-700">@${post.user}</span>
                         </div>
                     </div>
-                    <button class="follow-btn absolute top-4 right-4 bg-blue-500 text-white text-base font-semibold rounded-full px-6 py-3 shadow-md hover:bg-blue-600 transition-all duration-200" style="${isOwnPost ? 'display:none;' : ''}">Seguir</button>
+                    <button class="follow-btn absolute top-4 right-4 bg-blue-500 text-white text-xs font-semibold rounded-full px-4 py-1 shadow-md hover:bg-blue-600 transition-all duration-200" style="${isOwnPost ? 'display:none;' : ''}">Seguir</button>
                     <div class="relative z-10 flex flex-col space-y-4">
                         <div class="bg-black/50 dark:bg-white/50 text-white dark:text-black p-4 rounded-xl shadow-inner backdrop-blur-md">
                             <p class="text-sm">${post.text}</p>
@@ -1420,7 +1503,7 @@ function showVideoTrimModal(file, onTrimmed) {
                                 <span class="ml-1 text-base font-bold">${formatNumber(post.reactions.shares)}</span>
                             </button>
                             <!-- Comentar -->
-                            <button class="comment-btn ml-2 text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full border border-red-300 shadow-md p-2 flex items-center ${postComments[postIdx] && postComments[postIdx].some(c => c.user === window.loggedInUser) ? 'bg-green-500 text-white' : 'bg-white/60 dark:bg-black/60'}" title="Comentar" data-postidx="${postIdx}">
+                            <button class="comment-btn ml-2 text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center" title="Comentar" data-postidx="${postIdx}">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
                                     <path stroke="currentColor" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
                                 </svg>
@@ -1562,50 +1645,12 @@ function showVideoTrimModal(file, onTrimmed) {
             };
         }
             // Botão de seguir
-            // Estado de seguidores por usuário logado
-            if (!window.userFollowing) window.userFollowing = {};
-            feedContainer.querySelectorAll('.follow-btn').forEach((btn, idx) => {
-                // Usa o índice do post para identificar o usuário da publicação
-                const post = reversedPosts[idx];
-                const targetUser = post.user;
-                // Estado inicial do botão
-                if (!window.userFollowing) window.userFollowing = {};
-                if (!window.userFollowing[window.loggedInUser]) window.userFollowing[window.loggedInUser] = {};
-                if (window.userFollowing[window.loggedInUser][targetUser]) {
-                    btn.textContent = 'Seguindo';
-                    btn.classList.remove('bg-blue-500');
-                    btn.classList.add('bg-green-500');
-                } else {
-                    btn.textContent = 'Seguir';
-                    btn.classList.remove('bg-green-500');
-                    btn.classList.add('bg-blue-500');
-                }
+            feedContainer.querySelectorAll('.follow-btn').forEach(btn => {
                 btn.onclick = (e) => {
                     e.stopPropagation();
-                    const loggedName = (users[window.loggedInUser]?.name || '').toLowerCase();
-                    if (loggedName === '@usuario_glance') {
-                        showMessageBox('Conclua seu perfil para liberar seguidores!');
-                        return;
-                    }
-                    const isFollowing = window.userFollowing[window.loggedInUser][targetUser];
-                    if (!isFollowing) {
-                        window.userFollowing[window.loggedInUser][targetUser] = true;
-                        users[targetUser].followers = (users[targetUser].followers || 0) + 1;
-                        btn.textContent = 'Seguindo';
-                        btn.classList.remove('bg-blue-500');
-                        btn.classList.add('bg-green-500');
-                    } else {
-                        window.userFollowing[window.loggedInUser][targetUser] = false;
-                        users[targetUser].followers = Math.max(0, (users[targetUser].followers || 1) - 1);
-                        btn.textContent = 'Seguir';
-                        btn.classList.remove('bg-green-500');
-                        btn.classList.add('bg-blue-500');
-                    }
-                    // Atualiza número de seguidores em tempo real se houver elemento
-                    const followersCountEl = document.getElementById('profile-followers-count');
-                    if (followersCountEl && targetUser === window.viewingProfile) {
-                        followersCountEl.textContent = users[targetUser].followers;
-                    }
+                    btn.textContent = btn.textContent === 'Seguir' ? 'Seguindo' : 'Seguir';
+                    btn.classList.toggle('bg-blue-500');
+                    btn.classList.toggle('bg-green-500');
                 };
             });
             // Botão de comentar
