@@ -159,7 +159,12 @@
         <div data-page="feed" class="page flex-col items-center justify-start p-4 pt-16 h-full scroll-container">
             <!-- Logo Glance animada fixa no canto superior esquerdo -->
             <div class="fixed left-6 top-6 z-50 select-none pointer-events-none">
-                <span class="glance-logo-breath text-3xl text-black dark:text-white drop-shadow-lg">Glance</span>
+                <!-- Barra fixa estilo Instagram para o logo Glance -->
+                <div id="glance-logo-bar" class="w-full fixed top-0 left-0 z-40 bg-white dark:bg-gray-900 shadow-md flex items-center justify-center h-14" style="display:none;">
+                    <span class="text-3xl font-[cursive] text-blue-600" style="font-family: 'Pacifico', 'Caveat', cursive;">Glance</span>
+                </div>
+    <!-- Fonte manuscrita para logo -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Caveat&display=swap" rel="stylesheet">
             </div>
             <div id="feed-scroll-container" class="w-full max-w-md space-y-8 flex flex-col items-center">
                 <!-- Conteúdo do feed será gerado aqui pelo JavaScript -->
@@ -296,21 +301,23 @@
         <!-- Navegação Principal (Menu Base) -->
         <div id="main-nav" class="fixed bottom-0 left-0 w-full bg-white/30 dark:bg-black/30 border-t-2 border-gray-200 dark:border-gray-800 rounded-t-3xl shadow-2xl backdrop-blur-xl transition-all duration-300 z-50">
             <div class="flex justify-around items-center h-16">
-                <button onclick="showPage('feed')" data-icon="👀" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
-                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">👀</span>
-                </button>
-                <button onclick="showPage('explore')" data-icon="🔍" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
-                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">🔍</span>
-                </button>
-                <button onclick="showPage('create')" data-icon="➕" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
-                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">➕</span>
-                </button>
-                <button onclick="showPage('communities')" data-icon="🎭" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
-                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">🎭</span>
-                </button>
-                <button onclick="showPage('profile')" data-icon="👤" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
-                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">👤</span>
-                </button>
+                <div class="flex flex-wrap justify-between items-center w-full">
+                    <button onclick="showPage('feed')" class="nav-btn p-2 m-1 rounded-full bg-white dark:bg-white hover:bg-blue-100 transition-colors duration-200 shadow-lg min-w-[48px] max-w-[80px] flex-1 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    </button>
+                    <button onclick="showPage('explore')" class="nav-btn p-2 m-1 rounded-full bg-white dark:bg-white hover:bg-blue-100 transition-colors duration-200 shadow-lg min-w-[48px] max-w-[80px] flex-1 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" fill="none"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2"/></svg>
+                    </button>
+                    <button onclick="showPage('create')" class="nav-btn p-2 m-1 rounded-full bg-white dark:bg-white hover:bg-blue-100 transition-colors duration-200 shadow-lg min-w-[48px] max-w-[80px] flex-1 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7"><line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/></svg>
+                    </button>
+                    <button onclick="showPage('communities')" class="nav-btn p-2 m-1 rounded-full bg-white dark:bg-white hover:bg-blue-100 transition-colors duration-200 shadow-lg min-w-[48px] max-w-[80px] flex-1 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7"><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="8.5" cy="10.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="10.5" r="1.5" fill="currentColor"/><path d="M8 16c1.333-1 4.667-1 6 0" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                    </button>
+                    <button onclick="showPage('profile')" class="nav-btn p-2 m-1 rounded-full bg-white dark:bg-white hover:bg-blue-100 transition-colors duration-200 shadow-lg min-w-[48px] max-w-[80px] flex-1 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 20c0-2.667 5.333-4 8-4s8 1.333 8 4" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -481,6 +488,225 @@
         }
         // Intercepta cadastro para ir ao onboarding
         document.addEventListener('DOMContentLoaded', function() {
+            // Validação absoluta: bloqueia submit se houver campo vazio
+            function blockAllEmptyFormSubmits() {
+                document.querySelectorAll('[data-page="signup_form"] form, [data-page="login_form"] form').forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        const inputs = form.querySelectorAll('input');
+                        let valid = true;
+                        inputs.forEach(input => {
+                            if (!input.value.trim()) {
+                                valid = false;
+                                input.classList.add('border-red-500');
+                            } else {
+                                input.classList.remove('border-red-500');
+                            }
+                        });
+                        if (!valid) {
+                            if (typeof showMessageBox === 'function') {
+                                showMessageBox('Preencha todos os campos para continuar.');
+                            }
+                            e.preventDefault();
+                            e.stopPropagation();
+                            return false;
+                        }
+                    }, true);
+                });
+            }
+            blockAllEmptyFormSubmits();
+            // Validação global para todos os formulários de login/cadastro
+            document.querySelectorAll('form').forEach(form => {
+                if (form.closest('[data-page="signup_form"]') || form.closest('[data-page="login_form"]')) {
+                    form.addEventListener('submit', function(e) {
+                        const inputs = form.querySelectorAll('input');
+                        let valid = true;
+                        inputs.forEach(input => {
+                            if (!input.value.trim()) {
+                                valid = false;
+                                input.classList.add('border-red-500');
+                            } else {
+                                input.classList.remove('border-red-500');
+                            }
+                        });
+                        if (!valid) {
+                            if (typeof showMessageBox === 'function') {
+                                showMessageBox('Preencha todos os campos para continuar.');
+                            }
+                            e.preventDefault();
+                            return false;
+                        }
+                    });
+                }
+            });
+
+            // Ao cadastrar, já atualiza nome do perfil
+            const signupForm = document.querySelector('[data-page="signup_form"] form');
+            if (signupForm) {
+                signupForm.addEventListener('submit', function(e) {
+                    const nameInput = signupForm.querySelector('input[type="text"]');
+                    if (nameInput && nameInput.value.trim()) {
+                        if (window.loggedInUser && users[window.loggedInUser]) {
+                            users[window.loggedInUser].name = nameInput.value.trim();
+                        }
+                    }
+                });
+            }
+            // Validação simples: só passa se todos os campos estiverem preenchidos
+            function blockIfEmpty(formSelector) {
+                const form = document.querySelector(formSelector);
+                if (!form) return;
+                form.addEventListener('submit', function(e) {
+                    const inputs = form.querySelectorAll('input');
+                    let valid = true;
+                    inputs.forEach(input => {
+                        if (!input.value.trim()) {
+                            valid = false;
+                            input.classList.add('border-red-500');
+                        } else {
+                            input.classList.remove('border-red-500');
+                        }
+                    });
+                    if (!valid) {
+                        if (typeof showMessageBox === 'function') {
+                            showMessageBox('Preencha todos os campos para continuar.');
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+            blockIfEmpty('[data-page="signup_form"] form');
+            blockIfEmpty('[data-page="login_form"] form');
+            // Validação robusta nos formulários de login e cadastro
+            function validateFormOnSubmit(formSelector, requiredSelectors, emailSelector) {
+                const form = document.querySelector(formSelector);
+                if (!form) return;
+                form.addEventListener('submit', function(e) {
+                    let valid = true;
+                    let emailValid = true;
+                    requiredSelectors.forEach(sel => {
+                        const input = form.querySelector(sel);
+                        if (!input || !input.value.trim()) {
+                            valid = false;
+                            if (input) input.classList.add('border-red-500');
+                        } else {
+                            input.classList.remove('border-red-500');
+                        }
+                    });
+                    if (emailSelector) {
+                        const emailInput = form.querySelector(emailSelector);
+                        if (!emailInput || !emailInput.value.trim().endsWith('@gmail.com')) {
+                            emailValid = false;
+                            if (emailInput) emailInput.classList.add('border-red-500');
+                        } else {
+                            emailInput.classList.remove('border-red-500');
+                        }
+                    }
+                    if (!valid || !emailValid) {
+                        if (typeof showMessageBox === 'function') {
+                            showMessageBox('Preencha todos os campos corretamente. O email deve terminar com @gmail.com');
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+            // Ajuste os seletores conforme seu HTML real
+            validateFormOnSubmit('[data-page="signup_form"] form', ['input[type="text"]', 'input[type="email"]', 'input[type="password"]'], 'input[type="email"]');
+            validateFormOnSubmit('[data-page="login_form"] form', ['input[type="email"]', 'input[type="password"]'], 'input[type="email"]');
+            // Validação direta dos botões de login/cadastro
+            // Cadastro
+            const signupFormBtn = document.querySelector('[data-page="signup_form"] button[type="submit"], [data-page="signup_form"] .signup-btn');
+            if (signupFormBtn) {
+                signupFormBtn.onclick = function(e) {
+                    const inputs = document.querySelectorAll('[data-page="signup_form"] input');
+                    let valid = true;
+                    let emailValid = false;
+                    inputs.forEach(input => {
+                        if (!input.value.trim()) {
+                            valid = false;
+                            input.classList.add('border-red-500');
+                        } else {
+                            input.classList.remove('border-red-500');
+                        }
+                        if (input.type === 'email') {
+                            emailValid = input.value.trim().endsWith('@gmail.com');
+                            if (!emailValid) input.classList.add('border-red-500');
+                        }
+                    });
+                    if (!valid || !emailValid) {
+                        if (typeof showMessageBox === 'function') {
+                            showMessageBox('Preencha todos os campos corretamente. O email deve terminar com @gmail.com');
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                };
+            }
+            // Login
+            const loginFormBtn = document.querySelector('[data-page="login_form"] button[type="submit"], [data-page="login_form"] .login-btn');
+            if (loginFormBtn) {
+                loginFormBtn.onclick = function(e) {
+                    const inputs = document.querySelectorAll('[data-page="login_form"] input');
+                    let valid = true;
+                    let emailValid = false;
+                    inputs.forEach(input => {
+                        if (!input.value.trim()) {
+                            valid = false;
+                            input.classList.add('border-red-500');
+                        } else {
+                            input.classList.remove('border-red-500');
+                        }
+                        if (input.type === 'email') {
+                            emailValid = input.value.trim().endsWith('@gmail.com');
+                            if (!emailValid) input.classList.add('border-red-500');
+                        }
+                    });
+                    if (!valid || !emailValid) {
+                        if (typeof showMessageBox === 'function') {
+                            showMessageBox('Preencha todos os campos corretamente. O email deve terminar com @gmail.com');
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                };
+            }
+            // Validação de login e cadastro
+            function validateForm(formId, requiredFields, emailField) {
+                const form = document.getElementById(formId);
+                if (!form) return;
+                form.onsubmit = function(e) {
+                    let valid = true;
+                    requiredFields.forEach(id => {
+                        const input = document.getElementById(id);
+                        if (!input || !input.value.trim()) {
+                            valid = false;
+                            input.classList.add('border-red-500');
+                        } else {
+                            input.classList.remove('border-red-500');
+                        }
+                    });
+                    if (emailField) {
+                        const emailInput = document.getElementById(emailField);
+                        if (emailInput && !emailInput.value.trim().endsWith('@gmail.com')) {
+                            valid = false;
+                            emailInput.classList.add('border-red-500');
+                        } else if (emailInput) {
+                            emailInput.classList.remove('border-red-500');
+                        }
+                    }
+                    if (!valid) {
+                        if (typeof showMessageBox === 'function') {
+                            showMessageBox('Preencha todos os campos corretamente. O email deve terminar com @gmail.com');
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                };
+            }
+            // Exemplo: ajuste os IDs conforme seu HTML
+            validateForm('login-form', ['login-email', 'login-password'], 'login-email');
+            validateForm('signup-form', ['signup-name', 'signup-email', 'signup-password'], 'signup-email');
             // Mensagem para todos os botões de comunidades
             function bindCommunitiesBtns() {
                 document.querySelectorAll('[id*="communities"], .communities-btn').forEach(btn => {
@@ -777,9 +1003,9 @@
                     uploadedTextContent = null;
                 };
             }
-            const signupBtn = document.getElementById('signup-btn');
-            if (signupBtn) {
-                signupBtn.onclick = function() {
+            const signupPageBtn = document.getElementById('signup-btn');
+            if (signupPageBtn) {
+                signupPageBtn.onclick = function() {
                     showPage('onboarding');
                 };
             }
@@ -793,6 +1019,72 @@
             }
         });
         // ...existing code...
+// Modal de recorte de vídeo
+function showVideoTrimModal(file, onTrimmed) {
+    let oldModal = document.getElementById('video-trim-modal');
+    if (oldModal) oldModal.remove();
+    const url = URL.createObjectURL(file);
+    const modal = document.createElement('div');
+    modal.id = 'video-trim-modal';
+    modal.className = 'fixed inset-0 z-[600] flex items-center justify-center bg-black/80 backdrop-blur-2xl';
+    modal.innerHTML = `
+        <div class='w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-2xl flex flex-col items-center relative'>
+            <button id='close-trim-modal' class='absolute top-4 right-4 bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg'>
+                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-6 h-6'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12' /></svg>
+            </button>
+            <h2 class='text-xl font-bold mb-4 text-center text-black dark:text-white'>Recorte seu vídeo (máx. 30s)</h2>
+            <video id='trim-video' src='${url}' controls class='w-full rounded-xl mb-4'></video>
+            <div class='flex flex-col w-full mb-4'>
+                <label class='text-sm font-semibold mb-1 text-black dark:text-white'>Início (segundos): <input type='number' id='trim-start' min='0' value='0' class='w-16 p-1 rounded border'/></label>
+                <label class='text-sm font-semibold mb-1 text-black dark:text-white'>Fim (segundos): <input type='number' id='trim-end' min='1' value='30' class='w-16 p-1 rounded border'/></label>
+                <span id='trim-warning' class='text-xs text-red-500 mt-1 hidden'>O trecho não pode passar de 30 segundos.</span>
+            </div>
+            <button id='trim-confirm-btn' class='w-full py-3 px-6 bg-blue-500 text-white font-semibold rounded-xl shadow-lg hover:bg-blue-600 transition-all duration-200'>Recortar e Publicar</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.querySelector('#close-trim-modal').onclick = () => { modal.remove(); URL.revokeObjectURL(url); };
+    const video = modal.querySelector('#trim-video');
+    const startInput = modal.querySelector('#trim-start');
+    const endInput = modal.querySelector('#trim-end');
+    const warning = modal.querySelector('#trim-warning');
+    endInput.oninput = startInput.oninput = () => {
+        let start = parseFloat(startInput.value);
+        let end = parseFloat(endInput.value);
+        if (end - start > 30) {
+            warning.classList.remove('hidden');
+            endInput.value = start + 30;
+        } else {
+            warning.classList.add('hidden');
+        }
+        if (end > video.duration) endInput.value = Math.floor(video.duration);
+        if (start < 0) startInput.value = 0;
+        if (start >= end) startInput.value = end - 1;
+    };
+    video.onloadedmetadata = () => {
+        endInput.max = Math.floor(video.duration);
+        if (video.duration < 30) endInput.value = Math.floor(video.duration);
+    };
+    modal.querySelector('#trim-confirm-btn').onclick = async () => {
+        let start = parseFloat(startInput.value);
+        let end = parseFloat(endInput.value);
+        if (end - start > 30) return;
+        // Recorte simples: só envia os tempos, recorte real precisa backend ou ffmpeg.js
+        modal.remove();
+        URL.revokeObjectURL(url);
+        if (onTrimmed) onTrimmed({file, start, end});
+    };
+}
+// Exemplo de uso: ao selecionar vídeo para upload
+// document.getElementById('upload-video-input').onchange = function(e) {
+//     const file = e.target.files[0];
+//     if (file) {
+//         showVideoTrimModal(file, ({file, start, end}) => {
+//             // Aqui você pode enviar o arquivo e os tempos para o backend ou usar ffmpeg.js para recortar no frontend
+//             // publishVideo(file, start, end);
+//         });
+//     }
+// };
         // Pesquisa de pessoas e publicações
         const searchBar = document.getElementById('search-bar');
         const searchBtn = document.getElementById('search-btn');
@@ -838,6 +1130,15 @@
         const navBar = document.getElementById('main-nav');
 
         function showPage(pageName, username = window.loggedInUser, animation = 'fade-in') {
+            // Mostra/esconde barra fixa do logo só no feed
+            const logoBar = document.getElementById('glance-logo-bar');
+            if (logoBar) {
+                if (pageName === 'feed') {
+                    logoBar.style.display = '';
+                } else {
+                    logoBar.style.display = 'none';
+                }
+            }
             const currentPage = document.querySelector('.page.active');
             const newPage = document.querySelector(`[data-page="${pageName}"]`);
             if (currentPage === newPage) return;
@@ -906,9 +1207,34 @@
             }
             profileAvatar.src = profile.avatar;
                 document.getElementById('profile-avatar-full').src = profile.avatar;
+            function formatNumber(n) {
+                if (n >= 1e9) return (n/1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+                if (n >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+                if (n >= 1e3) return (n/1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+                return n;
+            }
             profilePostsCount.textContent = profile.posts;
-            profileFollowersCount.textContent = profile.followers;
-            profileFollowingCount.textContent = profile.following;
+            profileFollowersCount.textContent = formatNumber(profile.followers);
+            profileFollowingCount.textContent = formatNumber(profile.following);
+            // Esconde/mostra barra de navegação no feed conforme scroll
+            let lastScrollTop = 0;
+            const navBar = document.getElementById('main-nav');
+            const feedContainer = document.getElementById('feed-scroll-container');
+            if (feedContainer && navBar) {
+                feedContainer.addEventListener('scroll', function() {
+                    const st = feedContainer.scrollTop;
+                    if (st > lastScrollTop + 10) {
+                        navBar.style.transform = 'translateY(100%)';
+                    } else if (st < lastScrollTop - 10) {
+                        navBar.style.transform = 'translateY(0)';
+                    }
+                    lastScrollTop = st;
+                });
+                // Garante que a barra aparece ao entrar no feed
+                feedContainer.addEventListener('mouseenter', function() {
+                    navBar.style.transform = 'translateY(0)';
+                });
+            }
             
             // Botão de seguir no perfil
             const followProfileContainer = document.getElementById('follow-profile-container');
@@ -965,11 +1291,57 @@
         
         // Função para gerar o conteúdo do feed dinamicamente
         function generateFeedContent() {
+            // Função para abrir post em tela cheia
+            function showFullPost(postIdx) {
+                let oldModal = document.getElementById('fullpost-modal');
+                if (oldModal) oldModal.remove();
+                const post = posts[postIdx];
+                const modal = document.createElement('div');
+                modal.id = 'fullpost-modal';
+                modal.className = 'fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-2xl';
+                modal.innerHTML = `
+                    <div class='fixed top-4 left-4 z-50'>
+                        <button id='close-fullpost-btn' class='bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg'>
+                            <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' /></svg>
+                        </button>
+                    </div>
+                    <div class='w-full h-full flex flex-col items-center justify-center overflow-y-auto pt-20'>
+                        ${post.type === 'video' ? `<div class='relative w-full flex flex-col items-center justify-center'><div class='flex items-center justify-center w-full' style='background:black;'><video id='fullpost-video' src='${post.media}' controls autoplay playsinline style='width:100vw;max-width:420px;height:80vh;max-height:80vh;aspect-ratio:9/16;display:block;margin:auto;background:black;' class='rounded-xl object-contain'></video></div><div class='w-full max-w-md mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center text-white'>${users[post.user].name || '@'+post.user}</h2><p class='text-base text-white mb-2'>${post.text}</p></div></div>` : ''}
+                        ${post.type === 'image' ? `<img src='${post.media}' class='w-full max-h-[80vh] rounded-xl object-contain' /><div class='w-full max-w-md mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center text-white'>${users[post.user].name || '@'+post.user}</h2><p class='text-base text-white mb-2'>${post.text}</p></div>` : ''}
+                        ${post.type === 'audio' ? `<div class='w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-2xl flex flex-col items-center'><audio id='fullpost-audio' src='${post.media}' controls autoplay class='w-full'></audio><div class='w-full mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center' style='color:#fff;'>${users[post.user].name || '@'+post.user}</h2><p class='text-base mb-2' style='color:#fff !important;'>${post.text}</p></div></div>` : ''}
+                        ${post.type === 'text' ? `<div class='w-full max-w-md bg-gray-200 dark:bg-gray-800 p-4 rounded-xl'><pre>${post.text}</pre></div>` : ''}
+                        ${post.type !== 'image' ? `<div class='w-full max-w-md mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center text-black dark:text-white'>${users[post.user].name || '@'+post.user}</h2><p class='text-base text-black dark:text-white mb-2'>${post.text}</p></div>` : ''}
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                // Seta sempre visível e funcional
+                modal.querySelector('#close-fullpost-btn').onclick = () => modal.remove();
+                // Garante reprodução do vídeo/audio
+                setTimeout(() => {
+                    const vid = modal.querySelector('#fullpost-video');
+                    if (vid) {
+                        vid.currentTime = 0;
+                        vid.play();
+                    }
+                    const aud = modal.querySelector('#fullpost-audio');
+                    if (aud) {
+                        aud.currentTime = 0;
+                        aud.play();
+                    }
+                }, 200);
+            }
             const feedContainer = document.getElementById('feed-scroll-container');
             if (!feedContainer) return;
             feedContainer.innerHTML = '';
             if (posts.length === 0) return;
             const reversedPosts = posts.slice().reverse();
+            // Função para formatar número grande
+            function formatNumber(n) {
+                if (n >= 1e9) return (n/1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+                if (n >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+                if (n >= 1e3) return (n/1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+                return n;
+            }
             reversedPosts.forEach((post, idx) => {
                 const isOwnPost = post.user === window.loggedInUser;
                 const postElement = document.createElement('div');
@@ -1022,7 +1394,7 @@
                             <span class="text-xs text-gray-200 dark:text-gray-700">@${post.user}</span>
                         </div>
                     </div>
-                    <button class="follow-btn absolute top-4 right-4 bg-blue-500 text-white text-xs font-semibold rounded-full px-4 py-1 shadow-md hover:bg-blue-600 transition-all duration-200" style="${isOwnPost ? 'display:none;' : ''}">Seguir</button>
+                    <button class="follow-btn absolute top-4 right-4 bg-blue-500 text-white text-base font-semibold rounded-full px-6 py-3 shadow-md hover:bg-blue-600 transition-all duration-200" style="${isOwnPost ? 'display:none;' : ''}">Seguir</button>
                     <div class="relative z-10 flex flex-col space-y-4">
                         <div class="bg-black/50 dark:bg-white/50 text-white dark:text-black p-4 rounded-xl shadow-inner backdrop-blur-md">
                             <p class="text-sm">${post.text}</p>
@@ -1030,26 +1402,26 @@
                         <div class="flex justify-end space-x-4 items-center">
                             <!-- Botão Olhos com contador -->
                             <button class="reaction-btn reaction-views text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full border border-blue-300 shadow-md p-2 flex items-center ${userViews[window.loggedInUser] && userViews[window.loggedInUser][postIdx] ? 'bg-green-400 text-white' : 'bg-white/60 dark:bg-black/60'}" title="Olhei">
-                                <span class="text-2xl">👀</span>
-                                <span class="ml-1 text-base font-bold">${post.reactions.views}</span>
+                                <span class="text-lg sm:text-xl md:text-2xl">👀</span>
+                                <span class="ml-1 text-base font-bold">${formatNumber(post.reactions.views)}</span>
                             </button>
                             <button class="reaction-btn reaction-likes text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full border border-red-300 shadow-md p-2 flex items-center ${userLikes[postIdx] ? 'bg-red-500 text-white' : 'bg-white/60 dark:bg-black/60'}" title="Amei">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="${userLikes[postIdx] ? 'red' : 'none'}" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="${userLikes[postIdx] ? 'red' : 'none'}" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
                                     <path stroke="currentColor" stroke-width="2" d="M12 21C12 21 4 13.5 4 8.5C4 5.5 6.5 4 8.5 4C10.5 4 12 6 12 6C12 6 13.5 4 15.5 4C17.5 4 20 5.5 20 8.5C20 13.5 12 21 12 21Z" />
                                 </svg>
-                                <span class="ml-1 text-base font-bold">${post.reactions.likes}</span>
+                                <span class="ml-1 text-base font-bold">${formatNumber(post.reactions.likes)}</span>
                             </button>
                             <button class="reaction-btn reaction-shares text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center" title="Re-glance">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
                                     <path stroke="currentColor" stroke-width="2" d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" />
                                     <polyline points="16 6 12 2 8 6" stroke="currentColor" stroke-width="2" fill="none" />
                                     <line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" stroke-width="2" />
                                 </svg>
-                                <span class="ml-1 text-base font-bold">${post.reactions.shares}</span>
+                                <span class="ml-1 text-base font-bold">${formatNumber(post.reactions.shares)}</span>
                             </button>
                             <!-- Comentar -->
-                            <button class="comment-btn ml-2 text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center" title="Comentar" data-postidx="${postIdx}">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7">
+                            <button class="comment-btn ml-2 text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full border border-red-300 shadow-md p-2 flex items-center ${postComments[postIdx] && postComments[postIdx].some(c => c.user === window.loggedInUser) ? 'bg-green-500 text-white' : 'bg-white/60 dark:bg-black/60'}" title="Comentar" data-postidx="${postIdx}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
                                     <path stroke="currentColor" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
                                 </svg>
                             </button>
@@ -1057,6 +1429,12 @@
                         ${commentsHtml}
                     </div>
                 `;
+                // Clique no post abre em tela cheia
+                postElement.onclick = function(e) {
+                    // Evita abrir ao clicar em botões internos
+                    if (e.target.closest('.reaction-btn') || e.target.closest('.comment-btn') || e.target.closest('.follow-btn')) return;
+                    showFullPost(postIdx);
+                };
                 feedContainer.appendChild(postElement);
             });
             // Delegação para botões de perfil e reações
@@ -1176,6 +1554,7 @@
                 }
                 const text = document.getElementById('comment-input').value.trim();
                 if (text) {
+                    if (!postComments[postIdx]) postComments[postIdx] = [];
                     postComments[postIdx].push({ user: user, text });
                     modal.remove();
                     generateFeedContent();
@@ -1183,12 +1562,50 @@
             };
         }
             // Botão de seguir
-            feedContainer.querySelectorAll('.follow-btn').forEach(btn => {
+            // Estado de seguidores por usuário logado
+            if (!window.userFollowing) window.userFollowing = {};
+            feedContainer.querySelectorAll('.follow-btn').forEach((btn, idx) => {
+                // Usa o índice do post para identificar o usuário da publicação
+                const post = reversedPosts[idx];
+                const targetUser = post.user;
+                // Estado inicial do botão
+                if (!window.userFollowing) window.userFollowing = {};
+                if (!window.userFollowing[window.loggedInUser]) window.userFollowing[window.loggedInUser] = {};
+                if (window.userFollowing[window.loggedInUser][targetUser]) {
+                    btn.textContent = 'Seguindo';
+                    btn.classList.remove('bg-blue-500');
+                    btn.classList.add('bg-green-500');
+                } else {
+                    btn.textContent = 'Seguir';
+                    btn.classList.remove('bg-green-500');
+                    btn.classList.add('bg-blue-500');
+                }
                 btn.onclick = (e) => {
                     e.stopPropagation();
-                    btn.textContent = btn.textContent === 'Seguir' ? 'Seguindo' : 'Seguir';
-                    btn.classList.toggle('bg-blue-500');
-                    btn.classList.toggle('bg-green-500');
+                    const loggedName = (users[window.loggedInUser]?.name || '').toLowerCase();
+                    if (loggedName === '@usuario_glance') {
+                        showMessageBox('Conclua seu perfil para liberar seguidores!');
+                        return;
+                    }
+                    const isFollowing = window.userFollowing[window.loggedInUser][targetUser];
+                    if (!isFollowing) {
+                        window.userFollowing[window.loggedInUser][targetUser] = true;
+                        users[targetUser].followers = (users[targetUser].followers || 0) + 1;
+                        btn.textContent = 'Seguindo';
+                        btn.classList.remove('bg-blue-500');
+                        btn.classList.add('bg-green-500');
+                    } else {
+                        window.userFollowing[window.loggedInUser][targetUser] = false;
+                        users[targetUser].followers = Math.max(0, (users[targetUser].followers || 1) - 1);
+                        btn.textContent = 'Seguir';
+                        btn.classList.remove('bg-green-500');
+                        btn.classList.add('bg-blue-500');
+                    }
+                    // Atualiza número de seguidores em tempo real se houver elemento
+                    const followersCountEl = document.getElementById('profile-followers-count');
+                    if (followersCountEl && targetUser === window.viewingProfile) {
+                        followersCountEl.textContent = users[targetUser].followers;
+                    }
                 };
             });
             // Botão de comentar
