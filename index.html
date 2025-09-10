@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glance - Veja o mundo em um só olhar.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Animação de respiração para o logo Glance */
+        @keyframes breathing {
+            0%   { transform: scale(1);   opacity: 1; }
+            25%  { transform: scale(0.96); opacity: 0.92; }
+            50%  { transform: scale(0.92); opacity: 0.85; }
+            75%  { transform: scale(1.04); opacity: 0.92; }
+            100% { transform: scale(1);   opacity: 1; }
+        }
+        .glance-logo-breath {
+            animation: breathing 2s infinite;
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            transition: background-color 0.3s ease; 
+        }
+        .page { 
+            display: none; 
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .page.active { 
+            display: flex; 
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .fade-out { animation: fadeOut 0.5s ease-out forwards; }
+        .slide-in { animation: slideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .bounce-icon { animation: bounceIcon 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .pulse-btn { animation: pulseBtn 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes bounceIcon { from { transform: scale(1); } 50% { transform: scale(1.2); } to { transform: scale(1); } }
+        @keyframes pulseBtn { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
+
+        /* Estilos específicos para o feed para permitir rolagem */
+        .scroll-container {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-black text-black dark:text-white transition-colors duration-300 h-screen">
+    <!-- Barra de pesquisa no topo, inicialmente oculta -->
+    <div id="search-bar-container" class="w-full flex items-center justify-center py-4 px-4 bg-white dark:bg-gray-900 shadow-md sticky top-0 z-40 hidden">
+        <input id="search-bar" type="text" placeholder="Pesquisar pessoas ou publicações..." class="w-full max-w-lg p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+        <button id="search-btn" class="ml-2 bg-blue-500 text-white rounded-full px-4 py-2 font-semibold">Buscar</button>
+    </div>
+
+    <!-- Modal Liquid Glass de Boas-Vindas -->
+    <div data-page="welcome" class="page fixed inset-0 z-[100] items-center justify-center transition-all duration-500" style="display:none; backdrop-filter: blur(16px); background: rgba(255,255,255,0.12);">
+        <div class="w-full max-w-md bg-white/30 dark:bg-black/30 rounded-3xl shadow-2xl backdrop-blur-2xl border border-white/40 dark:border-black/40 p-8 flex flex-col items-center relative" style="box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);">
+            <h2 class="text-3xl font-extrabold mb-4 text-center text-black dark:text-white drop-shadow-lg">Você concluiu o cadastro com sucesso!</h2>
+            <p class="text-lg mb-6 text-gray-800 dark:text-gray-200 text-center font-medium">Bem-vindo(a) ao Glance, a rede social para compartilhar olhares rápidos sobre o mundo.<br><br>
+            Aqui você pode publicar fotos, vídeos, textos e áudios, seguir pessoas e reagir aos posts de forma única.<br><br>
+            <span class="font-semibold">Como funcionam as reações?</span><br>
+            <span class="inline-block mt-2 mb-2 p-2 rounded-xl bg-white/60 dark:bg-black/60 backdrop-blur-md shadow border border-white/30 dark:border-black/30">👀 Olhei</span>
+            <span class="inline-block mt-2 mb-2 p-2 rounded-xl bg-white/60 dark:bg-black/60 backdrop-blur-md shadow border border-white/30 dark:border-black/30">❤️ Amei</span>
+            <span class="inline-block mt-2 mb-2 p-2 rounded-xl bg-white/60 dark:bg-black/60 backdrop-blur-md shadow border border-white/30 dark:border-black/30">🔁 Re-glance</span>
+            <br>
+            Use o botão de comentário para conversar e o botão de seguir para acompanhar outros olhares.<br><br>
+            Explore, compartilhe e descubra!</p>
+            <button id="welcome-understood-btn" class="absolute bottom-6 right-6 py-3 px-8 bg-blue-500/80 text-white font-semibold rounded-2xl shadow-lg hover:bg-blue-600/90 transition-all duration-200 border border-white/30 dark:border-black/30" style="backdrop-filter: blur(4px);">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Container Principal do Aplicativo -->
+    <div id="app" class="relative w-full h-full">
+        
+        <!-- Tela de Abertura / Login -->
+        <div data-page="login" class="page active flex-col items-center justify-center p-8 text-center transition-all duration-500">
+            <h1 class="text-6xl font-extrabold mb-4 animate-fade-in">Glance</h1>
+            <p class="text-xl italic font-light mb-8 animate-fade-in delay-100">“Veja o mundo em um só olhar.”</p>
+            <div class="space-y-4 w-full max-w-sm animate-fade-in delay-200">
+                <button onclick="showPage('signup_form')" class="w-full py-4 px-6 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Criar Conta</button>
+                <button onclick="showPage('login_form')" class="w-full py-4 px-6 border-2 border-black dark:border-white text-black dark:text-white font-semibold rounded-2xl transition-transform transform hover:scale-105 duration-200">Entrar</button>
+            </div>
+        </div>
+
+        <!-- Formulário de Cadastro -->
+        <div data-page="signup_form" class="page flex-col items-center justify-center p-8 transition-all duration-500">
+            <h2 class="text-3xl font-bold mb-6 text-center text-black dark:text-white">Criar Sua Conta</h2>
+            <div class="w-full max-w-sm space-y-4">
+                <input type="text" placeholder="Nome completo" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                <input type="text" placeholder="Nome de usuário" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                <input type="email" placeholder="E-mail" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                <input type="password" placeholder="Senha" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                <button id="signup-btn" class="w-full py-4 px-6 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Cadastrar</button>
+            </div>
+            <p class="mt-4 text-center text-black dark:text-white">Já tem uma conta? <button onclick="showPage('login_form')" class="underline font-semibold">Entrar</button></p>
+        </div>
+
+        <!-- Formulário de Login -->
+        <div data-page="login_form" class="page flex-col items-center justify-center p-8 transition-all duration-500">
+            <h2 class="text-3xl font-bold mb-6 text-center text-black dark:text-white">Entrar</h2>
+            <div class="w-full max-w-sm space-y-4">
+                <input type="email" placeholder="E-mail ou nome completo" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                <input type="password" placeholder="Senha" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                <button onclick="showPage('feed')" class="w-full py-4 px-6 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Entrar</button>
+            </div>
+            <p class="mt-4 text-center text-black dark:text-white">Não tem uma conta? <button onclick="showPage('signup_form')" class="underline font-semibold">Criar Conta</button></p>
+        </div>
+
+        <!-- Tela de Onboarding (Carrossel) -->
+        <div data-page="onboarding" class="page flex-col items-center justify-center p-8 transition-all duration-500">
+            <div id="onboard-container" class="relative w-full h-full max-w-sm overflow-hidden">
+                <!-- Slide 1 -->
+                <div data-onboard-page="1" class="absolute onboard-slide w-full h-full flex flex-col items-center justify-center text-center transition-opacity duration-500">
+                    <div class="bg-blue-300 dark:bg-blue-700 w-48 h-48 rounded-full mb-8 animate-bounce"></div>
+                    <h2 class="text-3xl font-bold mb-4 text-black dark:text-white">Bem-vindo(a) ao Glance</h2>
+                    <p class="text-lg font-light text-gray-700 dark:text-gray-300">Descubra o mundo através de olhares rápidos, compartilhados por todos.</p>
+                </div>
+                <!-- Slide 2 -->
+                <div data-onboard-page="2" class="absolute onboard-slide w-full h-full flex flex-col items-center justify-center text-center opacity-0 transition-opacity duration-500">
+                    <div class="bg-green-300 dark:bg-green-700 w-48 h-48 rounded-full mb-8 animate-bounce-in-left"></div>
+                    <h2 class="text-3xl font-bold mb-4 text-black dark:text-white">Seu Modo, Suas Cores</h2>
+                    <p class="text-lg font-light text-gray-700 dark:text-gray-300">Escolha seu tema preferido: claro ou escuro. Você pode mudar a qualquer momento.</p>
+                </div>
+                <!-- Slide 3 -->
+                <div data-onboard-page="3" class="absolute onboard-slide w-full h-full flex flex-col items-center justify-center text-center opacity-0 transition-opacity duration-500">
+                    <div class="bg-purple-300 dark:bg-purple-700 w-48 h-48 rounded-full mb-8 animate-bounce-in-right"></div>
+                    <h2 class="text-3xl font-bold mb-4 text-black dark:text-white">Compartilhe Seu Olhar</h2>
+                    <p class="text-lg font-light text-gray-700 dark:text-gray-300">Crie glances com fotos, vídeos, textos ou áudios e conecte-se com comunidades.</p>
+                </div>
+            </div>
+            <button id="onboard-next" class="mt-8 py-4 px-12 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Próximo</button>
+        </div>
+        
+        <!-- Tela de Onboarding - Escolha de Tema e Interesses -->
+        <div data-page="onboarding-final" class="page flex-col items-center justify-center p-8 transition-all duration-500">
+            <h2 class="text-3xl font-bold text-center mb-6 text-black dark:text-white">Comece sua Jornada</h2>
+            <div class="flex flex-wrap justify-center gap-2 mb-8">
+                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">Tecnologia</button>
+                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">Viagem</button>
+                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">Arte</button>
+                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">Música</button>
+            </div>
+            <button id="onboarding-final-btn" class="py-4 px-12 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Começar!</button>
+        </div>
+
+        <!-- Tela Principal - Feed -->
+        <div data-page="feed" class="page flex-col items-center justify-start p-4 pt-16 h-full scroll-container">
+            <!-- Logo Glance animada fixa no canto superior esquerdo -->
+            <div class="fixed left-6 top-6 z-50 select-none pointer-events-none">
+                <span class="glance-logo-breath text-3xl text-black dark:text-white drop-shadow-lg">Glance</span>
+            </div>
+            <div id="feed-scroll-container" class="w-full max-w-md space-y-8 flex flex-col items-center">
+                <!-- Conteúdo do feed será gerado aqui pelo JavaScript -->
+                <style>
+                    #feed-scroll-container { padding-bottom: 6rem; }
+                </style>
+            </div>
+        </div>
+
+        <!-- Tela Principal - Explorar -->
+        <div data-page="explore" class="page flex-col items-center justify-start p-4 pt-16 h-full scroll-container">
+            <h2 class="text-3xl font-bold mb-4 text-black dark:text-white">Explorar</h2>
+            <div class="grid grid-cols-2 gap-4 w-full max-w-md">
+                <button onclick="showMessageBox('Funcionalidade de Tendências')" class="w-full h-40 bg-gray-300 dark:bg-gray-700 rounded-xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 duration-200">
+                    <p class="font-semibold text-black dark:text-white">Tendências</p>
+                </button>
+                <button onclick="showMessageBox('Funcionalidade de Mapa Global')" class="w-full h-40 bg-gray-300 dark:bg-gray-700 rounded-xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 duration-200">
+                    <p class="font-semibold text-black dark:text-white">Mapa Global</p>
+                </button>
+                <button onclick="showMessageBox('Funcionalidade de Comunidades')" class="w-full h-40 bg-gray-300 dark:bg-gray-700 rounded-xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 duration-200">
+                    <p class="font-semibold text-black dark:text-white">Comunidades</p>
+                </button>
+                <button onclick="showMessageBox('Funcionalidade de Emoções')" class="w-full h-40 bg-gray-300 dark:bg-gray-700 rounded-xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 duration-200">
+                    <p class="font-semibold text-black dark:text-white">Emoções</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tela Principal - Criar Glance -->
+        <div data-page="create" class="page flex-col items-center justify-center p-4 pt-16 h-full scroll-container">
+            <div class="flex-grow w-full h-96 bg-gray-300 dark:bg-gray-700 rounded-3xl mb-4 flex items-center justify-center">
+                <p class="text-black dark:text-white">Câmera/Editor</p>
+            </div>
+            <button id="glance-plus-btn" class="bg-red-500 w-20 h-20 rounded-full flex items-center justify-center shadow-xl pulse-btn">
+                <span class="text-white text-3xl">➕</span>
+            </button>
+            <div class="flex justify-center space-x-4 mt-4">
+                <button class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Foto</button>
+                <button class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Vídeo</button>
+                <button class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Texto</button>
+                <button class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Áudio</button>
+            </div>
+        </div>
+        
+        <!-- Tela Principal - Comunidades -->
+        <div data-page="communities" class="page flex-col items-center justify-start p-4 pt-16 h-full scroll-container">
+            <h2 class="text-3xl font-bold mb-4 text-black dark:text-white">Comunidades</h2>
+            <div class="space-y-4 w-full max-w-md">
+                <div class="bg-gray-300 dark:bg-gray-700 p-4 rounded-xl shadow-lg text-black dark:text-white">
+                    <p class="font-semibold">Comunidade de Fotografia</p>
+                </div>
+                <div class="bg-gray-300 dark:bg-gray-700 p-4 rounded-xl shadow-lg text-black dark:text-white">
+                    <p class="font-semibold">Comunidade de Tecnologia</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tela Principal - Perfil -->
+        <div data-page="profile" class="page flex-col p-4 pt-16 h-full scroll-container">
+            <div class="flex flex-col items-center mb-6">
+                <div id="follow-profile-container" class="w-full flex justify-end mb-2"></div>
+                <div class="relative">
+                        <div id="profile-avatar-overlay" class="hidden fixed inset-0 z-[300] bg-black bg-opacity-90 flex items-center justify-center">
+                            <img id="profile-avatar-full" src="" class="max-w-full max-h-full rounded-2xl shadow-2xl" />
+                        </div>
+                        <img id="profile-avatar" class="w-32 h-32 rounded-full border-4 border-gray-300 dark:border-gray-700 mb-4 cursor-pointer" />
+                        <button id="upload-btn" onclick="document.getElementById('file-upload').click()" class="absolute bottom-0 right-0 p-2 rounded-full bg-black dark:bg-white text-white dark:text-black hidden">
+                            <!-- Ícone de câmera/upload -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.808-1.212A2 2 0 0110.45 2h3.1a2 2 0 011.664.89l.808 1.212A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                        <input type="file" id="file-upload" class="hidden" accept="image/*" />
+                </div>
+    <!-- Modal global para exibir avatar em tela cheia -->
+    <div id="profile-avatar-overlay" class="hidden fixed inset-0 z-[300] bg-black bg-opacity-90 flex items-center justify-center">
+        <img id="profile-avatar-full" src="" class="max-w-full max-h-full rounded-2xl shadow-2xl" />
+    </div>
+                <div class="w-full max-w-xs space-y-4 text-center text-black dark:text-white">
+                    <h2 id="profile-username" class="text-3xl font-bold">@usuario_glance</h2>
+                    <p id="profile-realname" class="text-lg font-semibold text-gray-800 dark:text-gray-200"></p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400" id="profile-bio">Um olhar para o mundo da tecnologia.</p>
+                    <div class="flex justify-center space-x-6 mt-4">
+                        <div class="text-center px-3 py-2 rounded-xl bg-white/30 dark:bg-black/30 backdrop-blur-md shadow-md border border-gray-200 dark:border-gray-700">
+                            <p id="profile-posts-count" class="font-bold">0</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Publicações</p>
+                        </div>
+                        <div class="text-center px-3 py-2 rounded-xl bg-white/30 dark:bg-black/30 backdrop-blur-md shadow-md border border-gray-200 dark:border-gray-700">
+                            <p id="profile-followers-count" class="font-bold">0</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Seguidores</p>
+                        </div>
+                        <div class="text-center px-3 py-2 rounded-xl bg-white/30 dark:bg-black/30 backdrop-blur-md shadow-md border border-gray-200 dark:border-gray-700">
+                            <p id="profile-following-count" class="font-bold">0</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Seguindo</p>
+                        </div>
+                    </div>
+                    <button id="edit-profile-btn" class="py-2 px-6 rounded-full border border-gray-400 dark:border-gray-600 text-sm font-semibold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors duration-200">
+                        Editar Perfil
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formulário de Edição (Modal em tela cheia, inicialmente oculto) -->
+            <div id="edit-profile-form" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
+                <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 space-y-6 shadow-2xl flex flex-col items-center overflow-y-auto max-h-[90vh]">
+                    <h2 class="text-2xl font-bold mb-2 text-center text-black dark:text-white">Editar Perfil</h2>
+                    <label class="w-full flex flex-col items-center mb-2">
+                        <span class="mb-1 text-sm font-semibold text-gray-700 dark:text-gray-300">Foto de Perfil</span>
+                        <input type="file" id="edit-avatar" accept="image/*" class="mb-2" />
+                    </label>
+                    <input type="text" id="edit-username" placeholder="Novo nome de usuário" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                    <textarea id="edit-bio" placeholder="Nova biografia" rows="6" class="w-full min-h-[120px] p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-y"></textarea>
+                    <input type="date" id="edit-birthdate" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                    <input type="text" id="edit-location" placeholder="Localização" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                    <select id="edit-gender" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+                        <option value="">Gênero</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="outro">Outro</option>
+                        <option value="nao_informar">Prefiro não informar</option>
+                    </select>
+                    <input type="text" id="edit-interests" placeholder="Interesses (separados por vírgula)" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                    <button id="save-profile-btn" class="w-full py-3 bg-blue-500 text-white font-semibold rounded-2xl">Salvar</button>
+                </div>
+            </div>
+            
+            <!-- Grid de postagens do perfil -->
+            <div id="profile-posts-grid" class="grid grid-cols-2 gap-4 mt-8 w-full max-w-md mx-auto justify-items-center items-center">
+                <!-- Posts do perfil serão inseridos aqui pelo JavaScript -->
+            </div>
+        </div>
+
+        <!-- Navegação Principal (Menu Base) -->
+        <div id="main-nav" class="fixed bottom-0 left-0 w-full bg-white/30 dark:bg-black/30 border-t-2 border-gray-200 dark:border-gray-800 rounded-t-3xl shadow-2xl backdrop-blur-xl transition-all duration-300 z-50">
+            <div class="flex justify-around items-center h-16">
+                <button onclick="showPage('feed')" data-icon="👀" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
+                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">👀</span>
+                </button>
+                <button onclick="showPage('explore')" data-icon="🔍" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
+                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">🔍</span>
+                </button>
+                <button onclick="showPage('create')" data-icon="➕" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
+                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">➕</span>
+                </button>
+                <button onclick="showPage('communities')" data-icon="🎭" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
+                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">🎭</span>
+                </button>
+                <button onclick="showPage('profile')" data-icon="👤" class="nav-btn p-3 rounded-full hover:bg-white/40 dark:hover:bg-black/40 transition-colors duration-200 shadow-lg">
+                    <span class="text-3xl drop-shadow-[0_2px_8px_rgba(255,255,255,0.6)]">👤</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Caixa de mensagem (substitui 'alert') -->
+    <div id="message-box" class="fixed inset-0 z-[99999] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+            <div class="bg-white dark:bg-gray-900 text-black dark:text-white rounded-xl p-6 shadow-2xl max-w-xs text-center transform scale-95 transition-transform duration-300">
+                <span id="message-text"></span>
+                <button onclick="hideMessageBox()" class="mt-4 py-2 px-6 bg-blue-500 text-white rounded-lg font-semibold">Ok</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados fictícios para os usuários
+        const users = {
+            "usuario_glance": {
+                username: "usuario_glance",
+                name: "Lucas Silva",
+                bio: "Um olhar para o mundo da tecnologia.",
+                avatar: "https://placehold.co/150x150/A0B2C3/FFFFFF?text=EU",
+                posts: 0, // Inicia em 0, será atualizado dinamicamente
+                followers: 1234,
+                following: 567
+            },
+            "viajante_urbano": {
+                username: "viajante_urbano",
+                name: "Marina Costa",
+                bio: "Viajando e explorando as cidades do mundo. Sempre em busca da próxima aventura.",
+                avatar: "https://picsum.photos/200?random=1",
+                posts: 0,
+                followers: 2500,
+                following: 300
+            },
+            "arte_viva": {
+                username: "arte_viva",
+                name: "João Pereira",
+                bio: "Arteterapia para a alma. Meus quadros são um reflexo do meu mundo interior.",
+                avatar: "https://picsum.photos/200?random=2",
+                posts: 0,
+                followers: 890,
+                following: 250
+            },
+            "tecnologo_futuro": {
+                username: "tecnologo_futuro",
+                name: "Ana Rodrigues",
+                bio: "Entusiasta de novas tecnologias, IA e robótica. Construindo o futuro, um código de cada vez.",
+                avatar: "https://picsum.photos/200?random=3",
+                posts: 0,
+                followers: 5000,
+                following: 120
+            },
+            "sabores_do_mundo": {
+                username: "sabores_do_mundo",
+                name: "Carlos Souza",
+                bio: "Explorando culinárias de todos os cantos do planeta. Receitas, dicas e delícias!",
+                avatar: "https://picsum.photos/200?random=4",
+                posts: 0,
+                followers: 1800,
+                following: 450
+            },
+            "musica_eterna": {
+                username: "musica_eterna",
+                name: "Beatriz Lima",
+                bio: "A música é a trilha sonora da vida. Compartilhando minhas canções favoritas e descobrindo novos artistas.",
+                avatar: "https://picsum.photos/200?random=5",
+                posts: 0,
+                followers: 3200,
+                following: 200
+            }
+        };
+
+        // Dados fictícios para as publicações (conectados aos usuários acima)
+        let posts = [
+            {
+                user: "viajante_urbano",
+                type: "image",
+                media: "https://picsum.photos/400/600?random=10",
+                text: "Vista incrível do topo da montanha! A natureza é a melhor artista.",
+                reactions: { views: 1200, likes: 350, shares: 45 }
+            },
+            {
+                user: "arte_viva",
+                type: "video",
+                media: "placeholder",
+                text: "Começando um novo projeto de arte abstrata. As cores estão fluindo!",
+                reactions: { views: 850, likes: 210, shares: 28 }
+            },
+            {
+                user: "tecnologo_futuro",
+                type: "image",
+                media: "https://picsum.photos/400/600?random=11",
+                text: "O futuro da IA está em constante evolução. Animado para o que vem por aí!",
+                reactions: { views: 2500, likes: 980, shares: 150 }
+            },
+            {
+                user: "sabores_do_mundo",
+                type: "audio",
+                media: "placeholder",
+                text: "Tudo pronto para um jantar especial. A culinária é uma forma de arte.",
+                reactions: { views: 600, likes: 180, shares: 20 }
+            },
+            {
+                user: "musica_eterna",
+                type: "image",
+                media: "https://picsum.photos/400/600?random=12",
+                text: "Nada melhor que uma playlist relaxante para terminar o dia. Qual a sua favorita?",
+                reactions: { views: 1500, likes: 450, shares: 60 }
+            },
+            {
+                user: "usuario_glance",
+                type: "image",
+                media: "https://picsum.photos/400/600?random=13",
+                text: "Meu primeiro post! Estou adorando o Glance!",
+                reactions: { views: 100, likes: 25, shares: 3 }
+            },
+            {
+                user: "viajante_urbano",
+                type: "image",
+                media: "https://picsum.photos/400/600?random=14",
+                text: "Conhecendo mais uma cidade incrível. Cada esquina uma nova história.",
+                reactions: { views: 950, likes: 280, shares: 35 }
+            }
+        ];
+        // Controle de likes e comentários por usuário
+        let userLikes = {};
+    let userViews = {};
+        let postComments = posts.map(() => []);
+
+        // Variável de controle para o perfil do usuário atual logado
+        window.loggedInUser = "usuario_glance";
+
+        // Função para mostrar a caixa de mensagem personalizada
+        function showMessageBox(message) {
+            const messageBox = document.getElementById('message-box');
+            document.getElementById('message-text').textContent = message;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.remove('opacity-0');
+                messageBox.querySelector('div').classList.remove('scale-95');
+            }, 10);
+        }
+
+        // Função para esconder a caixa de mensagem
+        function hideMessageBox() {
+            const messageBox = document.getElementById('message-box');
+            messageBox.classList.add('opacity-0');
+            messageBox.querySelector('div').classList.add('scale-95');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 300);
+        }
+        
+        // Exibe o modal de boas-vindas sobre o feed
+        function showWelcomeModal() {
+            const welcomeModal = document.querySelector('[data-page="welcome"]');
+            if (welcomeModal) {
+                welcomeModal.classList.add('active');
+                welcomeModal.style.display = 'flex';
+                // Garante que o botão funciona
+                const welcomeBtn = document.getElementById('welcome-understood-btn');
+                if (welcomeBtn) {
+                    welcomeBtn.onclick = function() {
+                        welcomeModal.classList.remove('active');
+                        welcomeModal.style.display = 'none';
+                    };
+                }
+            }
+        }
+        // Intercepta cadastro para ir ao onboarding
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mensagem para todos os botões de comunidades
+            function bindCommunitiesBtns() {
+                document.querySelectorAll('[id*="communities"], .communities-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        if (typeof showMessageBox === 'function') {
+                            showMessageBox('Funcionalidade de comunidades ainda indisponível. Aguarde novidades!');
+                        }
+                    };
+                });
+            }
+            bindCommunitiesBtns();
+            // Se botões forem criados dinamicamente, reexecutar bindCommunitiesBtns após gerar páginas
+            const oldGenerateFeedContent = typeof generateFeedContent === 'function' ? generateFeedContent : null;
+            window.generateFeedContent = function() {
+                if (oldGenerateFeedContent) oldGenerateFeedContent.apply(this, arguments);
+                bindCommunitiesBtns();
+            };
+            const oldUpdateProfilePage = typeof updateProfilePage === 'function' ? updateProfilePage : null;
+            window.updateProfilePage = function() {
+                if (oldUpdateProfilePage) oldUpdateProfilePage.apply(this, arguments);
+                bindCommunitiesBtns();
+            };
+            // Mensagem para botões de comunidades
+            document.querySelectorAll('.communities-btn').forEach(btn => {
+                btn.onclick = () => {
+                    if (typeof showMessageBox === 'function') {
+                        showMessageBox('Funcionalidade de comunidades ainda indisponível. Aguarde novidades!');
+                    }
+                };
+            });
+            // Inicialização do upload na página de criação
+            const createPage = document.querySelector('[data-page="create"]');
+            // Reação visual nos botões de explorar
+            const explorePage = document.querySelector('[data-page="explore"]');
+            if (explorePage) {
+                explorePage.querySelectorAll('.explore-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        btn.classList.add('bounce-icon');
+                        setTimeout(() => btn.classList.remove('bounce-icon'), 300);
+                        // Adiciona contador fictício
+                        let countSpan = btn.querySelector('.explore-reaction-count');
+                        if (!countSpan) {
+                            countSpan = document.createElement('span');
+                            countSpan.className = 'explore-reaction-count ml-2 text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-1';
+                            countSpan.textContent = '1';
+                            btn.appendChild(countSpan);
+                        } else {
+                            let val = parseInt(countSpan.textContent) || 0;
+                            countSpan.textContent = (val + 1).toString();
+                        }
+                    };
+                });
+            }
+            if (createPage) {
+                // Cria input de upload se não existir
+                let glanceUpload = document.getElementById('glance-upload');
+                if (!glanceUpload) {
+                    glanceUpload = document.createElement('input');
+                    glanceUpload.type = 'file';
+                    glanceUpload.accept = 'image/*,video/*,audio/*,.txt';
+                    glanceUpload.id = 'glance-upload';
+                    glanceUpload.className = 'hidden';
+                    createPage.appendChild(glanceUpload);
+                }
+                // Cria modal de descrição se não existir
+                let glanceDescModal = document.getElementById('glance-desc-modal');
+                if (!glanceDescModal) {
+                    glanceDescModal = document.createElement('div');
+                    glanceDescModal.id = 'glance-desc-modal';
+                    glanceDescModal.className = 'hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80';
+                    glanceDescModal.innerHTML = `
+                         <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 space-y-6 shadow-2xl flex flex-col items-center">
+                             <h2 class="text-xl font-bold mb-2 text-center text-black dark:text-white">Nova Publicação</h2>
+                             <div id="glance-preview-container" class="w-full flex flex-col items-center mb-4"></div>
+                             <div class="w-full relative mb-2">
+                                 <textarea id="glance-desc-input" placeholder="Escreva uma descrição..." rows="3" class="w-full p-3 pr-12 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"></textarea>
+                                 <button id="glance-publish-btn" style="display:none; position:absolute; top:50%; right:8px; transform:translateY(-50%);" class="bg-blue-500 text-white rounded-full p-2 shadow-lg flex items-center justify-center">
+                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14L21 3m0 0l-6.5 6.5M21 3l-6.5 6.5M3 21v-4.5a2 2 0 012-2h4.5" />
+                                     </svg>
+                                 </button>
+                             </div>
+                             <div class="flex w-full space-x-2">
+                                 <button id="glance-cancel-btn" class="flex-1 py-3 bg-gray-300 dark:bg-gray-700 text-black dark:text-white font-semibold rounded-2xl">Cancelar</button>
+                             </div>
+                         </div>
+                    `;
+                    document.body.appendChild(glanceDescModal);
+                }
+                // Botão + faz upload
+                const plusBtn = document.getElementById('glance-plus-btn');
+                if (plusBtn) {
+                    plusBtn.onclick = () => {
+                        if (typeof isProfileConfigured === 'function' && !isProfileConfigured()) {
+                            if (typeof showMessageBox === 'function') {
+                                showMessageBox('Configure seu perfil (nome e bio) antes de publicar!');
+                            }
+                            return;
+                        }
+                        glanceUpload.value = '';
+                        const previewContainer = document.getElementById('glance-preview-container');
+                        if (previewContainer) previewContainer.innerHTML = '';
+                        document.getElementById('glance-desc-input').value = '';
+                        glanceUpload.click();
+                    };
+                }
+                let uploadedFileData = null;
+                let uploadedFileType = null;
+                let uploadedTextContent = null;
+                glanceUpload.onchange = (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const previewContainer = document.getElementById('glance-preview-container');
+                        previewContainer.innerHTML = '';
+                        uploadedFileType = null;
+                        uploadedFileData = null;
+                        uploadedTextContent = null;
+                        glanceDescModal.classList.remove('hidden'); // Garante que o modal sempre aparece
+                        document.getElementById('glance-publish-btn').style.display = 'none'; // Só mostra ao digitar
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                uploadedFileData = e.target.result;
+                                uploadedFileType = 'image';
+                                previewContainer.innerHTML = `<img src="${uploadedFileData}" class="w-full max-w-xs rounded-xl mb-2 cursor-pointer" id="glance-preview-img" />`;
+                                // Adiciona evento para cancelar ao clicar na foto
+                                const previewImg = document.getElementById('glance-preview-img');
+                                if (previewImg) {
+                                    previewImg.onclick = function() {
+                                        glanceDescModal.classList.add('hidden');
+                                        uploadedFileData = null;
+                                        uploadedFileType = null;
+                                        uploadedTextContent = null;
+                                        if (glanceUpload) glanceUpload.value = '';
+                                        previewContainer.innerHTML = '';
+                                        const descInput = document.getElementById('glance-desc-input');
+                                        if (descInput) descInput.value = '';
+                                    };
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        } else if (file.type.startsWith('video/')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                uploadedFileData = e.target.result;
+                                uploadedFileType = 'video';
+                                previewContainer.innerHTML = `<video src="${uploadedFileData}" controls class="w-full max-w-xs rounded-xl mb-2"></video>`;
+                            };
+                            reader.readAsDataURL(file);
+                        } else if (file.type.startsWith('audio/')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                uploadedFileData = e.target.result;
+                                uploadedFileType = 'audio';
+                                previewContainer.innerHTML = `<audio src="${uploadedFileData}" controls class="w-full max-w-xs mb-2"></audio>`;
+                            };
+                            reader.readAsDataURL(file);
+                        } else if (file.name.endsWith('.txt')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                uploadedTextContent = e.target.result;
+                                uploadedFileType = 'text';
+                                previewContainer.innerHTML = `<div class='w-full max-w-xs rounded-xl mb-2 bg-gray-200 dark:bg-gray-800 p-4'><pre class='whitespace-pre-wrap break-words'>${uploadedTextContent}</pre></div>`;
+                            };
+                            reader.readAsText(file);
+                        } else {
+                            previewContainer.innerHTML = `<div class='text-red-500'>Tipo de arquivo não suportado.</div>`;
+                        }
+                    }
+                    // Adiciona evento para mostrar botão ao digitar e publicar corretamente
+                    const descInput = document.getElementById('glance-desc-input');
+                    const publishBtn = document.getElementById('glance-publish-btn');
+                    if (descInput && publishBtn) {
+                        descInput.oninput = function() {
+                            if (descInput.value.length > 0) {
+                                publishBtn.style.display = 'block';
+                            } else {
+                                publishBtn.style.display = 'none';
+                            }
+                        };
+                        publishBtn.onclick = function(e) {
+                            e.preventDefault();
+                            // Bloqueia publicação se nome de usuário for '@usuario_glance'
+                            var username = document.getElementById('profile-username').textContent;
+                            if (username === '@usuario_glance') {
+                                if (typeof showMessageBox === 'function') {
+                                    showMessageBox('Configure seu perfil antes de publicar!');
+                                }
+                                return;
+                            }
+                            // Executa publicação normalmente
+                            const desc = descInput.value.trim() || 'Novo glance publicado!';
+                            if (uploadedFileType === 'image' && uploadedFileData) {
+                                posts.push({
+                                    user: window.loggedInUser,
+                                    type: 'image',
+                                    media: uploadedFileData,
+                                    text: desc,
+                                    reactions: { views: 0, likes: 0, shares: 0 }
+                                });
+                            } else if (uploadedFileType === 'video' && uploadedFileData) {
+                                posts.push({
+                                    user: window.loggedInUser,
+                                    type: 'video',
+                                    media: uploadedFileData,
+                                    text: desc,
+                                    reactions: { views: 0, likes: 0, shares: 0 }
+                                });
+                            } else if (uploadedFileType === 'audio' && uploadedFileData) {
+                                posts.push({
+                                    user: window.loggedInUser,
+                                    type: 'audio',
+                                    media: uploadedFileData,
+                                    text: desc,
+                                    reactions: { views: 0, likes: 0, shares: 0 }
+                                });
+                            } else if (uploadedFileType === 'text' && uploadedTextContent) {
+                                posts.push({
+                                    user: window.loggedInUser,
+                                    type: 'text',
+                                    media: null,
+                                    text: uploadedTextContent,
+                                    reactions: { views: 0, likes: 0, shares: 0 }
+                                });
+                            }
+                            generateFeedContent();
+                            updateProfilePage(window.loggedInUser);
+                            showPage('feed');
+                            glanceDescModal.classList.add('hidden');
+                            uploadedFileData = null;
+                            uploadedFileType = null;
+                            uploadedTextContent = null;
+                        };
+                    }
+                };
+                document.getElementById('glance-cancel-btn').onclick = () => {
+                    glanceDescModal.classList.add('hidden');
+                    uploadedFileData = null;
+                    uploadedFileType = null;
+                    uploadedTextContent = null;
+                    if (glanceUpload) glanceUpload.value = '';
+                    const previewContainer = document.getElementById('glance-preview-container');
+                    if (previewContainer) previewContainer.innerHTML = '';
+                    const descInput = document.getElementById('glance-desc-input');
+                    if (descInput) descInput.value = '';
+                };
+                document.getElementById('glance-publish-btn').onclick = () => {
+                    if (typeof isProfileConfigured === 'function' && !isProfileConfigured()) {
+                        if (typeof showMessageBox === 'function') {
+                            showMessageBox('Configure seu perfil (nome e bio) antes de publicar!');
+                        }
+                        return;
+                    }
+                    const desc = document.getElementById('glance-desc-input').value.trim() || 'Novo glance publicado!';
+                    if (uploadedFileType === 'image' && uploadedFileData) {
+                        posts.push({
+                            user: window.loggedInUser,
+                            type: 'image',
+                            media: uploadedFileData,
+                            text: desc,
+                            reactions: { views: 0, likes: 0, shares: 0 }
+                        });
+                    } else if (uploadedFileType === 'video' && uploadedFileData) {
+                        posts.push({
+                            user: window.loggedInUser,
+                            type: 'video',
+                            media: uploadedFileData,
+                            text: desc,
+                            reactions: { views: 0, likes: 0, shares: 0 }
+                        });
+                    } else if (uploadedFileType === 'audio' && uploadedFileData) {
+                        posts.push({
+                            user: window.loggedInUser,
+                            type: 'audio',
+                            media: uploadedFileData,
+                            text: desc,
+                            reactions: { views: 0, likes: 0, shares: 0 }
+                        });
+                    } else if (uploadedFileType === 'text' && uploadedTextContent) {
+                        posts.push({
+                            user: window.loggedInUser,
+                            type: 'text',
+                            media: null,
+                            text: uploadedTextContent,
+                            reactions: { views: 0, likes: 0, shares: 0 }
+                        });
+                    }
+                    generateFeedContent();
+                    updateProfilePage(window.loggedInUser);
+                    showPage('feed');
+                    glanceDescModal.classList.add('hidden');
+                    uploadedFileData = null;
+                    uploadedFileType = null;
+                    uploadedTextContent = null;
+                };
+            }
+            const signupBtn = document.getElementById('signup-btn');
+            if (signupBtn) {
+                signupBtn.onclick = function() {
+                    showPage('onboarding');
+                };
+            }
+            // Intercepta final do onboarding para ir ao feed e mostrar modal depois de 2s
+            const onboardingFinalBtn = document.getElementById('onboarding-final-btn');
+            if (onboardingFinalBtn) {
+                onboardingFinalBtn.onclick = function() {
+                    showPage('feed');
+                    setTimeout(showWelcomeModal, 2000);
+                };
+            }
+        });
+        // ...existing code...
+        // Pesquisa de pessoas e publicações
+        const searchBar = document.getElementById('search-bar');
+        const searchBtn = document.getElementById('search-btn');
+        if (searchBar && searchBtn) {
+            searchBtn.onclick = () => {
+                const query = searchBar.value.trim().toLowerCase();
+                if (!query) return;
+                // Pesquisa pessoas
+                const foundUsers = Object.values(users).filter(u => u.username.toLowerCase().includes(query) || (u.name && u.name.toLowerCase().includes(query)));
+                // Pesquisa publicações
+                const foundPosts = posts.filter(p => (p.text && p.text.toLowerCase().includes(query)) || (p.user && p.user.toLowerCase().includes(query)));
+                let resultHtml = '<div class="p-4"><h2 class="text-lg font-bold mb-2">Resultados da pesquisa</h2>';
+                if (foundUsers.length > 0) {
+                    resultHtml += '<div class="mb-4"><h3 class="font-semibold">Pessoas</h3>';
+                    foundUsers.forEach(u => {
+                        resultHtml += `<div class='flex items-center space-x-2 mb-2'><img src='${u.avatar}' class='w-8 h-8 rounded-full border' /><span>@${u.username} (${u.name || ''})</span></div>`;
+                    });
+                    resultHtml += '</div>';
+                }
+                if (foundPosts.length > 0) {
+                    resultHtml += '<div><h3 class="font-semibold">Publicações</h3>';
+                    foundPosts.forEach(p => {
+                        resultHtml += `<div class='mb-2 p-2 bg-gray-200 dark:bg-gray-800 rounded-xl'><b>@${p.user}:</b> ${p.text}</div>`;
+                    });
+                    resultHtml += '</div>';
+                }
+                if (foundUsers.length === 0 && foundPosts.length === 0) {
+                    resultHtml += '<div class="text-gray-500">Nenhum resultado encontrado.</div>';
+                }
+                resultHtml += '</div>';
+                // Exibe resultados em um modal simples
+                let oldModal = document.getElementById('search-results-modal');
+                if (oldModal) oldModal.remove();
+                const modal = document.createElement('div');
+                modal.id = 'search-results-modal';
+                modal.className = 'fixed inset-0 z-[400] flex items-center justify-center bg-black/40 backdrop-blur-2xl';
+                modal.innerHTML = `<div class='w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-2xl'><button id='close-search-modal' class='absolute top-4 right-4 bg-gray-300 dark:bg-gray-700 text-black dark:text-white rounded-full px-4 py-1 font-semibold'>Fechar</button>${resultHtml}</div>`;
+                document.body.appendChild(modal);
+                document.getElementById('close-search-modal').onclick = () => modal.remove();
+            };
+        }
+        const pages = document.querySelectorAll('.page');
+        const navBar = document.getElementById('main-nav');
+
+        function showPage(pageName, username = window.loggedInUser, animation = 'fade-in') {
+            const currentPage = document.querySelector('.page.active');
+            const newPage = document.querySelector(`[data-page="${pageName}"]`);
+            if (currentPage === newPage) return;
+            if (currentPage) {
+                currentPage.classList.remove('active');
+            }
+            newPage.classList.add('active', animation);
+            setTimeout(() => newPage.classList.remove(animation), 500);
+            // Mostra a barra de navegação principal apenas após login/cadastro
+            const appPages = ['feed', 'explore', 'create', 'communities', 'profile'];
+            if (appPages.includes(pageName)) {
+                navBar.style.display = '';
+            } else {
+                navBar.style.display = 'none';
+            }
+            // Mostra/esconde barra de pesquisa apenas na aba explorar
+            const searchBarContainer = document.getElementById('search-bar-container');
+            if (searchBarContainer) {
+                if (pageName === 'explore') {
+                    searchBarContainer.classList.remove('hidden');
+                } else {
+                    searchBarContainer.classList.add('hidden');
+                }
+            }
+            if (pageName === 'feed') {
+                generateFeedContent();
+            }
+            if (pageName === 'profile') {
+                updateProfilePage(username);
+            }
+        }
+        
+        // Função para atualizar a página de perfil com base no tipo de usuário
+        function updateProfilePage(username) {
+            const profile = users[username];
+            if (!profile) return; // Se o usuário não existe, não faz nada
+            // Elementos do perfil
+            const profileUsername = document.getElementById('profile-username');
+            const profileBio = document.getElementById('profile-bio');
+            const profileAvatar = document.getElementById('profile-avatar');
+
+            // Função para checar se o perfil está configurado (nome e bio preenchidos)
+            function isProfileConfigured() {
+                const user = users[window.loggedInUser];
+                // Só libera se o nome de usuário for diferente de 'usuario_glance'
+                return user && user.username && user.username.trim() !== '' && user.username !== 'usuario_glance';
+            }
+            const profilePostsCount = document.getElementById('profile-posts-count');
+            const profileFollowersCount = document.getElementById('profile-followers-count');
+            const profileFollowingCount = document.getElementById('profile-following-count');
+            const editBtn = document.getElementById('edit-profile-btn');
+            const uploadBtn = document.getElementById('upload-btn');
+            const editForm = document.getElementById('edit-profile-form');
+            const profilePostsGrid = document.getElementById('profile-posts-grid');
+            
+            // Atualiza os dados do perfil
+            profileUsername.textContent = `@${profile.username}`;
+            const profileName = document.getElementById('profile-realname');
+            if (username === window.loggedInUser) {
+                // Só mostra nome se for diferente do padrão (Lucas Silva) e estiver configurado
+                if (profileName) profileName.textContent = (profile.name && profile.name.trim() !== '' && profile.name !== 'Lucas Silva') ? profile.name : '';
+                profileBio.textContent = (profile.bio && profile.bio.trim() !== '') ? profile.bio : '';
+            } else {
+                if (profileName) profileName.textContent = profile.name || '';
+                profileBio.textContent = profile.bio;
+            }
+            profileAvatar.src = profile.avatar;
+                document.getElementById('profile-avatar-full').src = profile.avatar;
+            profilePostsCount.textContent = profile.posts;
+            profileFollowersCount.textContent = profile.followers;
+            profileFollowingCount.textContent = profile.following;
+            
+            // Botão de seguir no perfil
+            const followProfileContainer = document.getElementById('follow-profile-container');
+            if (username !== loggedInUser) {
+                followProfileContainer.innerHTML = `<button id="profile-follow-btn" class="bg-blue-500 text-white text-xs font-semibold rounded-full px-4 py-1 shadow-md hover:bg-blue-600 transition-all duration-200">Seguir</button>`;
+                document.getElementById('profile-follow-btn').onclick = function() {
+                    this.textContent = this.textContent === 'Seguir' ? 'Seguindo' : 'Seguir';
+                    this.classList.toggle('bg-blue-500');
+                    this.classList.toggle('bg-green-500');
+                };
+            } else {
+                followProfileContainer.innerHTML = '';
+            }
+            // Esconde/mostra elementos de edição dependendo se é o perfil do usuário logado
+            if (username === window.loggedInUser) {
+                editBtn.classList.remove('hidden');
+                uploadBtn.classList.remove('hidden');
+            } else {
+                editBtn.classList.add('hidden');
+                uploadBtn.classList.add('hidden');
+                editForm.classList.add('hidden');
+            }
+            // Gera e exibe as publicações do usuário
+            generateProfilePosts(username);
+        }
+
+        function generateProfilePosts(username) {
+            const gridContainer = document.getElementById('profile-posts-grid');
+            gridContainer.innerHTML = '';
+            const userPosts = posts.filter(post => post.user === username);
+            userPosts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.className = 'w-full aspect-square max-w-[180px] h-[180px] bg-gray-300 dark:bg-gray-700 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center';
+                
+                if (post.type === 'image') {
+                    postElement.style.backgroundImage = `url('${post.media}')`;
+                    postElement.style.backgroundSize = 'cover';
+                    postElement.style.backgroundPosition = 'center';
+                } else if (post.type === 'video') {
+                    // Placeholder para vídeo no perfil
+                    postElement.innerHTML = `<span class="text-6xl">📹</span>`;
+                } else if (post.type === 'audio') {
+                    // Placeholder para áudio no perfil
+                    postElement.innerHTML = `<span class="text-6xl">🎵</span>`;
+                }
+
+                gridContainer.appendChild(postElement);
+            });
+            // Atualiza o número de publicações no perfil do usuário logado
+            if (username === window.loggedInUser) {
+                document.getElementById('profile-posts-count').textContent = userPosts.length;
+            }
+        }
+        
+        // Função para gerar o conteúdo do feed dinamicamente
+        function generateFeedContent() {
+            const feedContainer = document.getElementById('feed-scroll-container');
+            if (!feedContainer) return;
+            feedContainer.innerHTML = '';
+            if (posts.length === 0) return;
+            const reversedPosts = posts.slice().reverse();
+            reversedPosts.forEach((post, idx) => {
+                const isOwnPost = post.user === window.loggedInUser;
+                const postElement = document.createElement('div');
+                const isLast = idx === reversedPosts.length - 1;
+                const postIdx = reversedPosts.length - 1 - idx;
+                postElement.className = 'w-full h-auto aspect-[9/16] max-w-sm bg-gray-300 dark:bg-gray-700 rounded-3xl p-4 flex flex-col justify-between shadow-xl mb-8 relative' + (isLast ? ' mb-24' : '');
+
+                // Renderiza a mídia correta com base no tipo
+                let mediaContent = '';
+                if (post.type === 'image') {
+                    mediaContent = `<img src="${post.media}" class="w-full h-full object-cover rounded-3xl absolute inset-0 z-0">`;
+                } else if (post.type === 'video') {
+                    mediaContent = `
+                        <div class="w-full h-full bg-black flex items-center justify-center rounded-3xl absolute inset-0 z-0">
+                            <span class="text-7xl text-white">📹</span>
+                        </div>
+                    `;
+                } else if (post.type === 'audio') {
+                    mediaContent = `
+                        <div class="w-full h-full bg-purple-500 dark:bg-purple-900 flex flex-col items-center justify-center rounded-3xl absolute inset-0 z-0 text-white">
+                            <span class="text-7xl">🎵</span>
+                            <p class="mt-2 text-sm font-semibold">Reproduzir Áudio</p>
+                        </div>
+                    `;
+                }
+
+                // Comentários
+                let commentsHtml = '';
+                const commentsArr = postComments[postIdx] || [];
+                if (commentsArr.length > 0) {
+                    const showCount = 1;
+                    const hiddenCount = commentsArr.length - showCount;
+                    const visibleComments = commentsArr.slice(-showCount);
+                    commentsHtml = `<div class='mt-2 space-y-2 comments-list' data-postidx='${postIdx}'>`;
+                    if (hiddenCount > 0) {
+                        commentsHtml += `<button class='show-all-comments text-xs text-blue-600 underline mb-1' data-postidx='${postIdx}'>Ver todos os ${commentsArr.length} comentários</button>`;
+                    }
+                    visibleComments.forEach(c => {
+                        commentsHtml += `<div class='bg-white/80 dark:bg-black/80 rounded-xl px-3 py-2 text-sm text-black dark:text-white'><b>${c.user}:</b> ${c.text}</div>`;
+                    });
+                    commentsHtml += `</div>`;
+                }
+
+                postElement.innerHTML = `
+                    ${mediaContent}
+                    <div class="relative z-10 flex items-center space-x-2 p-2 rounded-full bg-black/50 dark:bg-white/50 backdrop-blur-md w-fit self-start cursor-pointer" data-profile="${post.user}">
+                        <img src="${users[post.user].avatar}" class="w-8 h-8 rounded-full border-2 border-white" />
+                        <div class="flex flex-col">
+                            <span class="text-white font-semibold text-sm">${users[post.user].name}</span>
+                            <span class="text-xs text-gray-200 dark:text-gray-700">@${post.user}</span>
+                        </div>
+                    </div>
+                    <button class="follow-btn absolute top-4 right-4 bg-blue-500 text-white text-xs font-semibold rounded-full px-4 py-1 shadow-md hover:bg-blue-600 transition-all duration-200" style="${isOwnPost ? 'display:none;' : ''}">Seguir</button>
+                    <div class="relative z-10 flex flex-col space-y-4">
+                        <div class="bg-black/50 dark:bg-white/50 text-white dark:text-black p-4 rounded-xl shadow-inner backdrop-blur-md">
+                            <p class="text-sm">${post.text}</p>
+                        </div>
+                        <div class="flex justify-end space-x-4 items-center">
+                            <!-- Botão Olhos com contador -->
+                            <button class="reaction-btn reaction-views text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full border border-blue-300 shadow-md p-2 flex items-center ${userViews[window.loggedInUser] && userViews[window.loggedInUser][postIdx] ? 'bg-green-400 text-white' : 'bg-white/60 dark:bg-black/60'}" title="Olhei">
+                                <span class="text-2xl">👀</span>
+                                <span class="ml-1 text-base font-bold">${post.reactions.views}</span>
+                            </button>
+                            <button class="reaction-btn reaction-likes text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full border border-red-300 shadow-md p-2 flex items-center ${userLikes[postIdx] ? 'bg-red-500 text-white' : 'bg-white/60 dark:bg-black/60'}" title="Amei">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="${userLikes[postIdx] ? 'red' : 'none'}" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7">
+                                    <path stroke="currentColor" stroke-width="2" d="M12 21C12 21 4 13.5 4 8.5C4 5.5 6.5 4 8.5 4C10.5 4 12 6 12 6C12 6 13.5 4 15.5 4C17.5 4 20 5.5 20 8.5C20 13.5 12 21 12 21Z" />
+                                </svg>
+                                <span class="ml-1 text-base font-bold">${post.reactions.likes}</span>
+                            </button>
+                            <button class="reaction-btn reaction-shares text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center" title="Re-glance">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7">
+                                    <path stroke="currentColor" stroke-width="2" d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" />
+                                    <polyline points="16 6 12 2 8 6" stroke="currentColor" stroke-width="2" fill="none" />
+                                    <line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" stroke-width="2" />
+                                </svg>
+                                <span class="ml-1 text-base font-bold">${post.reactions.shares}</span>
+                            </button>
+                            <!-- Comentar -->
+                            <button class="comment-btn ml-2 text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center" title="Comentar" data-postidx="${postIdx}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7">
+                                    <path stroke="currentColor" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                                </svg>
+                            </button>
+                        </div>
+                        ${commentsHtml}
+                    </div>
+                `;
+                feedContainer.appendChild(postElement);
+            });
+            // Delegação para botões de perfil e reações
+            // Botão para expandir comentários (abre modal fullscreen glass)
+            feedContainer.querySelectorAll('.show-all-comments').forEach(btn => {
+                btn.onclick = () => {
+                    const postIdx = parseInt(btn.getAttribute('data-postidx'));
+                    let oldModal = document.getElementById('comments-glass-modal');
+                    if (oldModal) oldModal.remove();
+                    const modal = document.createElement('div');
+                    modal.id = 'comments-glass-modal';
+                    modal.className = 'fixed inset-0 z-[300] flex items-center justify-center bg-black/40 backdrop-blur-2xl';
+                    modal.innerHTML = `
+                        <div class="w-full max-w-lg bg-white/30 dark:bg-gray-900/30 rounded-2xl p-8 space-y-4 shadow-2xl flex flex-col items-center border-2 border-white/40 backdrop-blur-2xl">
+                            <h2 class="text-xl font-bold mb-2 text-center text-black dark:text-white">Todos os comentários</h2>
+                            <div class="w-full max-h-[60vh] overflow-y-auto space-y-2">
+                                ${postComments[postIdx].map(c => `<div class='bg-white/80 dark:bg-black/80 rounded-xl px-3 py-2 text-sm text-black dark:text-white'><b>${c.user}:</b> ${c.text}</div>`).join('')}
+                            </div>
+                            <button id="collapse-comments-btn" class="mt-4 py-2 px-6 bg-blue-500 text-white rounded-full font-semibold">Colapsar</button>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                    document.getElementById('collapse-comments-btn').onclick = () => modal.remove();
+                };
+            });
+            feedContainer.querySelectorAll('[data-profile]').forEach(el => {
+                el.onclick = () => showPage('profile', el.getAttribute('data-profile'));
+            });
+            // Reações: Olhei, Amei, Re-glance
+            feedContainer.querySelectorAll('.reaction-views').forEach((btn, i) => {
+                btn.onclick = () => {
+                    const user = window.loggedInUser;
+                    if (user === 'usuario_glance' || users[user].username === 'usuario_glance') {
+                        showMessageBox('Configure seu perfil para liberar as reações!');
+                        return;
+                    }
+                    const postIdx = reversedPosts.length - 1 - i;
+                    if (!userViews[user]) userViews[user] = {};
+                    if (userViews[user][postIdx]) {
+                        posts[postIdx].reactions.views--;
+                        userViews[user][postIdx] = false;
+                    } else {
+                        posts[postIdx].reactions.views++;
+                        userViews[user][postIdx] = true;
+                    }
+                    generateFeedContent();
+                };
+            });
+            feedContainer.querySelectorAll('.reaction-likes').forEach((btn, i) => {
+                btn.onclick = () => {
+                    const user = window.loggedInUser;
+                    if (user === 'usuario_glance' || users[user].username === 'usuario_glance') {
+                        showMessageBox('Configure seu perfil para liberar as reações!');
+                        return;
+                    }
+                    const postIdx = reversedPosts.length - 1 - i;
+                    if (!userLikes[postIdx]) {
+                        posts[postIdx].reactions.likes++;
+                        userLikes[postIdx] = true;
+                    } else {
+                        posts[postIdx].reactions.likes--;
+                        userLikes[postIdx] = false;
+                    }
+                    generateFeedContent();
+                };
+            });
+            feedContainer.querySelectorAll('.reaction-shares').forEach((btn, i) => {
+                btn.onclick = () => {
+                    const user = window.loggedInUser;
+                    if (user === 'usuario_glance' || users[user].username === 'usuario_glance') {
+                        showMessageBox('Configure seu perfil para liberar as reações!');
+                        return;
+                    }
+                    const postIdx = reversedPosts.length - 1 - i;
+                    posts[postIdx].reactions.shares++;
+                    generateFeedContent();
+                };
+            });
+            // Comentário: abre modal
+            feedContainer.querySelectorAll('.comment-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    const postIdx = parseInt(btn.getAttribute('data-postidx'));
+                    showCommentModal(postIdx);
+                };
+            });
+        // Modal de comentário
+        function showCommentModal(postIdx) {
+            // Remove modal anterior se existir
+            let oldModal = document.getElementById('comment-modal');
+            if (oldModal) oldModal.remove();
+            // Cria modal
+            const modal = document.createElement('div');
+            modal.id = 'comment-modal';
+            modal.className = 'fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm';
+            modal.innerHTML = `
+                <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 space-y-6 shadow-2xl flex flex-col items-center">
+                    <h2 class="text-xl font-bold mb-2 text-center text-black dark:text-white">Comentar</h2>
+                    <textarea id="comment-input" rows="3" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 mb-2" placeholder="Escreva seu comentário..."></textarea>
+                    <div class="flex w-full justify-end">
+                        <button id="send-comment-btn" class="py-2 px-6 bg-blue-500 text-white rounded-full font-semibold flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 mr-2">
+                                <path stroke="currentColor" stroke-width="2" d="M10 14L21 3m0 0l-6.5 6.5M21 3l-6.5 6.5M3 21v-4.5a2 2 0 012-2h4.5" />
+                            </svg>
+                            Enviar
+                        </button>
+                        <button id="close-comment-btn" class="ml-2 py-2 px-4 bg-gray-300 dark:bg-gray-700 text-black dark:text-white rounded-full font-semibold">Cancelar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('close-comment-btn').onclick = () => modal.remove();
+            document.getElementById('send-comment-btn').onclick = () => {
+                const user = window.loggedInUser;
+                if (user === 'usuario_glance' || users[user].username === 'usuario_glance') {
+                    showMessageBox('Configure seu perfil para liberar os comentários!');
+                    return;
+                }
+                const text = document.getElementById('comment-input').value.trim();
+                if (text) {
+                    postComments[postIdx].push({ user: user, text });
+                    modal.remove();
+                    generateFeedContent();
+                }
+            };
+        }
+            // Botão de seguir
+            feedContainer.querySelectorAll('.follow-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    btn.textContent = btn.textContent === 'Seguir' ? 'Seguindo' : 'Seguir';
+                    btn.classList.toggle('bg-blue-500');
+                    btn.classList.toggle('bg-green-500');
+                };
+            });
+            // Botão de comentar
+            // (Removido: sobrescrita do evento de comentar)
+        }
+        // Upload de glance (imagem, vídeo, áudio, texto) pelo botão +
+        window.onload = () => {
+            // Conta as publicações por usuário
+            for (const user in users) {
+                users[user].posts = posts.filter(post => post.user === user).length;
+            }
+            generateFeedContent();
+            updateProfilePage(window.loggedInUser);
+
+            // Inicialização do upload
+            const createPage = document.querySelector('[data-page="create"]');
+            if (createPage) {
+                // Cria input de upload se não existir
+                let glanceUpload = document.getElementById('glance-upload');
+                if (!glanceUpload) {
+                    glanceUpload = document.createElement('input');
+                    glanceUpload.type = 'file';
+                    glanceUpload.accept = 'image/*,video/*,audio/*,.txt';
+                    glanceUpload.id = 'glance-upload';
+                    glanceUpload.className = 'hidden';
+                    createPage.appendChild(glanceUpload);
+                }
+                // Cria modal de descrição se não existir
+                let glanceDescModal = document.getElementById('glance-desc-modal');
+                if (!glanceDescModal) {
+                    glanceDescModal = document.createElement('div');
+                    glanceDescModal.id = 'glance-desc-modal';
+                    glanceDescModal.className = 'hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80';
+                    glanceDescModal.innerHTML = `
+                        <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 space-y-6 shadow-2xl flex flex-col items-center">
+                            <h2 class="text-xl font-bold mb-2 text-center text-black dark:text-white">Nova Publicação</h2>
+                            <div id="glance-preview-container" class="w-full flex flex-col items-center mb-4"></div>
+                            <textarea id="glance-desc-input" placeholder="Escreva uma descrição..." rows="3" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 mb-2"></textarea>
+                            <div class="flex w-full space-x-2">
+                                <button id="glance-cancel-btn" class="flex-1 py-3 bg-gray-300 dark:bg-gray-700 text-black dark:text-white font-semibold rounded-2xl">Cancelar</button>
+                                <button id="glance-publish-btn" class="flex-1 py-3 bg-blue-500 text-white font-semibold rounded-2xl">Publicar</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(glanceDescModal);
+                }
+                // Botão + faz upload
+                const plusBtn = document.getElementById('glance-plus-btn');
+                if (plusBtn) {
+                    plusBtn.onclick = () => {
+                        if (!isProfileConfigured()) {
+                            showMessageBox('Configure seu perfil (nome e bio) antes de publicar!');
+                            return;
+                        }
+                        glanceUpload.value = '';
+                        const previewContainer = document.getElementById('glance-preview-container');
+                        if (previewContainer) previewContainer.innerHTML = '';
+                        document.getElementById('glance-desc-input').value = '';
+                        glanceUpload.click();
+                    };
+                }
+                let uploadedFileData = null;
+                let uploadedFileType = null;
+                let uploadedTextContent = null;
+                glanceUpload.onchange = (event) => {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const previewContainer = document.getElementById('glance-preview-container');
+                        previewContainer.innerHTML = '';
+                        uploadedFileType = null;
+                        uploadedFileData = null;
+                        uploadedTextContent = null;
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                uploadedFileData = e.target.result;
+                                uploadedFileType = 'image';
+                                previewContainer.innerHTML = `<img src="${uploadedFileData}" class="w-full max-w-xs rounded-xl mb-2" />`;
+                                glanceDescModal.classList.remove('hidden');
+                            };
+                            reader.readAsDataURL(file);
+                        } else if (file.type.startsWith('video/')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                uploadedFileData = e.target.result;
+                                uploadedFileType = 'video';
+                                previewContainer.innerHTML = `<video src="${uploadedFileData}" controls class="w-full max-w-xs rounded-xl mb-2"></video>`;
+                                glanceDescModal.classList.remove('hidden');
+                            };
+                            reader.readAsDataURL(file);
+                        } else if (file.type.startsWith('audio/')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                uploadedFileData = e.target.result;
+                                uploadedFileType = 'audio';
+                                previewContainer.innerHTML = `<audio src="${uploadedFileData}" controls class="w-full max-w-xs mb-2"></audio>`;
+                                glanceDescModal.classList.remove('hidden');
+                            };
+                            reader.readAsDataURL(file);
+                        } else if (file.name.endsWith('.txt')) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                uploadedTextContent = e.target.result;
+                                uploadedFileType = 'text';
+                                previewContainer.innerHTML = `<div class='w-full max-w-xs rounded-xl mb-2 bg-gray-200 dark:bg-gray-800 p-4'><pre class='whitespace-pre-wrap break-words'>${uploadedTextContent}</pre></div>`;
+                                glanceDescModal.classList.remove('hidden');
+                            };
+                            reader.readAsText(file);
+                        } else {
+                            previewContainer.innerHTML = `<div class='text-red-500'>Tipo de arquivo não suportado.</div>`;
+                            glanceDescModal.classList.remove('hidden');
+                        }
+                    }
+                };
+                document.getElementById('glance-cancel-btn').onclick = () => {
+                    glanceDescModal.classList.add('hidden');
+                    uploadedFileData = null;
+                    uploadedFileType = null;
+                    uploadedTextContent = null;
+                };
+                document.getElementById('glance-publish-btn').onclick = () => {
+                    const desc = document.getElementById('glance-desc-input').value.trim() || 'Novo glance publicado!';
+                    if (uploadedFileType === 'image' && uploadedFileData) {
+                        posts.push({
+                            user: window.loggedInUser,
+                            type: 'image',
+                            media: uploadedFileData,
+                            text: desc,
+                            reactions: { views: 0, likes: 0, shares: 0 }
+                        });
+                    } else if (uploadedFileType === 'video' && uploadedFileData) {
+                        posts.push({
+                            user: window.loggedInUser,
+                            type: 'video',
+                            media: uploadedFileData,
+                            text: desc,
+                            reactions: { views: 0, likes: 0, shares: 0 }
+                        });
+                    } else if (uploadedFileType === 'audio' && uploadedFileData) {
+                        posts.push({
+                            user: window.loggedInUser,
+                            type: 'audio',
+                            media: uploadedFileData,
+                            text: desc,
+                            reactions: { views: 0, likes: 0, shares: 0 }
+                        });
+                    } else if (uploadedFileType === 'text' && uploadedTextContent) {
+                        posts.push({
+                            user: window.loggedInUser,
+                            type: 'text',
+                            media: null,
+                            text: uploadedTextContent,
+                            reactions: { views: 0, likes: 0, shares: 0 }
+                        });
+                    }
+                    generateFeedContent();
+                    updateProfilePage(window.loggedInUser);
+                    showPage('feed');
+                    glanceDescModal.classList.add('hidden');
+                    uploadedFileData = null;
+                    uploadedFileType = null;
+                    uploadedTextContent = null;
+                };
+            }
+        };
+
+        // Lógica do Onboarding
+        let currentOnboardPage = 1;
+        const onboardSlides = document.querySelectorAll('.onboard-slide');
+        const onboardNextBtn = document.getElementById('onboard-next');
+
+        function showOnboardPage(pageNumber) {
+            onboardSlides.forEach(slide => {
+                slide.classList.remove('opacity-100');
+                slide.classList.add('opacity-0');
+            });
+            const currentPage = document.querySelector(`[data-onboard-page="${pageNumber}"]`);
+            if (currentPage) {
+                currentPage.classList.remove('opacity-0');
+                currentPage.classList.add('opacity-100');
+            }
+        }
+
+        if (onboardNextBtn) {
+            onboardNextBtn.addEventListener('click', () => {
+                if (currentOnboardPage < onboardSlides.length) {
+                    currentOnboardPage++;
+                    showOnboardPage(currentOnboardPage);
+                } else {
+                    showPage('onboarding-final', loggedInUser, 'slide-in');
+                }
+            });
+        }
+        
+        // Animação de bounce nos ícones de navegação
+        const navBtns = document.querySelectorAll('.nav-btn');
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.add('bounce-icon');
+                setTimeout(() => btn.classList.remove('bounce-icon'), 300);
+            });
+        });
+
+        // Animação de reações nos posts
+        function reactToGlance(button) {
+            if (!isProfileConfigured()) {
+                showMessageBox('Configure seu perfil (nome e bio) antes de reagir!');
+                return;
+            }
+            button.classList.add('bounce-icon');
+            setTimeout(() => {
+                button.classList.remove('bounce-icon');
+            }, 300);
+        }
+
+        // Lógica dos botões de interesse
+        document.querySelectorAll('.interest-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('bg-black');
+                btn.classList.toggle('text-white');
+                btn.classList.toggle('dark:bg-white');
+                btn.classList.toggle('dark:text-black');
+            });
+        });
+
+        // Lógica de edição de perfil
+        const editProfileBtn = document.getElementById('edit-profile-btn');
+        const editProfileForm = document.getElementById('edit-profile-form');
+        const profileUsername = document.getElementById('profile-username');
+        const profileBio = document.getElementById('profile-bio');
+        const editUsername = document = document.getElementById('edit-username');
+        const editBio = document.getElementById('edit-bio');
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+        const fileUpload = document.getElementById('file-upload');
+        const profileAvatar = document.getElementById('profile-avatar');
+
+        if (editProfileBtn) {
+            editProfileBtn.onclick = () => {
+                // Preenche os campos com os dados atuais
+                editUsername.value = profileUsername.textContent.substring(1); // Remove o @
+                editBio.value = profileBio.textContent;
+                document.getElementById('edit-birthdate').value = users[window.loggedInUser].birthdate || '';
+                document.getElementById('edit-location').value = users[window.loggedInUser].location || '';
+                document.getElementById('edit-gender').value = users[window.loggedInUser].gender || '';
+                document.getElementById('edit-interests').value = users[window.loggedInUser].interests || '';
+                // Exibe o formulário em tela cheia
+                editProfileForm.classList.remove('hidden');
+            };
+        }
+
+        if (saveProfileBtn) {
+            saveProfileBtn.onclick = () => {
+                const oldUsername = users[loggedInUser].username;
+                const newUsername = editUsername.value.trim();
+                const newBio = editBio.value;
+                const newBirthdate = document.getElementById('edit-birthdate').value;
+                const newLocation = document.getElementById('edit-location').value;
+                const newGender = document.getElementById('edit-gender').value;
+                const newInterests = document.getElementById('edit-interests').value;
+                // Atualiza foto de perfil se selecionada
+                const avatarInput = document.getElementById('edit-avatar');
+                if (avatarInput && avatarInput.files && avatarInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        users[loggedInUser].avatar = e.target.result;
+                        document.getElementById('profile-avatar').src = e.target.result;
+                        document.getElementById('profile-avatar-full').src = e.target.result;
+                    };
+                    reader.readAsDataURL(avatarInput.files[0]);
+                }
+                profileUsername.textContent = '@' + newUsername;
+                profileBio.textContent = newBio;
+                // Atualiza dados do objeto users
+                if (users[loggedInUser]) {
+                    users[loggedInUser].username = newUsername;
+                    users[loggedInUser].bio = newBio;
+                    users[loggedInUser].birthdate = newBirthdate;
+                    users[loggedInUser].location = newLocation;
+                    users[loggedInUser].gender = newGender;
+                    users[loggedInUser].interests = newInterests;
+                }
+                // Se o nome de usuário mudou, atualiza a chave do objeto users e posts
+                if (oldUsername !== newUsername && newUsername !== "") {
+                    users[newUsername] = {...users[loggedInUser]};
+                    delete users[loggedInUser];
+                    posts.forEach(post => {
+                        if (post.user === loggedInUser) {
+                            post.user = newUsername;
+                        }
+                    });
+                    window.loggedInUser = newUsername;
+                }
+                editProfileForm.classList.add('hidden');
+                updateProfilePage(window.loggedInUser);
+                generateFeedContent();
+            };
+        }
+
+        if (fileUpload) {
+            fileUpload.onchange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        profileAvatar.src = e.target.result;
+                        document.getElementById('profile-avatar-full').src = e.target.result;
+                        // Animação ao atualizar
+                        profileAvatar.classList.add('bounce-icon');
+                        setTimeout(() => profileAvatar.classList.remove('bounce-icon'), 300);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+        }
+
+        // Inicializa a página e conta as publicações por usuário
+        window.onload = () => {
+            // Conta as publicações por usuário
+            for (const user in users) {
+                users[user].posts = posts.filter(post => post.user === user).length;
+            }
+            // Zera as contagens do perfil logado
+            if (users[window.loggedInUser]) {
+                users[window.loggedInUser].posts = 0;
+                users[window.loggedInUser].followers = 0;
+                users[window.loggedInUser].following = 0;
+            }
+            generateFeedContent();
+            updateProfilePage(window.loggedInUser);
+            // Ao iniciar, esconde a barra de navegação
+            navBar.style.display = 'none';
+            // Exibir imagem de perfil em tela cheia ao clicar
+            const avatar = document.getElementById('profile-avatar');
+            const overlay = document.getElementById('profile-avatar-overlay');
+            const avatarFull = document.getElementById('profile-avatar-full');
+            if (avatar && overlay && avatarFull) {
+                avatar.onclick = () => {
+                    avatarFull.src = avatar.src;
+                    overlay.classList.remove('hidden');
+                };
+                overlay.onclick = () => {
+                    overlay.classList.add('hidden');
+                };
+            }
+        };
+    </script>
+</body>
+</html>
