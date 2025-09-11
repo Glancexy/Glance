@@ -17,11 +17,18 @@
             75%  { transform: scale(1.04); opacity: 0.92; }
             100% { transform: scale(1);   opacity: 1; }
         }
-        .glance-logo-breath {
+    .glance-logo-breath {
             animation: breathing 2s infinite;
             font-family: 'Inter', sans-serif;
             font-weight: 800;
             letter-spacing: 0.05em;
+        }
+        /* Modal de boas-vindas menor em telas pequenas */
+        @media (max-width: 480px) {
+            [data-page="welcome"] > div {
+                max-width: 22rem !important;
+                padding: 1.5rem !important;
+            }
         }
         body { 
             font-family: 'Inter', sans-serif; 
@@ -147,10 +154,10 @@
         <div data-page="onboarding-final" class="page flex-col items-center justify-center p-8 transition-all duration-500">
             <h2 class="text-3xl font-bold text-center mb-6 text-black dark:text-white">Comece sua Jornada</h2>
             <div class="flex flex-wrap justify-center gap-2 mb-8">
-                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">Tecnologia</button>
-                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">Viagem</button>
-                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">Arte</button>
-                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">Música</button>
+                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">🤖 Tecnologia</button>
+                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">✈️ Viagem</button>
+                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">🎨 Arte</button>
+                <button class="interest-btn px-4 py-2 rounded-full border border-gray-400 dark:border-gray-600 transition-colors duration-200 text-black dark:text-white">🎵 Música</button>
             </div>
             <button id="onboarding-final-btn" class="py-4 px-12 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Começar!</button>
         </div>
@@ -195,17 +202,24 @@
 
         <!-- Tela Principal - Criar Glance -->
         <div data-page="create" class="page flex-col items-center justify-center p-4 pt-16 h-full scroll-container">
-            <div class="flex-grow w-full h-96 bg-gray-300 dark:bg-gray-700 rounded-3xl mb-4 flex items-center justify-center">
-                <p class="text-black dark:text-white">Câmera/Editor</p>
+            <!-- Inputs de upload escondidos -->
+            <input id="glance-upload-photo" type="file" accept="image/*" class="hidden" />
+            <input id="glance-upload-video" type="file" accept="video/*" class="hidden" />
+            <!-- Área de gravação de áudio -->
+            <div id="audio-record-area" class="hidden flex flex-col items-center justify-center w-full h-60 bg-gray-200 dark:bg-gray-800 rounded-2xl mb-4">
+                <button id="start-audio-record" class="bg-red-500 text-white rounded-full w-16 h-16 flex items-center justify-center text-3xl mb-2"><span id="audio-record-icon">🎤</span></button>
+                <span id="audio-record-timer" class="text-lg font-bold">00:00</span>
+                <button id="stop-audio-record" class="mt-2 bg-gray-700 text-white rounded px-4 py-2 hidden">Parar</button>
+                <audio id="audio-record-preview" class="mt-2 hidden" controls></audio>
             </div>
             <button id="glance-plus-btn" class="bg-red-500 w-20 h-20 rounded-full flex items-center justify-center shadow-xl pulse-btn">
                 <span class="text-white text-3xl">➕</span>
             </button>
             <div class="flex justify-center space-x-4 mt-4">
-                <button class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Foto</button>
-                <button class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Vídeo</button>
-                <button class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Texto</button>
-                <button class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Áudio</button>
+                <button id="btn-pub-photo" class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Foto</button>
+                <button id="btn-pub-video" class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Vídeo</button>
+                <button id="btn-pub-text" class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Texto</button>
+                <button id="btn-pub-audio" class="p-3 rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white">Áudio</button>
             </div>
         </div>
         
@@ -219,6 +233,340 @@
                 <!-- Stories/Categorias -->
             </div>
             <script>
+        // Lógica dos botões de publicação
+    document.addEventListener('DOMContentLoaded', function() {
+                // Salvar perfil ao clicar no botão salvar
+                var saveProfileBtn = document.getElementById('save-profile-btn');
+                var editForm = document.getElementById('edit-profile-form');
+                if (saveProfileBtn && editForm) {
+                    saveProfileBtn.onclick = function(e) {
+                        e.preventDefault();
+                        var usernameInput = document.getElementById('edit-username');
+                        var bioInput = document.getElementById('edit-bio');
+                        var birthdateInput = document.getElementById('edit-birthdate');
+                        var genderInput = document.getElementById('edit-gender');
+                        var user = users[window.loggedInUser];
+                        if (user) {
+                            if (usernameInput && usernameInput.value.trim()) {
+                                user.username = usernameInput.value.trim();
+                            }
+                            // Salvar nome real se houver campo correspondente
+                            var realnameInput = document.getElementById('edit-realname');
+                            if (realnameInput && realnameInput.value.trim()) {
+                                user.name = realnameInput.value.trim();
+                            }
+                            if (bioInput) user.bio = bioInput.value;
+                            if (birthdateInput) user.birthdate = birthdateInput.value;
+                            if (genderInput) user.gender = genderInput.value;
+                            updateProfilePage(window.loggedInUser);
+                            editForm.classList.add('hidden');
+                            showMessageBox('Perfil atualizado com sucesso!');
+                        }
+                    };
+                }
+            // Botões
+            const btnPhoto = document.getElementById('btn-pub-photo');
+            const btnVideo = document.getElementById('btn-pub-video');
+            const btnText = document.getElementById('btn-pub-text');
+            const btnAudio = document.getElementById('btn-pub-audio');
+            const inputPhoto = document.getElementById('glance-upload-photo');
+            const inputVideo = document.getElementById('glance-upload-video');
+            const audioArea = document.getElementById('audio-record-area');
+            const startAudioBtn = document.getElementById('start-audio-record');
+            const stopAudioBtn = document.getElementById('stop-audio-record');
+            const audioTimer = document.getElementById('audio-record-timer');
+            const audioPreview = document.getElementById('audio-record-preview');
+            let audioChunks = [];
+            let mediaRecorder = null;
+            let audioTimerInterval = null;
+            let audioSeconds = 0;
+
+            // Foto
+            if (btnPhoto && inputPhoto) {
+                btnPhoto.onclick = () => { inputPhoto.value = ''; inputPhoto.click(); };
+                inputPhoto.onchange = function() {
+                    if (inputPhoto.files && inputPhoto.files[0]) {
+                        const file = inputPhoto.files[0];
+                        const url = URL.createObjectURL(file);
+                        const previewContainer = document.getElementById('glance-preview-container');
+                        if (previewContainer) previewContainer.innerHTML = `<img src='${url}' class='w-full max-w-xs rounded-xl mb-2' />`;
+                        window.uploadedFileData = url;
+                        window.uploadedFileType = 'image';
+                        window.uploadedTextContent = null;
+                        const glanceDescModal = document.getElementById('glance-desc-modal');
+                        if (glanceDescModal) glanceDescModal.classList.remove('hidden');
+                        const publishBtn = document.getElementById('glance-publish-btn');
+                        if (publishBtn) publishBtn.style.display = 'block';
+                    }
+                };
+            }
+            // Vídeo
+            if (btnVideo && inputVideo) {
+                btnVideo.onclick = () => { inputVideo.value = ''; inputVideo.click(); };
+                inputVideo.onchange = function() {
+                    if (inputVideo.files && inputVideo.files[0]) {
+                        const file = inputVideo.files[0];
+                        const url = URL.createObjectURL(file);
+                        const previewContainer = document.getElementById('glance-preview-container');
+                        if (previewContainer) previewContainer.innerHTML = `<video src='${url}' controls class='w-full max-w-xs rounded-xl mb-2'></video>`;
+                        window.uploadedFileData = url;
+                        window.uploadedFileType = 'video';
+                        window.uploadedTextContent = null;
+                        // Adiciona campo de categoria obrigatório
+                        let catSelect = document.getElementById('glance-video-category');
+                        if (!catSelect) {
+                            catSelect = document.createElement('select');
+                            catSelect.id = 'glance-video-category';
+                            catSelect.className = 'w-full mt-2 mb-2 p-2 rounded-xl border-2 border-blue-400 bg-white text-black font-semibold';
+                            catSelect.required = true;
+                            catSelect.innerHTML = `<option value='' disabled selected hidden>Escolha a categoria</option>
+                                <option value='Viagem'>Viagem</option>
+                                <option value='Tecnologia'>Tecnologia</option>
+                                <option value='Arte'>Arte</option>
+                                <option value='Música'>Música</option>
+                                <option value='Humor'>Humor</option>
+                                <option value='Educação'>Educação</option>
+                                <option value='Vlog'>Vlog</option>
+                                <option value='Outro'>Outro</option>`;
+                            previewContainer.parentNode.insertBefore(catSelect, previewContainer.nextSibling);
+                        } else {
+                            catSelect.style.display = '';
+                        }
+                        const glanceDescModal = document.getElementById('glance-desc-modal');
+                        if (glanceDescModal) glanceDescModal.classList.remove('hidden');
+                        const publishBtn = document.getElementById('glance-publish-btn');
+                        if (publishBtn) publishBtn.style.display = 'block';
+                    }
+                };
+            }
+            // Ao publicar vídeo, exige categoria
+            const publishBtn = document.getElementById('glance-publish-btn');
+            if (publishBtn) {
+                publishBtn.onclick = function(e) {
+                    if (window.uploadedFileType === 'video') {
+                        const catSelect = document.getElementById('glance-video-category');
+                        if (!catSelect || !catSelect.value) {
+                            catSelect.classList.add('border-red-500');
+                            showMessageBox('Escolha uma categoria para o vídeo!');
+                            e.preventDefault();
+                            return false;
+                        }
+                        catSelect.classList.remove('border-red-500');
+                    }
+                    // --- TEXT POST LOGIC ---
+                    if (window.uploadedFileType === 'text') {
+                        const descInput = document.getElementById('glance-desc-input');
+                        const textContent = descInput?.value.trim();
+                        if (textContent && textContent.length > 0) {
+                            posts.push({
+                                id: 'post' + (Date.now() + Math.floor(Math.random()*10000)),
+                                user: window.loggedInUser,
+                                type: 'text',
+                                media: null,
+                                text: textContent,
+                                reactions: { views: 0, likes: 0, shares: 0 },
+                                timestamp: Date.now()
+                            });
+                            if (typeof generateFeedContent === 'function') generateFeedContent();
+                            if (typeof updateProfilePage === 'function') updateProfilePage(window.loggedInUser);
+                            if (typeof renderGlanceVideos === 'function') renderGlanceVideos();
+                            if (typeof showPage === 'function') showPage('feed');
+                            const glanceDescModal = document.getElementById('glance-desc-modal');
+                            if (glanceDescModal) glanceDescModal.classList.add('hidden');
+                            window.uploadedFileData = null;
+                            window.uploadedFileType = null;
+                            window.uploadedTextContent = null;
+                            const previewContainer = document.getElementById('glance-preview-container');
+                            if (previewContainer) previewContainer.innerHTML = '';
+                            if (descInput) descInput.value = '';
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                };
+            }
+            if (btnText) {
+                btnText.onclick = () => {
+                    const previewContainer = document.getElementById('glance-preview-container');
+                    if (previewContainer) previewContainer.innerHTML = '';
+                    window.uploadedFileData = null;
+                    window.uploadedFileType = 'text';
+                    window.uploadedTextContent = '';
+                    const glanceDescModal = document.getElementById('glance-desc-modal');
+                    if (glanceDescModal) glanceDescModal.classList.remove('hidden');
+                    const publishBtn = document.getElementById('glance-publish-btn');
+                    if (publishBtn) publishBtn.style.display = 'block';
+                };
+            }
+            // Áudio
+            if (btnAudio && audioArea && startAudioBtn && stopAudioBtn && audioTimer && audioPreview) {
+                // Cria modal de publicação de áudio se não existir
+                let audioPublishModal = document.getElementById('audio-publish-modal');
+                if (!audioPublishModal) {
+                    audioPublishModal = document.createElement('div');
+                    audioPublishModal.id = 'audio-publish-modal';
+                    audioPublishModal.className = 'hidden fixed inset-0 z-[999] flex items-center justify-center bg-black bg-opacity-80';
+                    audioPublishModal.innerHTML = `
+                        <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 space-y-6 shadow-2xl flex flex-col items-center">
+                            <h2 class="text-xl font-bold mb-2 text-center text-black dark:text-white">Prévia do Áudio</h2>
+                            <audio id="audio-publish-preview" controls class="w-full mb-4"></audio>
+                            <div class="flex w-full space-x-2">
+                                <button id="audio-publish-confirm" class="flex-1 py-3 bg-blue-500 text-white font-semibold rounded-2xl">Publicar</button>
+                                <button id="audio-publish-cancel" class="flex-1 py-3 bg-gray-300 dark:bg-gray-700 text-black dark:text-white font-semibold rounded-2xl">Cancelar</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(audioPublishModal);
+                }
+                // Função para mostrar modal de publicação de áudio
+                function showAudioPublishModal(audioUrl) {
+                    audioPublishModal.classList.remove('hidden');
+                    const preview = document.getElementById('audio-publish-preview');
+                    if (preview) {
+                        preview.src = audioUrl;
+                        preview.currentTime = 0;
+                        preview.play();
+                    }
+                }
+                // Função para esconder modal
+                function hideAudioPublishModal() {
+                    audioPublishModal.classList.add('hidden');
+                    const preview = document.getElementById('audio-publish-preview');
+                    if (preview) preview.pause();
+                }
+                // Botão cancelar
+                document.getElementById('audio-publish-cancel').onclick = function() {
+                    hideAudioPublishModal();
+                    window.uploadedFileData = null;
+                    window.uploadedFileType = null;
+                    window.uploadedTextContent = null;
+                    audioArea.classList.add('hidden');
+                    audioPreview.classList.add('hidden');
+                };
+                // Botão publicar
+                document.getElementById('audio-publish-confirm').onclick = function() {
+                    // Adiciona post de áudio ao feed
+                    if (window.uploadedFileData) {
+                        posts.push({
+                            user: window.loggedInUser,
+                            type: 'audio',
+                            media: window.uploadedFileData,
+                            text: 'Áudio publicado',
+                            reactions: { views: 0, likes: 0, shares: 0 },
+                            timestamp: Date.now()
+                        });
+                        generateFeedContent();
+                        updateProfilePage(window.loggedInUser);
+                        if (typeof renderGlanceVideos === 'function') renderGlanceVideos();
+                        // Redireciona para o feed
+                        if (typeof showPage === 'function') showPage('feed');
+                    }
+                    hideAudioPublishModal();
+                    window.uploadedFileData = null;
+                    window.uploadedFileType = null;
+                    window.uploadedTextContent = null;
+                    audioArea.classList.add('hidden');
+                    audioPreview.classList.add('hidden');
+                };
+                // Lógica de gravação
+                btnAudio.onclick = () => {
+                    audioArea.classList.remove('hidden');
+                    audioPreview.classList.add('hidden');
+                    stopAudioBtn.classList.add('hidden');
+                    startAudioBtn.disabled = false;
+                    audioTimer.textContent = '00:00';
+                };
+                startAudioBtn.onclick = async () => {
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                        alert('Seu navegador não suporta gravação de áudio.');
+                        return;
+                    }
+                    audioChunks = [];
+                    audioSeconds = 0;
+                    audioTimer.textContent = '00:00';
+                    startAudioBtn.disabled = true;
+                    stopAudioBtn.classList.remove('hidden');
+                    mediaRecorder = null;
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        mediaRecorder = new MediaRecorder(stream);
+                        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+                        mediaRecorder.onstop = () => {
+                            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                            const url = URL.createObjectURL(audioBlob);
+                            audioPreview.src = url;
+                            audioPreview.classList.remove('hidden');
+                            window.uploadedFileData = url;
+                            window.uploadedFileType = 'audio';
+                            window.uploadedTextContent = null;
+                            showAudioPublishModal(url);
+                        };
+                        mediaRecorder.start();
+                        audioTimerInterval = setInterval(() => {
+                            audioSeconds++;
+                            const min = String(Math.floor(audioSeconds/60)).padStart(2,'0');
+                            const sec = String(audioSeconds%60).padStart(2,'0');
+                            audioTimer.textContent = `${min}:${sec}`;
+                            if (audioSeconds >= 90) { // 1:30 min
+                                stopAudioBtn.click();
+                            }
+                        }, 1000);
+                    } catch (err) {
+                        alert('Erro ao acessar o microfone.');
+                        startAudioBtn.disabled = false;
+                        stopAudioBtn.classList.add('hidden');
+                    }
+                };
+                stopAudioBtn.onclick = () => {
+                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                    }
+                    startAudioBtn.disabled = false;
+                    stopAudioBtn.classList.add('hidden');
+                    clearInterval(audioTimerInterval);
+                };
+            }
+        });
+        // Abre automaticamente o seletor de arquivos ao entrar na aba de publicar
+        document.addEventListener('DOMContentLoaded', function() {
+            const createPage = document.querySelector('[data-page="create"]');
+            const autoInput = document.getElementById('glance-upload-auto');
+            if (createPage && autoInput) {
+                const observer = new MutationObserver(() => {
+                    if (createPage.classList.contains('active')) {
+                        autoInput.value = '';
+                        autoInput.click();
+                    }
+                });
+                observer.observe(createPage, { attributes: true, attributeFilter: ['class'] });
+            }
+            if (autoInput) {
+                autoInput.addEventListener('change', function() {
+                    if (autoInput.files && autoInput.files[0]) {
+                        const file = autoInput.files[0];
+                        const url = URL.createObjectURL(file);
+                        // Prepara preview e variáveis globais
+                        const previewContainer = document.getElementById('glance-preview-container');
+                        if (previewContainer) {
+                            if (file.type.startsWith('image/')) {
+                                previewContainer.innerHTML = `<img src='${url}' class='w-full max-w-xs rounded-xl mb-2' />`;
+                            } else if (file.type.startsWith('video/')) {
+                                previewContainer.innerHTML = `<video src='${url}' controls class='w-full max-w-xs rounded-xl mb-2'></video>`;
+                            }
+                        }
+                        window.uploadedFileData = url;
+                        window.uploadedFileType = file.type.startsWith('image/') ? 'image' : 'video';
+                        window.uploadedTextContent = null;
+                        // Mostra o modal de descrição
+                        const glanceDescModal = document.getElementById('glance-desc-modal');
+                        if (glanceDescModal) glanceDescModal.classList.remove('hidden');
+                        // Mostra botão publicar
+                        const publishBtn = document.getElementById('glance-publish-btn');
+                        if (publishBtn) publishBtn.style.display = 'block';
+                    }
+                });
+            }
+        });
             // Categorias de exemplo
             const videoCategories = [
                 { name: 'Todos', icon: '🌎' },
@@ -261,24 +609,200 @@
                 // Busca todos os vídeos publicados no feed
                 if (typeof posts !== 'undefined' && Array.isArray(posts)) {
                     let videoPosts = posts.filter(p => p.type === 'video');
-                    if (selectedCategory !== 'Todos') {
-                        videoPosts = videoPosts.filter(p => {
-                            // Exemplo: filtra por categoria no texto
-                            return p.text && p.text.toLowerCase().includes(selectedCategory.toLowerCase());
+                    // Coletar todas as categorias únicas
+                    const allCategories = Array.from(new Set(videoPosts.map(p => p.category || 'Outro')));
+                    // Renderizar categorias
+                    const catBar = document.getElementById('glance-videos-categories');
+                    if (catBar) {
+                        catBar.innerHTML = `<button class='cat-btn px-4 py-2 rounded-full font-semibold mr-2 ${selectedCategory==='Todos'?'bg-blue-500 text-white':'bg-gray-200'}' data-cat='Todos'>Todos</button>` +
+                            allCategories.map(cat => `<button class='cat-btn px-4 py-2 rounded-full font-semibold mr-2 ${selectedCategory===cat?'bg-blue-500 text-white':'bg-gray-200'}' data-cat='${cat}'>${cat}</button>`).join('');
+                        catBar.querySelectorAll('.cat-btn').forEach(btn => {
+                            btn.onclick = () => {
+                                selectedCategory = btn.getAttribute('data-cat');
+                                renderGlanceVideos();
+                            };
                         });
                     }
-                    videoPosts.forEach(post => {
+                    if (selectedCategory !== 'Todos') {
+                        videoPosts = videoPosts.filter(p => (p.category || 'Outro') === selectedCategory);
+                    }
+                    videoPosts.forEach((post, idx) => {
                         const div = document.createElement('div');
                         div.className = 'snap-center flex-shrink-0 w-[320px] h-[40vh] flex flex-col items-center justify-center bg-black rounded-2xl shadow-xl relative';
                         div.innerHTML = `
-                            <video src="${post.media}" controls autoplay muted playsinline class="w-full h-full object-contain rounded-xl bg-black"></video>
+                            <div class="absolute top-3 left-4 right-4 bg-black/70 rounded-xl p-2 flex items-center justify-between z-10">
+                                <h3 class="text-lg font-bold text-white">${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h3>
+                            </div>
+                            <video src="${post.media}" controls autoplay playsinline class="w-full h-full object-contain rounded-xl bg-black glance-carousel-video"></video>
                             <div class="absolute bottom-4 left-4 right-4 bg-black/60 rounded-xl p-3">
-                                <h3 class="text-lg font-bold">${users[post.user]?.name === undefined ? '@'+post.user : users[post.user].name}</h3>
                                 <p class="text-sm">${post.text}</p>
+                                <span class="inline-block mt-2 px-3 py-1 rounded-full bg-blue-200 text-blue-800 text-xs font-bold">${post.category || 'Outro'}</span>
                             </div>
                         `;
+                        // Open fullscreen modal on click
+                        div.onclick = function(e) {
+                            if (e.target.tagName.toLowerCase() === 'video') {
+                                showGlanceVideoModal(idx, videoPosts);
+                            }
+                        };
                         container.appendChild(div);
                     });
+                    // Pause all but the first visible video
+                    setTimeout(() => {
+                        const videos = container.querySelectorAll('.glance-carousel-video');
+                        videos.forEach((vid, i) => {
+                            if (i === 0) {
+                                vid.muted = false;
+                                vid.volume = 1;
+                                vid.play();
+                            } else {
+                                vid.muted = true;
+                                vid.pause();
+                            }
+                        });
+                    }, 100);
+// Fullscreen modal for Glance Videos with swipe navigation
+function showGlanceVideoModal(startIdx, videoPosts) {
+    let oldModal = document.getElementById('glance-video-modal');
+    if (oldModal) oldModal.remove();
+    let currentIdx = startIdx;
+    function renderModal(idx) {
+        const post = videoPosts[idx];
+        let modal = document.getElementById('glance-video-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'glance-video-modal';
+            modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/95';
+            document.body.appendChild(modal);
+        }
+        // Antes de criar o vídeo do modal, pausar e silenciar todos os áudios e vídeos existentes
+        // E remover o vídeo do feed que estava tocando para garantir que o áudio não persista
+        // Pausa e remove o vídeo do feed correspondente à mesma postagem
+        // O src do vídeo do modal será igual ao post.media
+        document.querySelectorAll('.feed-video').forEach(v => {
+            if (v.src === post.media || v.currentSrc === post.media || v.getAttribute('src') === post.media) {
+                try {
+                    v.currentTime = 0;
+                    v.pause();
+                    v.muted = true;
+                    v.removeAttribute('autoplay');
+                } catch(e){}
+            }
+        });
+
+        // Remove o vídeo do modal se já existir (para garantir que não há áudio "preso")
+        let oldModalVideo = modal.querySelector('#glance-modal-video');
+        if (oldModalVideo) {
+            oldModalVideo.pause();
+            oldModalVideo.src = '';
+            oldModalVideo.load();
+            oldModalVideo.remove();
+        }
+
+        // Agora cria o HTML do modal normalmente
+        modal.innerHTML = `
+            <button id='close-glance-video-modal' class='absolute top-4 left-4 bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg z-50'>
+                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' /></svg>
+            </button>
+            <button id='glance-video-sound-btn' class='absolute top-4 right-4 bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg z-50 flex items-center justify-center' title='Ativar/desativar som'>
+                <span id='glance-video-sound-icon'></span>
+            </button>
+            <div class='flex flex-col items-center justify-center w-full h-full'>
+                <video id='glance-modal-video' src='${post.media}' controls autoplay playsinline style='width:100vw;max-width:420px;height:80vh;max-height:80vh;aspect-ratio:9/16;display:block;margin:auto;background:black;' class='rounded-xl object-contain'></video>
+                <div class='w-full max-w-md mt-4 px-4'>
+                    <h2 class='text-xl font-bold mb-2 text-center text-white'>${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h2>
+                    <p class='text-base text-white mb-2'>${post.text}</p>
+                </div>
+            </div>
+        `;
+        // Sound toggle logic
+        const vid = modal.querySelector('#glance-modal-video');
+        const soundBtn = modal.querySelector('#glance-video-sound-btn');
+        const soundIcon = modal.querySelector('#glance-video-sound-icon');
+        function updateSoundIcon() {
+            if (vid.muted || vid.volume === 0) {
+                soundIcon.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke='currentColor' stroke-width='2' d='M9 9v6h4l5 5V4l-5 5H9z' /><line x1='19' y1='5' x2='5' y2='19' stroke='red' stroke-width='2'/></svg>`;
+            } else {
+                soundIcon.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke='currentColor' stroke-width='2' d='M9 9v6h4l5 5V4l-5 5H9z' /></svg>`;
+            }
+        }
+        vid.currentTime = 0;
+        vid.muted = false;
+        vid.volume = 1;
+        vid.play();
+        updateSoundIcon();
+        soundBtn.onclick = function(e) {
+            e.stopPropagation();
+            vid.muted = !vid.muted;
+            updateSoundIcon();
+        };
+        vid.onvolumechange = updateSoundIcon;
+        // Close modal
+        document.getElementById('close-glance-video-modal').onclick = () => {
+            modal.remove();
+            // Força reload completo da página para garantir que nada fique tocando
+            setTimeout(() => { window.location.reload(); }, 100);
+        };
+    // No visible prev/next buttons: navigation only by swipe or keyboard
+        // Keyboard navigation
+        modal.tabIndex = 0;
+        modal.focus();
+        modal.onkeydown = function(e) {
+            if (e.key === 'ArrowLeft') {
+                if (currentIdx > 0) { currentIdx--; renderModal(currentIdx); }
+            } else if (e.key === 'ArrowRight') {
+                if (currentIdx < videoPosts.length - 1) { currentIdx++; renderModal(currentIdx); }
+            } else if (e.key === 'Escape') {
+                modal.remove();
+            }
+        };
+        // Swipe navigation (touch and mouse)
+        let startX = null;
+        let isMouseDown = false;
+        // Touch events
+        modal.ontouchstart = function(e) {
+            if (e.touches.length === 1) startX = e.touches[0].clientX;
+        };
+        modal.ontouchend = function(e) {
+            if (startX !== null && e.changedTouches.length === 1) {
+                let dx = e.changedTouches[0].clientX - startX;
+                if (dx > 60 && currentIdx > 0) { currentIdx--; renderModal(currentIdx); }
+                else if (dx < -60 && currentIdx < videoPosts.length - 1) { currentIdx++; renderModal(currentIdx); }
+            }
+            startX = null;
+        };
+        // Mouse events for swipe on PC
+        modal.onmousedown = function(e) {
+            if (e.button === 0) { // left mouse button only
+                isMouseDown = true;
+                startX = e.clientX;
+            }
+        };
+        modal.onmouseup = function(e) {
+            if (isMouseDown && startX !== null) {
+                let dx = e.clientX - startX;
+                if (dx > 60 && currentIdx > 0) { currentIdx--; renderModal(currentIdx); }
+                else if (dx < -60 && currentIdx < videoPosts.length - 1) { currentIdx++; renderModal(currentIdx); }
+            }
+            isMouseDown = false;
+            startX = null;
+        };
+        modal.onmouseleave = function(e) {
+            isMouseDown = false;
+            startX = null;
+        };
+        // Ensure only this video plays
+        setTimeout(() => {
+            if (vid) {
+                vid.muted = false;
+                vid.volume = 1;
+                vid.play();
+                updateSoundIcon();
+            }
+        }, 100);
+    }
+    renderModal(currentIdx);
+}
                 }
             }
             // Garante renderização ao abrir a aba
@@ -311,7 +835,10 @@
                         <div id="profile-avatar-overlay" class="hidden fixed inset-0 z-[300] bg-black bg-opacity-90 flex items-center justify-center">
                             <img id="profile-avatar-full" src="" class="max-w-full max-h-full rounded-2xl shadow-2xl" />
                         </div>
-                        <img id="profile-avatar" class="w-32 h-32 rounded-full border-4 border-gray-300 dark:border-gray-700 mb-4 cursor-pointer" />
+                        <div style="position:relative;display:inline-block;">
+                            <img id="profile-avatar" class="w-32 h-32 rounded-full border-4 border-gray-300 dark:border-gray-700 mb-4 cursor-pointer" />
+                            <span id="profile-online-indicator" style="position:absolute;bottom:10px;right:10px;width:20px;height:20px;background:#22c55e;border:3px solid #fff;border-radius:50%;display:block;z-index:10;"></span>
+                        </div>
                         <button id="upload-btn" onclick="document.getElementById('file-upload').click()" class="absolute bottom-0 right-0 p-2 rounded-full bg-black dark:bg-white text-white dark:text-black hidden">
                             <!-- Ícone de câmera/upload -->
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -326,8 +853,8 @@
         <img id="profile-avatar-full" src="" class="max-w-full max-h-full rounded-2xl shadow-2xl" />
     </div>
                 <div class="w-full max-w-xs space-y-4 text-center text-black dark:text-white">
-                    <h2 id="profile-username" class="text-3xl font-bold">@usuario_glance</h2>
-                    <p id="profile-realname" class="text-lg font-semibold text-gray-800 dark:text-gray-200"></p>
+                    <h2 id="profile-realname" class="text-3xl font-bold"></h2>
+                    <p id="profile-username" class="text-lg font-semibold text-gray-800 dark:text-gray-200"></p>
                     <p class="text-sm text-gray-600 dark:text-gray-400" id="profile-bio">Um olhar para o mundo da tecnologia.</p>
                     <div class="flex justify-center space-x-6 mt-4">
                         <div class="text-center px-3 py-2 rounded-xl bg-white/30 dark:bg-black/30 backdrop-blur-md shadow-md border border-gray-200 dark:border-gray-700">
@@ -353,14 +880,12 @@
             <div id="edit-profile-form" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
                 <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 space-y-6 shadow-2xl flex flex-col items-center overflow-y-auto max-h-[90vh]">
                     <h2 class="text-2xl font-bold mb-2 text-center text-black dark:text-white">Editar Perfil</h2>
-                    <label class="w-full flex flex-col items-center mb-2">
-                        <span class="mb-1 text-sm font-semibold text-gray-700 dark:text-gray-300">Foto de Perfil</span>
-                        <input type="file" id="edit-avatar" accept="image/*" class="mb-2" />
-                    </label>
+                    <!-- Foto de Perfil removida -->
+                    <input type="text" id="edit-realname" placeholder="Nome completo" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
                     <input type="text" id="edit-username" placeholder="Novo nome de usuário" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
                     <textarea id="edit-bio" placeholder="Nova biografia" rows="6" class="w-full min-h-[120px] p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-y"></textarea>
                     <input type="date" id="edit-birthdate" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
-                    <input type="text" id="edit-location" placeholder="Localização" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                    <!-- Localização removida -->
                     <select id="edit-gender" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
                         <option value="">Gênero</option>
                         <option value="masculino">Masculino</option>
@@ -368,7 +893,7 @@
                         <option value="outro">Outro</option>
                         <option value="nao_informar">Prefiro não informar</option>
                     </select>
-                    <input type="text" id="edit-interests" placeholder="Interesses (separados por vírgula)" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                    <!-- Interesses removido -->
                     <button id="save-profile-btn" class="w-full py-3 bg-blue-500 text-white font-semibold rounded-2xl">Salvar</button>
                 </div>
             </div>
@@ -411,7 +936,24 @@
         </div>
     </div>
 
-    <script>
+        <script>
+        // Corrige o botão Editar Perfil para abrir o formulário
+        document.addEventListener('DOMContentLoaded', function() {
+            var editBtn = document.getElementById('edit-profile-btn');
+            var editForm = document.getElementById('edit-profile-form');
+            if (editBtn && editForm) {
+                editBtn.onclick = function() {
+                    editForm.classList.remove('hidden');
+                };
+            }
+            // Fecha o formulário ao clicar fora ou pressionar ESC
+            editForm?.addEventListener('click', function(e) {
+                if (e.target === editForm) editForm.classList.add('hidden');
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') editForm?.classList.add('hidden');
+            });
+        });
         // Dados fictícios para os usuários
         const users = {
             "usuario_glance": {
@@ -472,59 +1014,28 @@
 
         // Dados fictícios para as publicações (conectados aos usuários acima)
         let posts = [
-            {
-                user: "viajante_urbano",
-                type: "image",
-                media: "https://picsum.photos/400/600?random=10",
-                text: "Vista incrível do topo da montanha! A natureza é a melhor artista.",
-                reactions: { views: 1200, likes: 350, shares: 45 }
-            },
-            {
-                user: "arte_viva",
-                type: "video",
-                media: "placeholder",
-                text: "Começando um novo projeto de arte abstrata. As cores estão fluindo!",
-                reactions: { views: 850, likes: 210, shares: 28 }
-            },
-            {
-                user: "tecnologo_futuro",
-                type: "image",
-                media: "https://picsum.photos/400/600?random=11",
-                text: "O futuro da IA está em constante evolução. Animado para o que vem por aí!",
-                reactions: { views: 2500, likes: 980, shares: 150 }
-            },
-            {
-                user: "sabores_do_mundo",
-                type: "audio",
-                media: "placeholder",
-                text: "Tudo pronto para um jantar especial. A culinária é uma forma de arte.",
-                reactions: { views: 600, likes: 180, shares: 20 }
-            },
-            {
-                user: "musica_eterna",
-                type: "image",
-                media: "https://picsum.photos/400/600?random=12",
-                text: "Nada melhor que uma playlist relaxante para terminar o dia. Qual a sua favorita?",
-                reactions: { views: 1500, likes: 450, shares: 60 }
-            },
-            {
-                user: "usuario_glance",
-                type: "image",
-                media: "https://picsum.photos/400/600?random=13",
-                text: "Meu primeiro post! Estou adorando o Glance!",
-                reactions: { views: 100, likes: 25, shares: 3 }
-            },
-            {
-                user: "viajante_urbano",
-                type: "image",
-                media: "https://picsum.photos/400/600?random=14",
-                text: "Conhecendo mais uma cidade incrível. Cada esquina uma nova história.",
-                reactions: { views: 950, likes: 280, shares: 35 }
-            }
+            {id: "post1", user: "viajante_urbano", type: "image", media: "https://picsum.photos/400/600?random=10", text: "Vista incrível do topo da montanha! A natureza é a melhor artista.", reactions: { views: 1200, likes: 350, shares: 45 }, timestamp: Date.now() - 1000 * 60 * 60 * 2},
+            {id: "post2", user: "arte_viva", type: "video", media: "placeholder", text: "Começando um novo projeto de arte abstrata. As cores estão fluindo!", reactions: { views: 850, likes: 210, shares: 28 }, timestamp: Date.now() - 1000 * 60 * 60 * 5},
+            {id: "post3", user: "tecnologo_futuro", type: "image", media: "https://picsum.photos/400/600?random=11", text: "O futuro da IA está em constante evolução. Animado para o que vem por aí!", reactions: { views: 2500, likes: 980, shares: 150 }, timestamp: Date.now() - 1000 * 60 * 60 * 24},
+            {id: "post4", user: "sabores_do_mundo", type: "audio", media: "placeholder", text: "Tudo pronto para um jantar especial. A culinária é uma forma de arte.", reactions: { views: 600, likes: 180, shares: 20 }, timestamp: Date.now() - 1000 * 60 * 30},
+            {id: "post5", user: "musica_eterna", type: "image", media: "https://picsum.photos/400/600?random=12", text: "Nada melhor que uma playlist relaxante para terminar o dia. Qual a sua favorita?", reactions: { views: 1500, likes: 450, shares: 60 }, timestamp: Date.now() - 1000 * 60 * 60 * 12},
+            {id: "post6", user: "usuario_glance", type: "image", media: "https://picsum.photos/400/600?random=13", text: "Meu primeiro post! Estou adorando o Glance!", reactions: { views: 100, likes: 25, shares: 3 }, timestamp: Date.now() - 1000 * 60 * 10},
+            {id: "post7", user: "viajante_urbano", type: "image", media: "https://picsum.photos/400/600?random=14", text: "Conhecendo mais uma cidade incrível. Cada esquina uma nova história.", reactions: { views: 0, likes: 0, shares: 0 }, timestamp: Date.now() - 1000 * 60 * 60 * 3}
         ];
         // Controle de likes e comentários por usuário
         let userLikes = {};
     let userViews = {};
+
+    // Função para exibir há quanto tempo um post foi publicado
+    function timeAgo(timestamp) {
+        const now = Date.now();
+        const diff = Math.floor((now - timestamp) / 1000); // segundos
+        if (diff < 60) return 'agora mesmo';
+        if (diff < 3600) return `${Math.floor(diff/60)} min atrás`;
+        if (diff < 86400) return `${Math.floor(diff/3600)} h atrás`;
+        if (diff < 2592000) return `${Math.floor(diff/86400)} d atrás`;
+        return new Date(timestamp).toLocaleDateString();
+    }
         let postComments = posts.map(() => []);
 
         // Variável de controle para o perfil do usuário atual logado
@@ -859,21 +1370,23 @@
                     glanceDescModal.id = 'glance-desc-modal';
                     glanceDescModal.className = 'hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80';
                     glanceDescModal.innerHTML = `
-                         <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 space-y-6 shadow-2xl flex flex-col items-center">
-                             <h2 class="text-xl font-bold mb-2 text-center text-black dark:text-white">Nova Publicação</h2>
-                             <div id="glance-preview-container" class="w-full flex flex-col items-center mb-4"></div>
-                             <div class="w-full relative mb-2">
-                                 <textarea id="glance-desc-input" placeholder="Escreva uma descrição..." rows="3" class="w-full p-3 pr-12 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"></textarea>
-                                 <button id="glance-publish-btn" style="display:none; position:absolute; top:50%; right:8px; transform:translateY(-50%);" class="bg-blue-500 text-white rounded-full p-2 shadow-lg flex items-center justify-center">
-                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14L21 3m0 0l-6.5 6.5M21 3l-6.5 6.5M3 21v-4.5a2 2 0 012-2h4.5" />
-                                     </svg>
-                                 </button>
-                             </div>
-                             <div class="flex w-full space-x-2">
-                                 <button id="glance-cancel-btn" class="flex-1 py-3 bg-gray-300 dark:bg-gray-700 text-black dark:text-white font-semibold rounded-2xl">Cancelar</button>
-                             </div>
-                         </div>
+                        <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col items-center relative" style="max-height:90vh;">
+                            <div class="w-full flex-1 flex flex-col items-center p-8 space-y-6 overflow-y-auto" style="max-height:calc(90vh - 80px);">
+                                <h2 class="text-xl font-bold mb-2 text-center text-black dark:text-white">Nova Publicação</h2>
+                                <div id="glance-preview-container" class="w-full flex flex-col items-center mb-4"></div>
+                                <div class="w-full relative mb-2">
+                                    <textarea id="glance-desc-input" placeholder="Escreva uma descrição..." rows="3" class="w-full p-3 pr-12 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"></textarea>
+                                    <button id="glance-publish-btn" style="display:none; position:absolute; top:50%; right:8px; transform:translateY(-50%);" class="bg-blue-500 text-white rounded-full p-2 shadow-lg flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14L21 3m0 0l-6.5 6.5M21 3l-6.5 6.5M3 21v-4.5a2 2 0 012-2h4.5" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex w-full space-x-2 p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-b-2xl sticky bottom-0 z-10" style="box-shadow:0 -2px 8px 0 rgba(0,0,0,0.03);">
+                                <button id="glance-cancel-btn" class="flex-1 py-3 bg-gray-300 dark:bg-gray-700 text-black dark:text-white font-semibold rounded-2xl">Cancelar</button>
+                            </div>
+                        </div>
                     `;
                     document.body.appendChild(glanceDescModal);
                 }
@@ -894,33 +1407,34 @@
                         glanceUpload.click();
                     };
                 }
-                let uploadedFileData = null;
-                let uploadedFileType = null;
-                let uploadedTextContent = null;
+                // Use window-scoped variables for all flows
+                window.uploadedFileData = null;
+                window.uploadedFileType = null;
+                window.uploadedTextContent = null;
                 glanceUpload.onchange = (event) => {
                     const file = event.target.files[0];
                     if (file) {
                         const previewContainer = document.getElementById('glance-preview-container');
                         previewContainer.innerHTML = '';
-                        uploadedFileType = null;
-                        uploadedFileData = null;
-                        uploadedTextContent = null;
+                        window.uploadedFileType = null;
+                        window.uploadedFileData = null;
+                        window.uploadedTextContent = null;
                         glanceDescModal.classList.remove('hidden'); // Garante que o modal sempre aparece
                         document.getElementById('glance-publish-btn').style.display = 'none'; // Só mostra ao digitar
                         if (file.type.startsWith('image/')) {
                             const reader = new FileReader();
                             reader.onload = (e) => {
-                                uploadedFileData = e.target.result;
-                                uploadedFileType = 'image';
-                                previewContainer.innerHTML = `<img src="${uploadedFileData}" class="w-full max-w-xs rounded-xl mb-2 cursor-pointer" id="glance-preview-img" />`;
+                                window.uploadedFileData = e.target.result;
+                                window.uploadedFileType = 'image';
+                                previewContainer.innerHTML = `<img src="${window.uploadedFileData}" class="w-full max-w-xs rounded-xl mb-2 cursor-pointer" id="glance-preview-img" />`;
                                 // Adiciona evento para cancelar ao clicar na foto
                                 const previewImg = document.getElementById('glance-preview-img');
                                 if (previewImg) {
                                     previewImg.onclick = function() {
                                         glanceDescModal.classList.add('hidden');
-                                        uploadedFileData = null;
-                                        uploadedFileType = null;
-                                        uploadedTextContent = null;
+                                        window.uploadedFileData = null;
+                                        window.uploadedFileType = null;
+                                        window.uploadedTextContent = null;
                                         if (glanceUpload) glanceUpload.value = '';
                                         previewContainer.innerHTML = '';
                                         const descInput = document.getElementById('glance-desc-input');
@@ -932,32 +1446,32 @@
                         } else if (file.type.startsWith('video/')) {
                             const reader = new FileReader();
                             reader.onload = (e) => {
-                                uploadedFileData = e.target.result;
-                                uploadedFileType = 'video';
-                                previewContainer.innerHTML = `<video src="${uploadedFileData}" controls class="w-full max-w-xs rounded-xl mb-2"></video>`;
+                                window.uploadedFileData = e.target.result;
+                                window.uploadedFileType = 'video';
+                                previewContainer.innerHTML = `<video src="${window.uploadedFileData}" controls class="w-full max-w-xs rounded-xl mb-2"></video>`;
                             };
                             reader.readAsDataURL(file);
                         } else if (file.type.startsWith('audio/')) {
                             const reader = new FileReader();
                             reader.onload = (e) => {
-                                uploadedFileData = e.target.result;
-                                uploadedFileType = 'audio';
-                                previewContainer.innerHTML = `<audio src="${uploadedFileData}" controls class="w-full max-w-xs mb-2"></audio>`;
+                                window.uploadedFileData = e.target.result;
+                                window.uploadedFileType = 'audio';
+                                previewContainer.innerHTML = `<audio src="${window.uploadedFileData}" controls class="w-full max-w-xs mb-2"></audio>`;
                             };
                             reader.readAsDataURL(file);
                         } else if (file.name.endsWith('.txt')) {
                             const reader = new FileReader();
                             reader.onload = (e) => {
-                                uploadedTextContent = e.target.result;
-                                uploadedFileType = 'text';
-                                previewContainer.innerHTML = `<div class='w-full max-w-xs rounded-xl mb-2 bg-gray-200 dark:bg-gray-800 p-4'><pre class='whitespace-pre-wrap break-words'>${uploadedTextContent}</pre></div>`;
+                                window.uploadedTextContent = e.target.result;
+                                window.uploadedFileType = 'text';
+                                previewContainer.innerHTML = `<div class='w-full max-w-xs rounded-xl mb-2 bg-gray-200 dark:bg-gray-800 p-4'><pre class='whitespace-pre-wrap break-words'>${window.uploadedTextContent}</pre></div>`;
                             };
                             reader.readAsText(file);
                         } else {
                             previewContainer.innerHTML = `<div class='text-red-500'>Tipo de arquivo não suportado.</div>`;
                         }
                     }
-                    // Adiciona evento para mostrar botão ao digitar e publicar corretamente
+                    // Adiciona evento para mostrar botão ao digitar
                     const descInput = document.getElementById('glance-desc-input');
                     const publishBtn = document.getElementById('glance-publish-btn');
                     if (descInput && publishBtn) {
@@ -968,62 +1482,79 @@
                                 publishBtn.style.display = 'none';
                             }
                         };
-                        publishBtn.onclick = function(e) {
-                            e.preventDefault();
-                            // Bloqueia publicação se nome de usuário for '@usuario_glance'
-                            var username = document.getElementById('profile-username').textContent;
-                            if (username === '@usuario_glance') {
-                                if (typeof showMessageBox === 'function') {
-                                    showMessageBox('Configure seu perfil antes de publicar!');
-                                }
-                                return;
-                            }
-                            // Executa publicação normalmente
-                            const desc = descInput.value.trim() || 'Novo glance publicado!';
-                            if (uploadedFileType === 'image' && uploadedFileData) {
-                                posts.push({
-                                    user: window.loggedInUser,
-                                    type: 'image',
-                                    media: uploadedFileData,
-                                    text: desc,
-                                    reactions: { views: 0, likes: 0, shares: 0 }
-                                });
-                            } else if (uploadedFileType === 'video' && uploadedFileData) {
-                                posts.push({
-                                    user: window.loggedInUser,
-                                    type: 'video',
-                                    media: uploadedFileData,
-                                    text: desc,
-                                    reactions: { views: 0, likes: 0, shares: 0 }
-                                });
-                            } else if (uploadedFileType === 'audio' && uploadedFileData) {
-                                posts.push({
-                                    user: window.loggedInUser,
-                                    type: 'audio',
-                                    media: uploadedFileData,
-                                    text: desc,
-                                    reactions: { views: 0, likes: 0, shares: 0 }
-                                });
-                            } else if (uploadedFileType === 'text' && uploadedTextContent) {
-                                posts.push({
-                                    user: window.loggedInUser,
-                                    type: 'text',
-                                    media: null,
-                                    text: uploadedTextContent,
-                                    reactions: { views: 0, likes: 0, shares: 0 }
-                                });
-                            }
-                            generateFeedContent();
-                            updateProfilePage(window.loggedInUser);
-                            if (typeof renderGlanceVideos === 'function') renderGlanceVideos();
-                            showPage('feed');
-                            glanceDescModal.classList.add('hidden');
-                            uploadedFileData = null;
-                            uploadedFileType = null;
-                            uploadedTextContent = null;
-                        };
                     }
                 };
+                // Always attach publish logic ONCE, using global variables
+                const publishBtn = document.getElementById('glance-publish-btn');
+                if (publishBtn) {
+                    publishBtn.onclick = function(e) {
+                        if (e) e.preventDefault();
+                        // Bloqueia publicação se nome de usuário for '@usuario_glance'
+                        var username = document.getElementById('profile-username')?.textContent;
+                        if (username === '@usuario_glance') {
+                            if (typeof showMessageBox === 'function') {
+                                showMessageBox('Configure seu perfil antes de publicar!');
+                            }
+                            return;
+                        }
+                        const descInput = document.getElementById('glance-desc-input');
+                        const desc = descInput?.value.trim() || 'Novo glance publicado!';
+                        if (window.uploadedFileType === 'image' && window.uploadedFileData) {
+                            posts.push({
+                                id: 'post' + (Date.now() + Math.floor(Math.random()*10000)),
+                                user: window.loggedInUser,
+                                type: 'image',
+                                media: window.uploadedFileData,
+                                text: desc,
+                                reactions: { views: 0, likes: 0, shares: 0 },
+                                timestamp: Date.now()
+                            });
+                        } else if (window.uploadedFileType === 'video' && window.uploadedFileData) {
+                            posts.push({
+                                id: 'post' + (Date.now() + Math.floor(Math.random()*10000)),
+                                user: window.loggedInUser,
+                                type: 'video',
+                                media: window.uploadedFileData,
+                                text: desc,
+                                reactions: { views: 0, likes: 0, shares: 0 },
+                                timestamp: Date.now()
+                            });
+                        } else if (window.uploadedFileType === 'audio' && window.uploadedFileData) {
+                            posts.push({
+                                id: 'post' + (Date.now() + Math.floor(Math.random()*10000)),
+                                user: window.loggedInUser,
+                                type: 'audio',
+                                media: window.uploadedFileData,
+                                text: desc,
+                                reactions: { views: 0, likes: 0, shares: 0 },
+                                timestamp: Date.now()
+                            });
+                        } else if (window.uploadedFileType === 'text' && window.uploadedTextContent) {
+                            posts.push({
+                                id: 'post' + (Date.now() + Math.floor(Math.random()*10000)),
+                                user: window.loggedInUser,
+                                type: 'text',
+                                media: null,
+                                text: window.uploadedTextContent,
+                                reactions: { views: 0, likes: 0, shares: 0 },
+                                timestamp: Date.now()
+                            });
+                        }
+                        generateFeedContent();
+                        updateProfilePage(window.loggedInUser);
+                        if (typeof renderGlanceVideos === 'function') renderGlanceVideos();
+                        // Redireciona para o feed
+                        if (typeof showPage === 'function') showPage('feed');
+                        glanceDescModal.classList.add('hidden');
+                        window.uploadedFileData = null;
+                        window.uploadedFileType = null;
+                        window.uploadedTextContent = null;
+                        if (glanceUpload) glanceUpload.value = '';
+                        const previewContainer = document.getElementById('glance-preview-container');
+                        if (previewContainer) previewContainer.innerHTML = '';
+                        if (descInput) descInput.value = '';
+                    };
+                }
                 document.getElementById('glance-cancel-btn').onclick = () => {
                     glanceDescModal.classList.add('hidden');
                     uploadedFileData = null;
@@ -1042,13 +1573,14 @@
                         }
                         return;
                     }
-                    const desc = document.getElementById('glance-desc-input').value.trim() || 'Novo glance publicado!';
+                    const descInput = document.getElementById('glance-desc-input');
+                    const desc = descInput ? descInput.value.trim() : '';
                     if (uploadedFileType === 'image' && uploadedFileData) {
                         posts.push({
                             user: window.loggedInUser,
                             type: 'image',
                             media: uploadedFileData,
-                            text: desc,
+                            text: desc || 'Novo glance publicado!',
                             reactions: { views: 0, likes: 0, shares: 0 }
                         });
                     } else if (uploadedFileType === 'video' && uploadedFileData) {
@@ -1056,7 +1588,7 @@
                             user: window.loggedInUser,
                             type: 'video',
                             media: uploadedFileData,
-                            text: desc,
+                            text: desc || 'Novo glance publicado!',
                             reactions: { views: 0, likes: 0, shares: 0 }
                         });
                     } else if (uploadedFileType === 'audio' && uploadedFileData) {
@@ -1064,17 +1596,23 @@
                             user: window.loggedInUser,
                             type: 'audio',
                             media: uploadedFileData,
-                            text: desc,
+                            text: desc || 'Novo glance publicado!',
                             reactions: { views: 0, likes: 0, shares: 0 }
                         });
-                    } else if (uploadedFileType === 'text' && uploadedTextContent) {
-                        posts.push({
-                            user: window.loggedInUser,
-                            type: 'text',
-                            media: null,
-                            text: uploadedTextContent,
-                            reactions: { views: 0, likes: 0, shares: 0 }
-                        });
+                    } else if (uploadedFileType === 'text') {
+                        // Always use the textarea value for text posts
+                        if (desc) {
+                            posts.push({
+                                user: window.loggedInUser,
+                                type: 'text',
+                                media: null,
+                                text: desc,
+                                reactions: { views: 0, likes: 0, shares: 0 }
+                            });
+                        } else {
+                            showMessageBox('Digite algum texto para publicar!');
+                            return;
+                        }
                     }
                     generateFeedContent();
                     updateProfilePage(window.loggedInUser);
@@ -1084,6 +1622,9 @@
                     uploadedFileData = null;
                     uploadedFileType = null;
                     uploadedTextContent = null;
+                    if (descInput) descInput.value = '';
+                    const previewContainer = document.getElementById('glance-preview-container');
+                    if (previewContainer) previewContainer.innerHTML = '';
                 };
             }
             const signupPageBtn = document.getElementById('signup-btn');
@@ -1101,7 +1642,29 @@
                 };
             }
         });
-        // ...existing code...
+        // Função para esconder/mostrar a barra de navegação ao rolar (estilo Instagram)
+        // Função para esconder/mostrar a barra de navegação ao rolar (estilo Instagram, PC e mobile)
+        (function() {
+            const navBar = document.getElementById('main-nav');
+            if (!navBar) return;
+            // Aplica para todos os containers de scroll
+            document.querySelectorAll('.scroll-container').forEach(container => {
+                let lastScrollTop = container.scrollTop;
+                container.addEventListener('scroll', function() {
+                    const st = container.scrollTop;
+                    if (st > lastScrollTop + 10) {
+                        navBar.style.transform = 'translateY(100%)';
+                    } else if (st < lastScrollTop - 10) {
+                        navBar.style.transform = 'translateY(0)';
+                    }
+                    lastScrollTop = st;
+                });
+                // Garante que a barra aparece ao entrar no container
+                container.addEventListener('mouseenter', function() {
+                    navBar.style.transform = 'translateY(0)';
+                });
+            });
+        })();
 // Modal de recorte de vídeo
 function showVideoTrimModal(file, onTrimmed) {
     let oldModal = document.getElementById('video-trim-modal');
@@ -1226,10 +1789,15 @@ function showVideoTrimModal(file, onTrimmed) {
             const newPage = document.querySelector(`[data-page="${pageName}"]`);
             if (currentPage === newPage) return;
             if (currentPage) {
-                currentPage.classList.remove('active');
+                // Adiciona fade-out antes de remover active
+                currentPage.classList.add('fade-out');
+                setTimeout(() => {
+                    currentPage.classList.remove('active', 'fade-out');
+                }, 400);
             }
-            newPage.classList.add('active', animation);
-            setTimeout(() => newPage.classList.remove(animation), 500);
+            // Garante que a nova página está visível e com fade-in
+            newPage.classList.add('active', 'fade-in');
+            setTimeout(() => newPage.classList.remove('fade-in'), 500);
             // Mostra a barra de navegação principal apenas após login/cadastro
             const appPages = ['feed', 'explore', 'create', 'communities', 'profile'];
             if (appPages.includes(pageName)) {
@@ -1278,14 +1846,12 @@ function showVideoTrimModal(file, onTrimmed) {
             const profilePostsGrid = document.getElementById('profile-posts-grid');
             
             // Atualiza os dados do perfil
-            profileUsername.textContent = `@${profile.username}`;
             const profileName = document.getElementById('profile-realname');
+            if (profileName) profileName.textContent = (profile.name && profile.name.trim() !== '' && profile.name !== 'Lucas Silva') ? profile.name : '';
+            if (profileUsername) profileUsername.textContent = `@${profile.username}`;
             if (username === window.loggedInUser) {
-                // Só mostra nome se for diferente do padrão (Lucas Silva) e estiver configurado
-                if (profileName) profileName.textContent = (profile.name && profile.name.trim() !== '' && profile.name !== 'Lucas Silva') ? profile.name : '';
                 profileBio.textContent = (profile.bio && profile.bio.trim() !== '') ? profile.bio : '';
             } else {
-                if (profileName) profileName.textContent = profile.name || '';
                 profileBio.textContent = profile.bio;
             }
             profileAvatar.src = profile.avatar;
@@ -1382,36 +1948,205 @@ function showVideoTrimModal(file, onTrimmed) {
                 const modal = document.createElement('div');
                 modal.id = 'fullpost-modal';
                 modal.className = 'fixed inset-0 z-[500] flex items-center justify-center bg-black/80 backdrop-blur-2xl';
+                let audioModalHtml = '';
+                if (post.type === 'audio') {
+                    audioModalHtml = `
+                        <div class='w-full h-full flex flex-col items-center justify-center' style="background: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%);">
+                            <button id='close-fullpost-btn' class='absolute top-4 left-4 bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg z-50'>
+                                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' /></svg>
+                            </button>
+                            <div class='flex flex-col items-center justify-center w-full h-full'>
+                                <div class='flex items-center justify-center mb-2' style='height:56px;'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 48 48" width="56" height="56">
+                                        <path d="M12 28v-4a12 12 0 0 1 24 0v4" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <rect x="6" y="28" width="8" height="12" rx="4" fill="#fff" fill-opacity="0.7" stroke="#fff" stroke-width="2"/>
+                                        <rect x="34" y="28" width="8" height="12" rx="4" fill="#fff" fill-opacity="0.7" stroke="#fff" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <canvas id='audio-waves-canvas' width='340' height='180' style='max-width:90vw;max-height:40vh;'></canvas>
+                                <div class='mt-8 text-center'>
+                                    <h2 class='text-2xl font-bold text-white mb-2'>${users[post.user].name || '@'+post.user}</h2>
+                                    <p class='text-base text-white/80 mb-2'>${post.text}</p>
+                                    <span class='text-white text-xs opacity-60'>(toque/click para pausar/reproduzir)</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
                 modal.innerHTML = `
-                    <div class='fixed top-4 left-4 z-50'>
-                        <button id='close-fullpost-btn' class='bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg'>
-                            <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' /></svg>
-                        </button>
-                    </div>
-                    <div class='w-full h-full flex flex-col items-center justify-center overflow-y-auto pt-20'>
-                        ${post.type === 'video' ? `<div class='relative w-full flex flex-col items-center justify-center'><div class='flex items-center justify-center w-full' style='background:black;'><video id='fullpost-video' src='${post.media}' controls autoplay playsinline style='width:100vw;max-width:420px;height:80vh;max-height:80vh;aspect-ratio:9/16;display:block;margin:auto;background:black;' class='rounded-xl object-contain'></video></div><div class='w-full max-w-md mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center text-white'>${users[post.user].name || '@'+post.user}</h2><p class='text-base text-white mb-2'>${post.text}</p></div></div>` : ''}
-                        ${post.type === 'image' ? `<img src='${post.media}' class='w-full max-h-[80vh] rounded-xl object-contain' /><div class='w-full max-w-md mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center text-white'>${users[post.user].name || '@'+post.user}</h2><p class='text-base text-white mb-2'>${post.text}</p></div>` : ''}
-                        ${post.type === 'audio' ? `<div class='w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-2xl flex flex-col items-center'><audio id='fullpost-audio' src='${post.media}' controls autoplay class='w-full'></audio><div class='w-full mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center' style='color:#fff;'>${users[post.user].name || '@'+post.user}</h2><p class='text-base mb-2' style='color:#fff !important;'>${post.text}</p></div></div>` : ''}
-                        ${post.type === 'text' ? `<div class='w-full max-w-md bg-gray-200 dark:bg-gray-800 p-4 rounded-xl'><pre>${post.text}</pre></div>` : ''}
-                        ${post.type !== 'image' ? `<div class='w-full max-w-md mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center text-black dark:text-white'>${users[post.user].name || '@'+post.user}</h2><p class='text-base text-black dark:text-white mb-2'>${post.text}</p></div>` : ''}
-                    </div>
+                    ${post.type === 'video' ? `
+                        <div class='relative w-full flex flex-col items-center justify-center'>
+                            <button id='close-fullpost-btn' class='absolute top-4 left-4 bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg z-50'>
+                                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' /></svg>
+                            </button>
+                            <div class='flex items-center justify-center w-full' style='background:black;'>
+                                <video id='fullpost-video' src='${post.media}' controls autoplay playsinline style='width:100vw;max-width:420px;height:80vh;max-height:80vh;aspect-ratio:9/16;display:block;margin:auto;background:black;' class='rounded-xl object-contain'></video>
+                            </div>
+                            <div class='w-full max-w-md mt-4 px-4'>
+                                <h2 class='text-xl font-bold mb-2 text-center text-white'>${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h2>
+                                <p class='text-base text-white mb-2'>${post.text}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${post.type === 'image' ? `
+                        <div class='relative w-full flex flex-col items-center justify-center'>
+                            <button id='close-fullpost-btn' class='absolute top-4 left-4 bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg z-50'>
+                                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' /></svg>
+                            </button>
+                            <img src='${post.media}' class='w-full max-h-[80vh] rounded-xl object-contain' />
+                            <div class='w-full max-w-md mt-4 px-4'>
+                                <h2 class='text-xl font-bold mb-2 text-center text-white'>${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h2>
+                                <p class='text-base text-white mb-2'>${post.text}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${post.type === 'audio' ? audioModalHtml : ''}
+                    ${post.type === 'text' ? `<div class='w-full max-w-md bg-gray-200 dark:bg-gray-800 p-4 rounded-xl'><pre>${post.text}</pre></div>` : ''}
+                    ${post.type !== 'image' && post.type !== 'audio' && post.type !== 'video' ? `<div class='w-full max-w-md mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center text-black dark:text-white'>${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h2><p class='text-base text-black dark:text-white mb-2'>${post.text}</p></div>` : ''}
                 `;
                 document.body.appendChild(modal);
-                // Seta sempre visível e funcional
-                modal.querySelector('#close-fullpost-btn').onclick = () => modal.remove();
-                // Garante reprodução do vídeo/audio
+                // Botão fechar
+                // Áudio: referência para controle
+                let audio = null;
+                let audioCleanup = null;
+                if (post.type === 'audio') {
+                    // O áudio será criado no bloco abaixo
+                }
+                // Função para fechar o modal e parar áudio se existir
+                function closeModal() {
+                    if (audio) {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        audio.src = '';
+                        audio.load();
+                        audio = null;
+                    }
+                    if (typeof audioCleanup === 'function') audioCleanup();
+                    modal.remove();
+                }
+                modal.querySelector('#close-fullpost-btn').onclick = closeModal;
+                // Garante que ao remover o modal manualmente (ex: ESC, click fora, etc) o áudio pare
+                const observer = new MutationObserver(() => {
+                    if (!document.body.contains(modal)) {
+                        if (audio) {
+                            audio.pause();
+                            audio.currentTime = 0;
+                            audio.src = '';
+                            audio.load();
+                            audio = null;
+                        }
+                        if (typeof audioCleanup === 'function') audioCleanup();
+                        observer.disconnect();
+                    }
+                });
+                observer.observe(document.body, {childList:true, subtree:true});
+                // Vídeo: mantém comportamento
                 setTimeout(() => {
                     const vid = modal.querySelector('#fullpost-video');
                     if (vid) {
                         vid.currentTime = 0;
                         vid.play();
                     }
-                    const aud = modal.querySelector('#fullpost-audio');
-                    if (aud) {
-                        aud.currentTime = 0;
-                        aud.play();
-                    }
                 }, 200);
+                // Áudio: canvas animado, play/pause e controle de velocidade
+                if (post.type === 'audio') {
+                    audio = new Audio(post.media);
+                    audio.autoplay = true;
+                    let playing = true;
+                    let animationId;
+                    let playbackRates = [1, 1.25, 1.5, 1.75, 2];
+                    let rateIdx = 0;
+                    const canvas = modal.querySelector('#audio-waves-canvas');
+                    const ctx = canvas.getContext('2d');
+                    // Botão de velocidade
+                    const speedBtn = document.createElement('button');
+                    speedBtn.textContent = '1x';
+                    speedBtn.className = 'absolute top-4 right-4 bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full px-4 py-2 shadow-lg z-50 font-bold text-lg';
+                    speedBtn.style.transition = 'background 0.2s';
+                    modal.appendChild(speedBtn);
+                    speedBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        rateIdx = (rateIdx + 1) % playbackRates.length;
+                        audio.playbackRate = playbackRates[rateIdx];
+                        speedBtn.textContent = playbackRates[rateIdx] + 'x';
+                    };
+                    // Parâmetros das ondas
+                    const waves = [
+                        {amp: 28, freq: 0.018, speed: 0.018, color: 'rgba(255,255,255,0.85)', phase: 0},
+                        {amp: 18, freq: 0.024, speed: 0.022, color: 'rgba(255,255,255,0.5)', phase: Math.PI/3},
+                        {amp: 12, freq: 0.032, speed: 0.028, color: 'rgba(255,255,255,0.3)', phase: Math.PI/1.5}
+                    ];
+                    let t = 0;
+                    function drawWaves() {
+                        ctx.clearRect(0,0,canvas.width,canvas.height);
+                        waves.forEach(wave => {
+                            ctx.beginPath();
+                            for(let x=0;x<=canvas.width;x+=2) {
+                                const y = canvas.height/2 + Math.sin(x*wave.freq + t*wave.speed + wave.phase)*wave.amp;
+                                if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+                            }
+                            ctx.strokeStyle = wave.color;
+                            ctx.lineWidth = 4;
+                            ctx.stroke();
+                        });
+                    }
+                    function animate() {
+                        if (!playing) return;
+                        t += 1.5;
+                        drawWaves();
+                        animationId = requestAnimationFrame(animate);
+                    }
+                    function startAnim() {
+                        if (!playing) return;
+                        cancelAnimationFrame(animationId);
+                        animate();
+                    }
+                    function stopAnim() {
+                        cancelAnimationFrame(animationId);
+                        drawWaves();
+                    }
+                    // Play/pause ao clicar
+                    canvas.onclick = () => {
+                        if (audio.paused) {
+                            audio.play();
+                            playing = true;
+                            startAnim();
+                        } else {
+                            audio.pause();
+                            playing = false;
+                            stopAnim();
+                        }
+                    };
+                    // Também permite pausar/play ao clicar em qualquer lugar do modal
+                    modal.querySelector('.flex.flex-col.items-center.justify-center.w-full.h-full').onclick = (e) => {
+                        if (e.target === canvas || e.target === speedBtn) return;
+                        if (audio.paused) {
+                            audio.play();
+                            playing = true;
+                            startAnim();
+                        } else {
+                            audio.pause();
+                            playing = false;
+                            stopAnim();
+                        }
+                    };
+                    // Sincroniza animação com play/pause
+                    audio.onplay = () => { playing = true; startAnim(); };
+                    audio.onpause = () => { playing = false; stopAnim(); };
+                    // Inicia
+                    drawWaves();
+                    audio.play();
+                    // Cleanup para garantir que o áudio pare sempre
+                    audioCleanup = function() {
+                        if (audio) {
+                            audio.pause();
+                            audio.currentTime = 0;
+                            audio.src = '';
+                            audio.load();
+                            audio = null;
+                        }
+                    };
+                }
             }
             const feedContainer = document.getElementById('feed-scroll-container');
             if (!feedContainer) return;
@@ -1438,15 +2173,52 @@ function showVideoTrimModal(file, onTrimmed) {
                     mediaContent = `<img src="${post.media}" class="w-full h-full object-cover rounded-3xl absolute inset-0 z-0">`;
                 } else if (post.type === 'video') {
                     mediaContent = `
-                        <div class="w-full h-full bg-black flex items-center justify-center rounded-3xl absolute inset-0 z-0">
-                            <span class="text-7xl text-white">📹</span>
+                        <div class="relative w-full h-full">
+                            <video src="${post.media}" class="feed-video w-full h-full object-cover rounded-3xl absolute inset-0 z-0" style="background:black;" playsinline muted></video>
+                            <button class="feed-video-sound-btn absolute bottom-4 right-4 z-10 bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg flex items-center justify-center" title="Ativar/desativar som" style="backdrop-filter: blur(4px);">
+                                <span class="feed-video-sound-icon"></span>
+                            </button>
                         </div>
                     `;
+            // Add mute/unmute logic for feed videos
+            setTimeout(() => {
+                const videos = feedContainer.querySelectorAll('.feed-video');
+                const soundBtns = feedContainer.querySelectorAll('.feed-video-sound-btn');
+                videos.forEach((vid, i) => {
+                    const btn = soundBtns[i];
+                    if (!btn) return;
+                    function updateIcon() {
+                        const icon = btn.querySelector('.feed-video-sound-icon');
+                        if (vid.muted || vid.volume === 0) {
+                            icon.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-6 h-6'><path stroke='currentColor' stroke-width='2' d='M9 9v6h4l5 5V4l-5 5H9z' /><line x1='19' y1='5' x2='5' y2='19' stroke='red' stroke-width='2'/></svg>`;
+                        } else {
+                            icon.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-6 h-6'><path stroke='currentColor' stroke-width='2' d='M9 9v6h4l5 5V4l-5 5H9z' /></svg>`;
+                        }
+                    }
+                    updateIcon();
+                    btn.onclick = function(e) {
+                        e.stopPropagation();
+                        vid.muted = !vid.muted;
+                        if (!vid.muted) { vid.volume = 1; vid.play(); }
+                        updateIcon();
+                    };
+                    vid.onvolumechange = updateIcon;
+                });
+            }, 200);
                 } else if (post.type === 'audio') {
                     mediaContent = `
                         <div class="w-full h-full bg-purple-500 dark:bg-purple-900 flex flex-col items-center justify-center rounded-3xl absolute inset-0 z-0 text-white">
                             <span class="text-7xl">🎵</span>
                             <p class="mt-2 text-sm font-semibold">Reproduzir Áudio</p>
+                        </div>
+                    `;
+                } else if (post.type === 'text') {
+                    // Text post: use same size as image, but with centered, prominent text
+                    mediaContent = `
+                        <div class="w-full h-full flex flex-col items-center justify-center rounded-3xl absolute inset-0 z-0 bg-gradient-to-br from-blue-100 via-white to-blue-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-700">
+                            <div class="flex flex-col items-center justify-center w-full h-full px-6">
+                                <span class="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white break-words" style="word-break:break-word;">${post.text}</span>
+                            </div>
                         </div>
                     `;
                 }
@@ -1468,15 +2240,22 @@ function showVideoTrimModal(file, onTrimmed) {
                     commentsHtml += `</div>`;
                 }
 
+                // Tempo de publicação no topo
+                const timeHtml = `<div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-black/70 dark:bg-white/80 text-white dark:text-black text-xs font-semibold px-4 py-1 rounded-full shadow-lg select-none" style="backdrop-filter: blur(4px);">${typeof post.timestamp !== 'undefined' ? timeAgo(post.timestamp) : ''}</div>`;
+
                 postElement.innerHTML = `
-                    ${mediaContent}
-                    <div class="relative z-10 flex items-center space-x-2 p-2 rounded-full bg-black/50 dark:bg-white/50 backdrop-blur-md w-fit self-start cursor-pointer" data-profile="${post.user}">
-                        <img src="${users[post.user].avatar}" class="w-8 h-8 rounded-full border-2 border-white" />
+                    <div class="relative z-10 flex items-center space-x-2 p-2 rounded-full bg-black/50 dark:bg-white/50 backdrop-blur-md w-fit self-start mb-2 cursor-pointer" data-profile="${post.user}">
+                        <span style="position:relative;display:inline-block;">
+                            <img src="${users[post.user].avatar}" class="w-8 h-8 rounded-full border-2 border-white" />
+                            <span style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:#22c55e;border:2px solid #fff;border-radius:50%;display:block;z-index:10;"></span>
+                        </span>
                         <div class="flex flex-col">
                             <span class="text-white font-semibold text-sm">${users[post.user].name}</span>
-                            <span class="text-xs text-gray-200 dark:text-gray-700">@${post.user}</span>
+                            <span class="text-xs text-gray-200 dark:text-gray-700">@${users[post.user].username}</span>
                         </div>
                     </div>
+                    ${mediaContent}
+                    ${timeHtml}
                     <button class="follow-btn absolute top-4 right-4 bg-blue-500 text-white text-xs font-semibold rounded-full px-4 py-1 shadow-md hover:bg-blue-600 transition-all duration-200" style="${isOwnPost ? 'display:none;' : ''}">Seguir</button>
                     <div class="relative z-10 flex flex-col space-y-4">
                         <div class="bg-black/50 dark:bg-white/50 text-white dark:text-black p-4 rounded-xl shadow-inner backdrop-blur-md">
@@ -1494,14 +2273,22 @@ function showVideoTrimModal(file, onTrimmed) {
                                 </svg>
                                 <span class="ml-1 text-base font-bold">${formatNumber(post.reactions.likes)}</span>
                             </button>
-                            <button class="reaction-btn reaction-shares text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center" title="Re-glance">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
-                                    <path stroke="currentColor" stroke-width="2" d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" />
-                                    <polyline points="16 6 12 2 8 6" stroke="currentColor" stroke-width="2" fill="none" />
-                                    <line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" stroke-width="2" />
-                                </svg>
-                                <span class="ml-1 text-base font-bold">${formatNumber(post.reactions.shares)}</span>
-                            </button>
+                            <div class="relative inline-block">
+                                <button class="reaction-btn reaction-shares text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center share-btn" title="Re-glance" data-postidx="${postIdx}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
+                                        <path stroke="currentColor" stroke-width="2" d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7" />
+                                        <polyline points="16 6 12 2 8 6" stroke="currentColor" stroke-width="2" fill="none" />
+                                        <line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" stroke-width="2" />
+                                    </svg>
+                                    <span class="ml-1 text-base font-bold">${formatNumber(post.reactions.shares)}</span>
+                                </button>
+                                <div class="share-menu hidden absolute z-50 top-12 left-0 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-2 flex flex-col min-w-[180px]">
+                                    <button class="share-opt flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900" data-share="whatsapp"><span>🟢</span> WhatsApp</button>
+                                    <button class="share-opt flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900" data-share="tiktok"><span>🎵</span> TikTok</button>
+                                    <button class="share-opt flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900" data-share="instagram"><span>📸</span> Instagram</button>
+                                    <button class="share-opt flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900" data-share="facebook"><span>🔵</span> Facebook</button>
+                                </div>
+                            </div>
                             <!-- Comentar -->
                             <button class="comment-btn ml-2 text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center" title="Comentar" data-postidx="${postIdx}">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
@@ -1516,9 +2303,100 @@ function showVideoTrimModal(file, onTrimmed) {
                 postElement.onclick = function(e) {
                     // Evita abrir ao clicar em botões internos
                     if (e.target.closest('.reaction-btn') || e.target.closest('.comment-btn') || e.target.closest('.follow-btn')) return;
+                    // Não permite abrir texto em fullscreen
+                    if (post.type === 'text') return;
+                    // Se clicar no vídeo, abre em tela cheia
+                    if (e.target.tagName && e.target.tagName.toLowerCase() === 'video') {
+                        showFullPost(postIdx);
+                        return;
+                    }
                     showFullPost(postIdx);
                 };
+            // Autoplay/pause feed videos based on visibility
+            setTimeout(() => {
+                const videos = feedContainer.querySelectorAll('.feed-video');
+                if ('IntersectionObserver' in window) {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.play();
+                            } else {
+                                entry.target.pause();
+                            }
+                        });
+                    }, { threshold: 0.5 });
+                    videos.forEach(v => { observer.observe(v); });
+                } else {
+                    // Fallback: play all
+                    videos.forEach(v => v.play());
+                }
+            }, 100);
                 feedContainer.appendChild(postElement);
+            // Compartilhamento personalizado
+            // Remove qualquer evento antigo do botão de compartilhar (reaction-shares)
+            const oldShareBtn = postElement.querySelector('.reaction-shares');
+            if (oldShareBtn) {
+                oldShareBtn.onclick = null;
+                oldShareBtn.addEventListener('click', function(e) { e.preventDefault(); });
+            }
+            // Compartilhamento personalizado
+            const shareBtn = postElement.querySelector('.share-btn');
+            const shareMenu = postElement.querySelector('.share-menu');
+            if (shareBtn && shareMenu) {
+                // Remove qualquer evento antigo
+                shareBtn.onclick = null;
+                shareBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // Só permite se perfil estiver configurado
+                    if (typeof isProfileConfigured === 'function' && !isProfileConfigured()) {
+                        if (typeof showMessageBox === 'function') {
+                            showMessageBox('Configure seu perfil (nome e bio) antes de compartilhar!');
+                        }
+                        shareMenu.classList.add('hidden');
+                        return;
+                    }
+                    // Fecha outros menus
+                    document.querySelectorAll('.share-menu').forEach(m => { if (m !== shareMenu) m.classList.add('hidden'); });
+                    shareMenu.classList.toggle('hidden');
+                });
+                // Compartilhamento para redes
+                shareMenu.querySelectorAll('.share-opt').forEach(opt => {
+                    opt.onclick = null;
+                    opt.addEventListener('click', function(ev) {
+                        ev.stopPropagation();
+                        const type = opt.getAttribute('data-share');
+                        let url = '';
+                        let videoUrl = post.media;
+                        if (!/^https?:\/\//.test(videoUrl)) {
+                            videoUrl = window.location.origin + '/' + videoUrl.replace(/^\//, '');
+                        }
+                        if (type === 'whatsapp') {
+                            url = `https://wa.me/?text=${encodeURIComponent('Veja este vídeo: ' + videoUrl)}`;
+                        } else if (type === 'tiktok') {
+                            url = `https://www.tiktok.com/upload?url=${encodeURIComponent(videoUrl)}`;
+                        } else if (type === 'instagram') {
+                            url = `https://www.instagram.com/?url=${encodeURIComponent(videoUrl)}`;
+                        } else if (type === 'facebook') {
+                            url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(videoUrl)}`;
+                        }
+                        window.open(url, '_blank');
+                        // Incrementa o contador de compartilhamento
+                        post.reactions.shares++;
+                        generateFeedContent();
+                        shareMenu.classList.add('hidden');
+                    });
+                });
+            }
+            // Fecha menu ao clicar fora
+            setTimeout(() => {
+                document.addEventListener('click', function(e) {
+                    document.querySelectorAll('.share-menu').forEach(menu => {
+                        if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !e.target.classList.contains('share-btn')) {
+                            menu.classList.add('hidden');
+                        }
+                    });
+                });
+            }, 0);
             });
             // Delegação para botões de perfil e reações
             // Botão para expandir comentários (abre modal fullscreen glass)
@@ -1585,16 +2463,8 @@ function showVideoTrimModal(file, onTrimmed) {
                 };
             });
             feedContainer.querySelectorAll('.reaction-shares').forEach((btn, i) => {
-                btn.onclick = () => {
-                    const user = window.loggedInUser;
-                    if (user === 'usuario_glance' || users[user].username === 'usuario_glance') {
-                        showMessageBox('Configure seu perfil para liberar as reações!');
-                        return;
-                    }
-                    const postIdx = reversedPosts.length - 1 - i;
-                    posts[postIdx].reactions.shares++;
-                    generateFeedContent();
-                };
+                // Não faz nada! O compartilhamento é tratado pelo menu customizado.
+                btn.onclick = function(e) { e.preventDefault(); };
             });
             // Comentário: abre modal
             feedContainer.querySelectorAll('.comment-btn').forEach(btn => {
