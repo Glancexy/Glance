@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-br" class="light">
 <head>
+    <!-- Cropper.js para recorte de imagem -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Glance - Veja o mundo em um só olhar.</title>
@@ -23,11 +26,21 @@
             font-weight: 800;
             letter-spacing: 0.05em;
         }
-        /* Modal de boas-vindas menor em telas pequenas */
+        /* Modal de boas-vindas responsivo e proporcional em telas pequenas */
         @media (max-width: 480px) {
             [data-page="welcome"] > div {
-                max-width: 22rem !important;
-                padding: 1.5rem !important;
+                max-width: 90vw !important;
+                min-width: 220px !important;
+                padding: 1.2rem !important;
+                border-radius: 1.5rem !important;
+            }
+        }
+        @media (max-width: 350px) {
+            [data-page="welcome"] > div {
+                max-width: 98vw !important;
+                min-width: 180px !important;
+                padding: 0.7rem !important;
+                border-radius: 1.2rem !important;
             }
         }
         body { 
@@ -73,7 +86,7 @@
 
     <!-- Modal Liquid Glass de Boas-Vindas -->
     <div data-page="welcome" class="page fixed inset-0 z-[100] items-center justify-center transition-all duration-500" style="display:none; backdrop-filter: blur(16px); background: rgba(255,255,255,0.12);">
-        <div class="w-full max-w-md bg-white/30 dark:bg-black/30 rounded-3xl shadow-2xl backdrop-blur-2xl border border-white/40 dark:border-black/40 p-8 flex flex-col items-center relative" style="box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-white/40 p-8 flex flex-col items-center relative" style="box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);">
             <h2 class="text-3xl font-extrabold mb-4 text-center text-black dark:text-white drop-shadow-lg">Você concluiu o cadastro com sucesso!</h2>
             <p class="text-lg mb-6 text-gray-800 dark:text-gray-200 text-center font-medium">Bem-vindo(a) ao Glance, a rede social para compartilhar olhares rápidos sobre o mundo.<br><br>
             Aqui você pode publicar fotos, vídeos, textos e áudios, seguir pessoas e reagir aos posts de forma única.<br><br>
@@ -104,13 +117,12 @@
         <!-- Formulário de Cadastro -->
         <div data-page="signup_form" class="page flex-col items-center justify-center p-8 transition-all duration-500">
             <h2 class="text-3xl font-bold mb-6 text-center text-black dark:text-white">Criar Sua Conta</h2>
-            <div class="w-full max-w-sm space-y-4">
-                <input type="text" placeholder="Nome completo" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
-                <input type="text" placeholder="Nome de usuário" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
-                <input type="email" placeholder="E-mail" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
-                <input type="password" placeholder="Senha" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
-                <button id="signup-btn" class="w-full py-4 px-6 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Cadastrar</button>
-            </div>
+            <form id="signup-form" class="w-full max-w-sm space-y-4" autocomplete="off">
+                <!-- Apenas e-mail e senha -->
+                <input type="email" placeholder="E-mail" name="email" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" required />
+                <input type="password" placeholder="Senha" name="senha" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" required />
+                <button id="signup-btn" type="submit" class="w-full py-4 px-6 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Cadastrar</button>
+            </form>
             <p class="mt-4 text-center text-black dark:text-white">Já tem uma conta? <button onclick="showPage('login_form')" class="underline font-semibold">Entrar</button></p>
         </div>
 
@@ -120,7 +132,7 @@
             <div class="w-full max-w-sm space-y-4">
                 <input type="email" placeholder="E-mail ou nome completo" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
                 <input type="password" placeholder="Senha" class="w-full p-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
-                <button onclick="showPage('feed')" class="w-full py-4 px-6 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Entrar</button>
+                <button id="login-btn" class="w-full py-4 px-6 bg-black dark:bg-white text-white dark:text-black font-semibold rounded-2xl shadow-lg transition-transform transform hover:scale-105 duration-200">Entrar</button>
             </div>
             <p class="mt-4 text-center text-black dark:text-white">Não tem uma conta? <button onclick="showPage('signup_form')" class="underline font-semibold">Criar Conta</button></p>
         </div>
@@ -164,16 +176,202 @@
 
         <!-- Tela Principal - Feed -->
         <div data-page="feed" class="page flex-col items-center justify-start p-4 pt-16 h-full scroll-container">
+            <!-- ...existing code... -->
+            <!-- Sidebar Menu Lateral do Feed -->
+            <script>
+    // --- LOGOUT --- //
+    document.addEventListener('DOMContentLoaded', function() {
+        function setupLogoutBtn() {
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.onclick = async function() {
+                    await firebase.auth().signOut();
+                    showPage('login');
+                };
+            }
+        }
+        setupLogoutBtn();
+        // Se usar navegação SPA, reative ao trocar de página:
+        if(window.showPage) {
+            const oldShowPage = window.showPage;
+            window.showPage = function(page) {
+                if (oldShowPage) oldShowPage.apply(this, arguments);
+                setTimeout(setupLogoutBtn, 100);
+            };
+        }
+    });
+// Adiciona script do Firestore
+if (typeof firebase === 'undefined' || !firebase.firestore) {
+    var script3 = document.createElement('script');
+    script3.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js";
+    document.head.appendChild(script3);
+}
+// Firebase config e inicialização
+if (typeof firebase === 'undefined') {
+    // Adiciona scripts do Firebase se não estiverem presentes
+    var script1 = document.createElement('script');
+    script1.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js";
+    document.head.appendChild(script1);
+    var script2 = document.createElement('script');
+    script2.src = "https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js";
+    document.head.appendChild(script2);
+}
+window.addEventListener('load', function() {
+    if (typeof firebase !== 'undefined' && firebase.firestore && !window.db) {
+        window.db = firebase.firestore();
+    }
+    if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+});
+// Validação do cadastro: só permite criar conta se e-mail for válido e senha >= 6 caracteres
+document.addEventListener('DOMContentLoaded', function() {
+    var signupForm = document.getElementById('signup-form');
+    var signupBtn = document.getElementById('signup-btn');
+    if (signupForm && signupBtn) {
+        function checkFields() {
+            var email = signupForm.querySelector('[name="email"]').value.trim();
+            var senha = signupForm.querySelector('[name="senha"]').value.trim();
+            var emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+            var validEmail = emailRegex.test(email);
+            var validSenha = senha.length >= 6;
+            signupBtn.disabled = (!validEmail || !validSenha);
+            signupBtn.classList.toggle('opacity-50', signupBtn.disabled);
+            signupBtn.classList.toggle('cursor-not-allowed', signupBtn.disabled);
+        }
+        signupForm.querySelector('[name="email"]').addEventListener('input', checkFields);
+        signupForm.querySelector('[name="senha"]').addEventListener('input', checkFields);
+        checkFields();
+    }
+});
+// Validação de login e cadastro
+function attachLoginSignupValidation() {
+    // Login
+    var loginBtn = document.getElementById('login-btn');
+    if (loginBtn) {
+        loginBtn.onclick = null;
+        loginBtn.onclick = function(e) {
+            var form = loginBtn.closest('.page');
+            var email = form.querySelector('input[type="email"]');
+            var senha = form.querySelector('input[type="password"]');
+            if (!email.value.trim() || !senha.value.trim()) {
+                e.preventDefault();
+                if (typeof showMessageBox === 'function') {
+                    showMessageBox('Preencha todos os campos para entrar!');
+                } else {
+                    alert('Preencha todos os campos para entrar!');
+                }
+                return false;
+            }
+            if (!email.value.trim().endsWith('@gmail.com')) {
+                e.preventDefault();
+                if (typeof showMessageBox === 'function') {
+                    showMessageBox('O e-mail deve terminar com @gmail.com');
+                } else {
+                    alert('O e-mail deve terminar com @gmail.com');
+                }
+                return false;
+            }
+            showPage('feed');
+        };
+    }
+    // Cadastro
+    var signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.onsubmit = function(e) {
+            e.preventDefault();
+            var inputs = signupForm.querySelectorAll('input');
+            var emailInput = signupForm.querySelector('[name="email"]');
+            var senhaInput = signupForm.querySelector('[name="senha"]');
+            var email = emailInput ? emailInput.value.trim() : '';
+            var senha = senhaInput ? senhaInput.value.trim() : '';
+            var emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+            if (!email || !senha || !emailRegex.test(email) || senha.length < 6) {
+                // Não envia, sem alertas
+                return false;
+            }
+            // Firebase Auth: cria conta
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+                firebase.auth().createUserWithEmailAndPassword(email, senha)
+                    .then(function(userCredential) {
+                        // Usuário criado com sucesso
+                        var user = userCredential.user;
+                        // Salva dados básicos no Firestore e só então avança
+                        firebase.firestore().collection('users').doc(user.uid).set({
+                            email: user.email,
+                            criadoEm: new Date()
+                        }).then(function() {
+                            showPage('onboarding');
+                        }).catch(function(err) {
+                            alert('Conta criada, mas erro ao salvar dados: ' + err.message);
+                        });
+                    })
+                    .catch(function(error) {
+                        if (error.code === 'auth/email-already-in-use') {
+                            alert('Este e-mail já está em uso. Use outro ou faça login.');
+                        } else {
+                            alert('Erro ao cadastrar: ' + error.message);
+                        }
+                        // Não faz mais nada!
+                    });
+                return false;
+            }
+            return false;
+        };
+    }
+}
+document.addEventListener('DOMContentLoaded', attachLoginSignupValidation);
+// Re-attach validation every time a page is shown
+if (window.showPage) {
+    const oldShowPage = window.showPage;
+    window.showPage = function(page) {
+        if (oldShowPage) oldShowPage.apply(this, arguments);
+        setTimeout(attachLoginSignupValidation, 50);
+    };
+}
+            document.addEventListener('DOMContentLoaded', function() {
+                const menuBtn = document.getElementById('feed-menu-hamburguer');
+                const sidebar = document.getElementById('feed-sidebar-menu');
+                const closeSidebar = document.getElementById('close-feed-sidebar');
+                if(menuBtn && sidebar && closeSidebar) {
+                    menuBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        sidebar.style.display = 'flex';
+                        setTimeout(() => sidebar.style.transform = 'translateX(0)', 10);
+                    };
+                    closeSidebar.onclick = function(e) {
+                        e.stopPropagation();
+                        sidebar.style.transform = 'translateX(100%)';
+                        setTimeout(() => sidebar.style.display = 'none', 300);
+                    };
+                    document.addEventListener('mousedown', function closeMenuOnClickOutside(ev) {
+                        if (sidebar.style.display === 'flex' && !sidebar.contains(ev.target) && ev.target !== menuBtn) {
+                            sidebar.style.transform = 'translateX(100%)';
+                            setTimeout(() => sidebar.style.display = 'none', 300);
+                            document.removeEventListener('mousedown', closeMenuOnClickOutside);
+                        }
+                    });
+                }
+            });
+            </script>
             <!-- Logo Glance animada fixa no canto superior esquerdo -->
-            <div class="fixed left-6 top-6 z-50 select-none pointer-events-none">
+            <div class="fixed left-0 top-0 z-50 select-none pointer-events-none w-full">
+            <div class="fixed left-0 top-0 z-50 w-full">
                 <!-- Barra fixa estilo Instagram para o logo Glance -->
-                <div id="glance-logo-bar" class="w-full fixed top-0 left-0 z-40 bg-white dark:bg-gray-900 shadow-md flex items-center justify-center h-14" style="display:none;">
+                <div id="glance-logo-bar" class="w-full fixed top-0 left-0 z-40 bg-white dark:bg-gray-900 shadow-md flex items-center justify-between h-14 pl-8 pr-6">
+                        <button id="feed-messages-btn" style="cursor:pointer;" class="flex items-center justify-center w-10 h-10 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition select-none" aria-label="Mensagens">
                     <span class="text-3xl font-[cursive] text-blue-600" style="font-family: 'Pacifico', 'Caveat', cursive;">Glance</span>
+                    <div class="flex items-center gap-2">
+                        <button id="feed-messages-btn" class="flex items-center justify-center w-10 h-10 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition select-none" aria-label="Mensagens">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-7 h-7 text-blue-600"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+                        </button>
+                    </div>
                 </div>
-    <!-- Fonte manuscrita para logo -->
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Caveat&display=swap" rel="stylesheet">
+                <!-- Fonte manuscrita para logo -->
+                <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Caveat&display=swap" rel="stylesheet">
             </div>
             <div id="feed-scroll-container" class="w-full max-w-md space-y-8 flex flex-col items-center">
+            <!-- Conteúdo do feed será gerado aqui pelo JavaScript -->
                 <!-- Conteúdo do feed será gerado aqui pelo JavaScript -->
                 <style>
                     #feed-scroll-container { padding-bottom: 6rem; }
@@ -184,20 +382,233 @@
         <!-- Tela Principal - Explorar -->
         <div data-page="explore" class="page flex-col items-center justify-start p-4 pt-16 h-full scroll-container">
             <h2 class="text-3xl font-bold mb-4 text-black dark:text-white">Explorar</h2>
-            <div class="grid grid-cols-2 gap-4 w-full max-w-md">
-                <button onclick="showMessageBox('Funcionalidade de Tendências')" class="w-full h-40 bg-gray-300 dark:bg-gray-700 rounded-xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 duration-200">
-                    <p class="font-semibold text-black dark:text-white">Tendências</p>
-                </button>
-                <button onclick="showMessageBox('Funcionalidade de Mapa Global')" class="w-full h-40 bg-gray-300 dark:bg-gray-700 rounded-xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 duration-200">
-                    <p class="font-semibold text-black dark:text-white">Mapa Global</p>
-                </button>
-                <button onclick="showMessageBox('Funcionalidade de Comunidades')" class="w-full h-40 bg-gray-300 dark:bg-gray-700 rounded-xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 duration-200">
-                    <p class="font-semibold text-black dark:text-white">Comunidades</p>
-                </button>
-                <button onclick="showMessageBox('Funcionalidade de Emoções')" class="w-full h-40 bg-gray-300 dark:bg-gray-700 rounded-xl flex items-center justify-center shadow-lg transition-transform transform hover:scale-105 duration-200">
-                    <p class="font-semibold text-black dark:text-white">Emoções</p>
-                </button>
-            </div>
+            <div id="explore-profiles-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 w-full max-w-3xl mx-auto"></div>
+            <script>
+            // Cores variadas para os círculos
+            const profileColors = [
+                'bg-pink-400', 'bg-blue-400', 'bg-green-400', 'bg-yellow-400',
+                'bg-purple-400', 'bg-red-400', 'bg-indigo-400', 'bg-teal-400',
+                'bg-orange-400', 'bg-cyan-400', 'bg-fuchsia-400', 'bg-lime-400'
+            ];
+            function renderExploreProfilesGrid() {
+                const grid = document.getElementById('explore-profiles-grid');
+                if (!grid) return;
+                // Mostra todos os usuários, inclusive o logado
+                const userList = Object.values(users);
+                let html = '';
+                // Mesmas cores do perfil
+                const borderColors = [
+                    '#ec4899', // pink-400
+                    '#60a5fa', // blue-400
+                    '#4ade80', // green-400
+                    '#facc15', // yellow-400
+                    '#a78bfa', // purple-400
+                    '#f87171', // red-400
+                    '#818cf8', // indigo-400
+                    '#2dd4bf', // teal-400
+                    '#fb923c', // orange-400
+                    '#22d3ee', // cyan-400
+                    '#e879f9', // fuchsia-400
+                    '#a3e635'  // lime-400
+                ];
+                userList.forEach((u, i) => {
+                    const color = borderColors[i % borderColors.length];
+                    let following = JSON.parse(localStorage.getItem('following') || '{}');
+                    const isFollowing = following[u.username] === true;
+                    html += `<div class='flex flex-col items-center'>
+                        <div class='explore-profile-circle w-20 h-20 rounded-full border-4 shadow-lg flex items-center justify-center mb-2 overflow-hidden cursor-pointer' data-username='${u.username}' style='border-color:${color}'>
+                            <img src='${u.avatar}' alt='${u.name || u.username}' class='w-full h-full object-cover rounded-full'/>
+                        </div>
+                        <div class='text-xs font-semibold text-center mb-1 text-black dark:text-white'>${u.name || '@'+u.username}</div>
+                        <button class='explore-follow-btn px-4 py-1 rounded-full font-bold text-xs shadow transition ${isFollowing ? 'bg-green-500 text-white' : 'bg-blue-500 text-white hover:bg-blue-600'}' data-username='${u.username}'>${isFollowing ? 'Seguindo' : 'Seguir'}</button>
+                    </div>`;
+                });
+                grid.innerHTML = html;
+                // Botão seguir/desseguir
+                grid.querySelectorAll('.explore-follow-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        const username = btn.getAttribute('data-username');
+                        if (!username) return;
+                        let following = JSON.parse(localStorage.getItem('following') || '{}');
+                        let isFollowing = following[username] === true;
+                        // Alterna seguir/desseguir
+                        if (isFollowing) {
+                            following[username] = false;
+                            // Atualiza seguidores
+                            if (users[username] && users[username].followers > 0) users[username].followers--;
+                        } else {
+                            following[username] = true;
+                            if (users[username]) users[username].followers = (users[username].followers || 0) + 1;
+                        }
+                        localStorage.setItem('following', JSON.stringify(following));
+                        // Atualiza todos os botões de seguir (inclusive no perfil)
+                        document.querySelectorAll(`.explore-follow-btn[data-username='${username}']`).forEach(b => {
+                            let isNowFollowing = JSON.parse(localStorage.getItem('following') || '{}')[username] === true;
+                            b.textContent = isNowFollowing ? 'Seguindo' : 'Seguir';
+                            b.classList.remove('bg-blue-500','hover:bg-blue-600','bg-green-500');
+                            b.classList.add(isNowFollowing ? 'bg-green-500' : 'bg-blue-500');
+                        });
+                        // Atualiza botão do perfil se estiver aberto
+                        if (document.getElementById('profile-username') && document.getElementById('profile-username').textContent === '@'+username) {
+                            const followBtn = document.getElementById('edit-profile-btn')?.parentElement?.querySelector('.follow-btn');
+                            if (followBtn) {
+                                let isNowFollowing = JSON.parse(localStorage.getItem('following') || '{}')[username] === true;
+                                followBtn.textContent = isNowFollowing ? 'Seguindo' : 'Seguir';
+                                followBtn.classList.remove('bg-blue-500','bg-green-500');
+                                followBtn.classList.add(isNowFollowing ? 'bg-green-500' : 'bg-blue-500');
+                            }
+                            // Atualiza número de seguidores
+                            const followersCount = document.getElementById('profile-followers-count');
+                            if (followersCount && users[username]) followersCount.textContent = users[username].followers;
+                        }
+                    };
+                });
+                // Clique no círculo do perfil para abrir o perfil
+                grid.querySelectorAll('.explore-profile-circle').forEach(circle => {
+                    circle.onclick = function() {
+                        const username = circle.getAttribute('data-username');
+                        if (typeof showPage === 'function') {
+                            showPage('profile', username);
+                            if (typeof updateProfilePage === 'function') updateProfilePage(username);
+                        }
+                    };
+                });
+            }
+            document.addEventListener('DOMContentLoaded', renderExploreProfilesGrid);
+            if (window.showPage) {
+                const oldShowPage = window.showPage;
+                window.showPage = function(page) {
+                    if (oldShowPage) oldShowPage.apply(this, arguments);
+                    if (page === 'explore') setTimeout(renderExploreProfilesGrid, 0);
+                };
+            }
+            </script>
+            <script>
+            // Tendências: posts mais curtidos/compartilhados da semana
+            function renderTrendsPanel() {
+                const panel = document.getElementById('trends-panel');
+                if (!panel) return;
+                // Limpa painel
+                panel.innerHTML = '';
+                // Busca o post mais curtido do feed
+                let topPost = null;
+                if (window.posts && posts.length > 0) {
+                    // Sempre pega do array posts (que é atualizado no feed)
+                    function getReactions(p) {
+                        let v = (p.reactions && typeof p.reactions.views === 'number') ? p.reactions.views : (typeof p.views === 'number' ? p.views : 0);
+                        let l = (p.reactions && typeof p.reactions.likes === 'number') ? p.reactions.likes : (typeof p.likes === 'number' ? p.likes : 0);
+                        let s = (p.reactions && typeof p.reactions.shares === 'number') ? p.reactions.shares : (typeof p.shares === 'number' ? p.shares : 0);
+                        return v + l + s;
+                    }
+                    topPost = posts.reduce((max, p) => (getReactions(p) > getReactions(max) ? p : max), posts[0]);
+                }
+                let html = `<div class='bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6'><h3 class='text-xl font-bold mb-4 text-pink-700 dark:text-pink-300'>Tendência do Momento</h3>`;
+                const topLikes = topPost ? (topPost.reactions && typeof topPost.reactions.likes === 'number' ? topPost.reactions.likes : (typeof topPost.likes === 'number' ? topPost.likes : 0)) : 0;
+                const topShares = topPost ? (topPost.reactions && typeof topPost.reactions.shares === 'number' ? topPost.reactions.shares : (typeof topPost.shares === 'number' ? topPost.shares : 0)) : 0;
+                if (!topPost || ((topPost.reactions ? (topPost.reactions.views||0)+(topPost.reactions.likes||0)+(topPost.reactions.shares||0) : 0) + (typeof topPost.views==='number'?topPost.views:0)+(typeof topPost.likes==='number'?topPost.likes:0)+(typeof topPost.shares==='number'?topPost.shares:0)) === 0) {
+                    html += `<div class='text-gray-500 text-center'>Nenhum post em alta no momento.</div>`;
+                } else {
+                    html += `<div class='bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-2 flex flex-col gap-2'>
+                        <div class='flex items-center gap-2 mb-1'>
+                            <span class='font-bold text-pink-700 dark:text-pink-300'>@${users[topPost.user]?.username || topPost.user}</span>
+                            <span class='ml-auto text-xs text-gray-500'>${topLikes} ❤${topShares ? ' · ' + topShares + ' ↻' : ''}</span>
+                        </div>
+                        <div class='text-black dark:text-white'>${topPost.text || '[Mídia]'}</div>
+                        <div class='text-xs text-gray-400'>${timeAgo(new Date(topPost.timestamp).getTime())}</div>
+                    </div>`;
+                }
+                html += `</div>`;
+                panel.innerHTML = html;
+            }
+            // ...existing code...
+            document.addEventListener('DOMContentLoaded', function() {
+                const trendsBtn = document.getElementById('trends-btn');
+                if (trendsBtn) {
+                    trendsBtn.onclick = function() {
+                        // Alternância: fecha se já aberto
+                        const panel = document.getElementById('trends-panel');
+                        if (panel && panel.innerHTML.trim() !== '') {
+                            panel.innerHTML = '';
+                            return;
+                        }
+                        // Fecha outros painéis
+                        document.getElementById('global-events-panel').innerHTML = '';
+                        renderTrendsPanel();
+                    };
+                }
+                const mapBtn = document.getElementById('global-map-btn');
+                if (mapBtn) {
+                    mapBtn.onclick = function() {
+                        // Fecha outros painéis
+                        document.getElementById('trends-panel').innerHTML = '';
+                        renderGlobalEventsPanel();
+                    };
+                }
+            });
+
+                // Evento de clique nos eventos
+                panel.querySelectorAll('.event-btn').forEach(btn => {
+                    btn.onclick = function() {
+                        // Fecha todos os outros painéis abertos
+                        panel.querySelectorAll('.event-posts-panel').forEach(div => { div.innerHTML = ''; });
+                        // Alternância: se já está aberto, fecha
+                        const parent = btn.parentElement;
+                        const postsPanel = parent.querySelector('.event-posts-panel');
+                        if (postsPanel && postsPanel.innerHTML.trim() !== '') {
+                            postsPanel.innerHTML = '';
+                            return;
+                        }
+                        // Busca posts relacionados (filtro simples por palavra-chave no texto ou categoria)
+                        const eventId = btn.getAttribute('data-eventid');
+                        const ev = globalEvents.find(e => e.id === eventId);
+                        if (!ev) return;
+                        let related = [];
+                        if (window.posts) {
+                            related = posts.filter(p => {
+                                const txt = (p.text || '') + ' ' + (p.category || '') + ' ' + (p.media || '');
+                                return ev.keywords.some(k => txt.toLowerCase().includes(k));
+                            });
+                        }
+                        let postsHtml = `<div class='mt-4'>`;
+                        if (related.length === 0) {
+                            postsHtml += `<div class='text-gray-500 text-center'>Nenhum post relacionado a <b>${ev.name}</b> encontrado.</div>`;
+                        } else {
+                            postsHtml += `<div class='font-semibold mb-2 text-blue-700 dark:text-blue-300'>Posts relacionados:</div>`;
+                            related.slice(0,8).forEach(p => {
+                                postsHtml += `<div class='bg-gray-100 dark:bg-gray-700 rounded-lg p-3 mb-2'><span class='font-bold'>@${users[p.user]?.username || p.user}</span>: ${(p.text || '[Mídia]')}</div>`;
+                            });
+                        }
+                        postsHtml += `</div>`;
+                        postsPanel.innerHTML = postsHtml;
+                    };
+                });
+            
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const trendsBtn = document.getElementById('trends-btn');
+                if (trendsBtn) {
+                    trendsBtn.onclick = function() {
+                        // Alternância: fecha se já aberto
+                        const panel = document.getElementById('trends-panel');
+                        if (panel && panel.innerHTML.trim() !== '') {
+                            panel.innerHTML = '';
+                            return;
+                        }
+                        // Fecha outros painéis
+                        document.getElementById('global-events-panel').innerHTML = '';
+                        renderTrendsPanel();
+                    };
+                }
+                const mapBtn = document.getElementById('global-map-btn');
+                if (mapBtn) {
+                    mapBtn.onclick = function() {
+                        // Fecha outros painéis
+                        document.getElementById('trends-panel').innerHTML = '';
+                        renderGlobalEventsPanel();
+                    };
+                }
+            });
+            </script>
         </div>
 
         <!-- Tela Principal - Criar Glance -->
@@ -245,19 +656,27 @@
                         var bioInput = document.getElementById('edit-bio');
                         var birthdateInput = document.getElementById('edit-birthdate');
                         var genderInput = document.getElementById('edit-gender');
+                        var realnameInput = document.getElementById('edit-realname');
+                        // Verifica se todos os campos obrigatórios estão preenchidos
+                        if (!usernameInput || !usernameInput.value.trim() ||
+                            !realnameInput || !realnameInput.value.trim() ||
+                            !bioInput || !bioInput.value.trim() ||
+                            !birthdateInput || !birthdateInput.value.trim() ||
+                            !genderInput || !genderInput.value.trim()) {
+                            if (typeof showMessageBox === 'function') {
+                                showMessageBox('Preencha todos os campos do perfil para salvar!');
+                            } else {
+                                alert('Preencha todos os campos do perfil para salvar!');
+                            }
+                            return false;
+                        }
                         var user = users[window.loggedInUser];
                         if (user) {
-                            if (usernameInput && usernameInput.value.trim()) {
-                                user.username = usernameInput.value.trim();
-                            }
-                            // Salvar nome real se houver campo correspondente
-                            var realnameInput = document.getElementById('edit-realname');
-                            if (realnameInput && realnameInput.value.trim()) {
-                                user.name = realnameInput.value.trim();
-                            }
-                            if (bioInput) user.bio = bioInput.value;
-                            if (birthdateInput) user.birthdate = birthdateInput.value;
-                            if (genderInput) user.gender = genderInput.value;
+                            user.username = usernameInput.value.trim();
+                            user.name = realnameInput.value.trim();
+                            user.bio = bioInput.value;
+                            user.birthdate = birthdateInput.value;
+                            user.gender = genderInput.value;
                             updateProfilePage(window.loggedInUser);
                             editForm.classList.add('hidden');
                             showMessageBox('Perfil atualizado com sucesso!');
@@ -451,7 +870,7 @@
                             user: window.loggedInUser,
                             type: 'audio',
                             media: window.uploadedFileData,
-                            text: 'Áudio publicado',
+                            text: '', // Não exibe descrição
                             reactions: { views: 0, likes: 0, shares: 0 },
                             timestamp: Date.now()
                         });
@@ -528,7 +947,30 @@
             }
         });
         // Abre automaticamente o seletor de arquivos ao entrar na aba de publicar
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
+            // Show premium button only for own profile
+            function togglePremiumBtn() {
+                var premiumBtn = document.getElementById('premium-btn');
+                var profileUsername = document.getElementById('profile-username');
+                if (!premiumBtn || !profileUsername) return;
+                // Remove @ if present
+                var username = profileUsername.textContent.replace(/^@/, '');
+                if (window.loggedInUser && username === window.loggedInUser) {
+                    premiumBtn.classList.remove('hidden');
+                } else {
+                    premiumBtn.classList.add('hidden');
+                }
+            }
+            // Call on profile page load/update
+            if (typeof window.updateProfilePage === 'function') {
+                var oldUpdateProfilePage = window.updateProfilePage;
+                window.updateProfilePage = function() {
+                    oldUpdateProfilePage.apply(this, arguments);
+                    togglePremiumBtn();
+                };
+            }
+            // Also call on DOMContentLoaded in case profile is loaded by default
+            togglePremiumBtn();
             const createPage = document.querySelector('[data-page="create"]');
             const autoInput = document.getElementById('glance-upload-auto');
             if (createPage && autoInput) {
@@ -606,7 +1048,7 @@
                 const container = document.getElementById('glance-videos-carousel');
                 if (!container) return;
                 container.innerHTML = '';
-                // Busca todos os vídeos publicados no feed
+                // Busca apenas vídeos publicados no feed
                 if (typeof posts !== 'undefined' && Array.isArray(posts)) {
                     let videoPosts = posts.filter(p => p.type === 'video');
                     // Coletar todas as categorias únicas
@@ -632,10 +1074,13 @@
                         div.innerHTML = `
                             <div class="absolute top-3 left-4 right-4 bg-black/70 rounded-xl p-2 flex items-center justify-between z-10">
                                 <h3 class="text-lg font-bold text-white">${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h3>
+                                <button class="glance-mute-btn ml-2 bg-white/80 hover:bg-blue-100 text-blue-700 rounded-full p-2 shadow-lg z-50 flex items-center justify-center" title="Ativar/desativar som" style="outline:none;border:none;">
+                                    <span class="glance-mute-icon"></span>
+                                </button>
                             </div>
                             <video src="${post.media}" controls autoplay playsinline class="w-full h-full object-contain rounded-xl bg-black glance-carousel-video"></video>
                             <div class="absolute bottom-4 left-4 right-4 bg-black/60 rounded-xl p-3">
-                                <p class="text-sm">${post.text}</p>
+                                ${post.text && post.text.trim() ? `<p class="text-sm">${post.text}</p>` : ''}
                                 <span class="inline-block mt-2 px-3 py-1 rounded-full bg-blue-200 text-blue-800 text-xs font-bold">${post.category || 'Outro'}</span>
                             </div>
                         `;
@@ -645,20 +1090,64 @@
                                 showGlanceVideoModal(idx, videoPosts);
                             }
                         };
+                        // Mute button logic
+                        setTimeout(() => {
+                            const video = div.querySelector('.glance-carousel-video');
+                            const muteBtn = div.querySelector('.glance-mute-btn');
+                            const muteIcon = div.querySelector('.glance-mute-icon');
+                            function updateMuteIcon() {
+                                if (video.muted || video.volume === 0) {
+                                    muteIcon.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-6 h-6'><path stroke='currentColor' stroke-width='2' d='M9 9v6h4l5 5V4l-5 5H9z' /><line x1='19' y1='5' x2='5' y2='19' stroke='red' stroke-width='2'/></svg>`;
+                                } else {
+                                    muteIcon.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-6 h-6'><path stroke='currentColor' stroke-width='2' d='M9 9v6h4l5 5V4l-5 5H9z' /></svg>`;
+                                }
+                            }
+                            video.muted = false;
+                            video.volume = 1;
+                            video.play();
+                            updateMuteIcon();
+                            muteBtn.onclick = function(ev) {
+                                ev.stopPropagation();
+                                video.muted = !video.muted;
+                                updateMuteIcon();
+                            };
+                            video.onvolumechange = updateMuteIcon;
+                        }, 0);
                         container.appendChild(div);
                     });
-                    // Pause all but the first visible video
-                    setTimeout(() => {
-                        const videos = container.querySelectorAll('.glance-carousel-video');
+                    // Reproduz apenas o vídeo mais central/visível
+                    function playCenterVideo() {
+                        const videos = Array.from(container.querySelectorAll('.glance-carousel-video'));
+                        let centerIdx = 0;
+                        let minDist = Infinity;
+                        const containerRect = container.getBoundingClientRect();
+                        const containerCenter = containerRect.left + containerRect.width / 2;
                         videos.forEach((vid, i) => {
-                            if (i === 0) {
+                            const rect = vid.getBoundingClientRect();
+                            const videoCenter = rect.left + rect.width / 2;
+                            const dist = Math.abs(videoCenter - containerCenter);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                centerIdx = i;
+                            }
+                        });
+                        videos.forEach((vid, i) => {
+                            if (i === centerIdx) {
                                 vid.muted = false;
                                 vid.volume = 1;
                                 vid.play();
                             } else {
-                                vid.muted = true;
                                 vid.pause();
                             }
+                        });
+                    }
+                    setTimeout(() => {
+                        playCenterVideo();
+                        container.addEventListener('scroll', () => {
+                            playCenterVideo();
+                        });
+                        window.addEventListener('resize', () => {
+                            playCenterVideo();
                         });
                     }, 100);
 // Fullscreen modal for Glance Videos with swipe navigation
@@ -709,10 +1198,7 @@ function showGlanceVideoModal(startIdx, videoPosts) {
             </button>
             <div class='flex flex-col items-center justify-center w-full h-full'>
                 <video id='glance-modal-video' src='${post.media}' controls autoplay playsinline style='width:100vw;max-width:420px;height:80vh;max-height:80vh;aspect-ratio:9/16;display:block;margin:auto;background:black;' class='rounded-xl object-contain'></video>
-                <div class='w-full max-w-md mt-4 px-4'>
-                    <h2 class='text-xl font-bold mb-2 text-center text-white'>${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h2>
-                    <p class='text-base text-white mb-2'>${post.text}</p>
-                </div>
+                ${(post.text && post.text.trim()) ? `<div class='w-full max-w-md mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center text-white'>${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h2><p class='text-base text-white mb-2'>${post.text}</p></div>` : ''}
             </div>
         `;
         // Sound toggle logic
@@ -808,6 +1294,12 @@ function showGlanceVideoModal(startIdx, videoPosts) {
             // Garante renderização ao abrir a aba
             window._oldShowPage = window._oldShowPage || window.showPage;
             window.showPage = function(page) {
+                // Se está saindo da aba de vídeos, pausa todos os vídeos do carrossel
+                const activePage = document.querySelector('.page.active');
+                if (activePage && activePage.dataset.page === 'communities') {
+                    const videos = document.querySelectorAll('#glance-videos-carousel video');
+                    videos.forEach(v => { v.pause(); v.currentTime = 0; });
+                }
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 const el = document.querySelector(`[data-page="${page}"]`);
                 if (el) el.classList.add('active');
@@ -822,6 +1314,9 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                     const catBar = document.getElementById('glance-videos-categories');
                     if (catBar) catBar.style.display = 'none';
                 }
+                if (page === 'explore' && typeof window.setupExplorePeopleBtn === 'function') {
+                    setTimeout(window.setupExplorePeopleBtn, 0);
+                }
                 if (window._oldShowPage) window._oldShowPage(page);
             };
             </script>
@@ -830,14 +1325,35 @@ function showGlanceVideoModal(startIdx, videoPosts) {
         <!-- Tela Principal - Perfil -->
         <div data-page="profile" class="page flex-col p-4 pt-16 h-full scroll-container">
             <div class="flex flex-col items-center mb-6">
+                <button id="logout-btn" class="mb-4 py-2 px-6 bg-red-500 text-white font-semibold rounded-xl shadow hover:bg-red-600 transition-all duration-200 self-end">Sair</button>
                 <div id="follow-profile-container" class="w-full flex justify-end mb-2"></div>
+                <!-- Ícone de mensagem ao lado do botão de seguir -->
+                <div id="profile-message-btn-container" class="flex items-center justify-end gap-2 mb-2"></div>
                 <div class="relative">
+                        <!-- Ícone de mensagens -->
+                        <button id="feed-messages-btn" title="Mensagens" class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center absolute right-0 top-0" style="z-index:20;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8s-9-3.582-9-8a9 9 0 1118 0z" /></svg>
+                        </button>
                         <div id="profile-avatar-overlay" class="hidden fixed inset-0 z-[300] bg-black bg-opacity-90 flex items-center justify-center">
                             <img id="profile-avatar-full" src="" class="max-w-full max-h-full rounded-2xl shadow-2xl" />
                         </div>
+                        <!-- Modal de Crop da foto de perfil -->
+                        <div id="profile-cropper-modal" class="hidden fixed inset-0 z-[400] bg-black bg-opacity-80 flex items-center justify-center">
+                            <div class="bg-white rounded-xl p-4 flex flex-col items-center">
+                                <div style="width:300px;height:300px;max-width:90vw;max-height:60vh;">
+                                    <img id="profile-cropper-img" style="max-width:100%;max-height:100%;display:block;" />
+                                </div>
+                                <div class="flex gap-2 mt-4">
+                                    <button id="cropper-cancel-btn" class="py-2 px-4 bg-gray-400 text-white rounded">Cancelar</button>
+                                    <button id="cropper-save-btn" class="py-2 px-4 bg-blue-600 text-white rounded">Recortar e Salvar</button>
+                                </div>
+                            </div>
+                        </div>
                         <div style="position:relative;display:inline-block;">
-                            <img id="profile-avatar" class="w-32 h-32 rounded-full border-4 border-gray-300 dark:border-gray-700 mb-4 cursor-pointer" />
-                            <span id="profile-online-indicator" style="position:absolute;bottom:10px;right:10px;width:20px;height:20px;background:#22c55e;border:3px solid #fff;border-radius:50%;display:block;z-index:10;"></span>
+                            <div id="profile-avatar-color-border" class="w-32 h-32 rounded-full border-4 shadow-lg flex items-center justify-center mb-4 overflow-hidden">
+                                <img id="profile-avatar" class="w-full h-full object-cover rounded-full cursor-pointer" />
+                            </div>
+                            <span id="profile-online-indicator" style="position:absolute;top:0;left:0;width:20px;height:20px;background:#22c55e;border:3px solid #fff;border-radius:50%;display:block;z-index:10;"></span>
                         </div>
                         <button id="upload-btn" onclick="document.getElementById('file-upload').click()" class="absolute bottom-0 right-0 p-2 rounded-full bg-black dark:bg-white text-white dark:text-black hidden">
                             <!-- Ícone de câmera/upload -->
@@ -847,6 +1363,56 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                             </svg>
                         </button>
                         <input type="file" id="file-upload" class="hidden" accept="image/*" />
+                <script>
+                // Cropper.js integração para foto de perfil
+                let cropper = null;
+                const fileInput = document.getElementById('file-upload');
+                const cropperModal = document.getElementById('profile-cropper-modal');
+                const cropperImg = document.getElementById('profile-cropper-img');
+                const cropperCancel = document.getElementById('cropper-cancel-btn');
+                const cropperSave = document.getElementById('cropper-save-btn');
+                const profileAvatarCrop = document.getElementById('profile-avatar');
+                if (fileInput && cropperModal && cropperImg && cropperCancel && cropperSave && profileAvatarCrop) {
+                    fileInput.addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            cropperImg.src = evt.target.result;
+                            cropperModal.classList.remove('hidden');
+                            if (cropper) { cropper.destroy(); cropper = null; }
+                            setTimeout(() => {
+                                cropper = new Cropper(cropperImg, {
+                                    aspectRatio: 1,
+                                    viewMode: 1,
+                                    autoCropArea: 1,
+                                    minCropBoxWidth: 100,
+                                    minCropBoxHeight: 100,
+                                });
+                            }, 100);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                    cropperCancel.onclick = function() {
+                        cropperModal.classList.add('hidden');
+                        if (cropper) { cropper.destroy(); cropper = null; }
+                        fileInput.value = '';
+                    };
+                    cropperSave.onclick = function() {
+                        if (!cropper) return;
+                        // Recorta e redimensiona para 512x512
+                        const canvas = cropper.getCroppedCanvas({ width: 512, height: 512, imageSmoothingQuality: 'high' });
+                        canvas.toBlob(function(blob) {
+                            const url = URL.createObjectURL(blob);
+                            profileAvatarCrop.src = url;
+                            // Aqui você pode salvar o blob na estrutura de usuário, se necessário
+                            cropperModal.classList.add('hidden');
+                            if (cropper) { cropper.destroy(); cropper = null; }
+                            fileInput.value = '';
+                        }, 'image/png');
+                    };
+                }
+                </script>
                 </div>
     <!-- Modal global para exibir avatar em tela cheia -->
     <div id="profile-avatar-overlay" class="hidden fixed inset-0 z-[300] bg-black bg-opacity-90 flex items-center justify-center">
@@ -873,6 +1439,88 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                     <button id="edit-profile-btn" class="py-2 px-6 rounded-full border border-gray-400 dark:border-gray-600 text-sm font-semibold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors duration-200">
                         Editar Perfil
                     </button>
+                    <button id="play-snake-btn" class="ml-2 py-2 px-6 rounded-full border border-green-400 text-sm font-semibold bg-green-500 text-white hover:bg-green-600 transition-colors duration-200">Jogar</button>
+                    <button id="premium-btn" class="ml-2 py-2 px-6 rounded-full border border-yellow-400 text-sm font-semibold bg-yellow-400 text-white hover:bg-yellow-500 transition-colors duration-200 hidden">Assinar Premium</button>
+                    <!-- Premium Modal -->
+                    <div id="premium-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-80">
+                        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-0 max-w-2xl w-full flex flex-col items-center relative overflow-hidden">
+                            <button id="close-premium-modal" class="absolute top-4 right-4 bg-gray-200 hover:bg-red-400 text-black rounded-full px-4 py-2 font-bold z-10">&times;</button>
+                            <div class="w-full flex flex-col md:flex-row">
+                                <div class="flex-1 p-8 flex flex-col justify-center items-start border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700">
+                                    <h2 class="text-3xl font-extrabold mb-4 text-yellow-500 text-left">Assinatura Premium</h2>
+                                    <ul class="text-black dark:text-white mb-4 list-disc pl-6 text-base space-y-2">
+                                        <li><b>Selo premium</b> no perfil</li>
+                                        <li>Acesso antecipado a novidades</li>
+                                        <li>Suporte prioritário</li>
+                                        <li>Mais vantagens em breve!</li>
+                                    </ul>
+                                    <div class="mt-4 text-gray-500 text-xs">Escolha o método de pagamento:</div>
+                                </div>
+                                <div class="flex-1 p-8 flex flex-col gap-6 justify-center items-center">
+                                    <button id="premium-whatsapp-btn" class="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl flex items-center justify-center gap-3 text-lg shadow-lg transition-all duration-200">
+                                        <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16.72 13.06a6.5 6.5 0 10-2.72 2.72l2.85.71a1 1 0 001.21-1.21l-.71-2.85z' /></svg>
+                                        <span class="flex flex-col items-start"><span>Pagar 320MZN</span><span class="text-xs font-normal">via WhatsApp</span></span>
+                                    </button>
+                                    <button id="premium-paypal-btn" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl flex items-center justify-center gap-3 text-lg shadow-lg transition-all duration-200">
+                                        <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 17v1a3 3 0 003 3h10a3 3 0 003-3v-1' /></svg>
+                                        <span class="flex flex-col items-start"><span>Pagar 5$</span><span class="text-xs font-normal">via PayPal (WhatsApp)</span></span>
+                                    </button>
+                                    <div class="mt-4 text-gray-400 text-xs text-center">Após o pagamento, envie o comprovativo para ativação imediata.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        <script>
+        // Premium Modal logic
+        document.addEventListener('DOMContentLoaded', function() {
+            var premiumBtn = document.getElementById('premium-btn');
+            var premiumModal = document.getElementById('premium-modal');
+            var closePremiumModal = document.getElementById('close-premium-modal');
+            if (premiumBtn && premiumModal && closePremiumModal) {
+                premiumBtn.onclick = function() {
+                    premiumModal.classList.remove('hidden');
+                };
+                closePremiumModal.onclick = function() {
+                    premiumModal.classList.add('hidden');
+                };
+                // Close modal on ESC
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') premiumModal.classList.add('hidden');
+                });
+                // WhatsApp and PayPal payment logic
+                var whatsappBtn = document.getElementById('premium-whatsapp-btn');
+                var paypalBtn = document.getElementById('premium-paypal-btn');
+                if (whatsappBtn) {
+                    whatsappBtn.onclick = function() {
+                        var phone = '258864813115';
+                        var msg = encodeURIComponent('Olá! Quero pagar o pacote premium de 320MZN.');
+                        var url = 'https://wa.me/' + phone + '?text=' + msg;
+                        window.open(url, '_blank');
+                    };
+                }
+                if (paypalBtn) {
+                    paypalBtn.onclick = function() {
+                        var phone = '258864813115';
+                        var msg = encodeURIComponent('Olá! Quero pagar o pacote premium via PayPal. Por favor, envie sua conta PayPal.');
+                        var url = 'https://wa.me/' + phone + '?text=' + msg;
+                        window.open(url, '_blank');
+                    };
+                }
+            }
+        });
+        </script>
+                        <!-- Snake Game Modal -->
+                        <div id="snake-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-90">
+                            <div class="w-full h-full flex flex-col items-center justify-center relative">
+                                <button id="close-snake-modal" class="absolute top-4 right-6 bg-gray-200 hover:bg-red-400 text-black rounded-full px-4 py-2 font-bold z-10">&times;</button>
+                                <h2 class="text-3xl font-bold mb-4 text-center text-white drop-shadow-lg z-10">Snake Game</h2>
+                                <canvas id="snake-canvas" width="640" height="640" class="border-4 border-green-400 rounded-lg bg-black shadow-2xl mb-6" style="max-width:90vw;max-height:70vh;"></canvas>
+                                <div id="snake-game-over" class="hidden flex flex-col items-center z-10">
+                                    <span class="text-2xl font-bold text-red-500 mb-4">Game Over!</span>
+                                    <button id="snake-restart-btn" class="py-3 px-8 bg-green-500 text-white rounded-lg font-semibold text-lg">Restart</button>
+                                </div>
+                            </div>
+                        </div>
                 </div>
             </div>
 
@@ -905,7 +1553,7 @@ function showGlanceVideoModal(startIdx, videoPosts) {
         </div>
 
         <!-- Navegação Principal (Menu Base) -->
-        <div id="main-nav" class="fixed bottom-0 left-0 w-full bg-white/30 dark:bg-black/30 border-t-2 border-gray-200 dark:border-gray-800 rounded-t-3xl shadow-2xl backdrop-blur-xl transition-all duration-300 z-50">
+        <div id="main-nav" class="fixed bottom-0 left-0 w-full bg-white/30 dark:bg-black/30 border-t-2 border-gray-200 dark:border-gray-800 rounded-t-3xl shadow-2xl backdrop-blur-xl transition-all duration-300 z-50" style="display:none;">
             <div class="flex justify-around items-center h-16">
                 <div class="flex flex-wrap justify-between items-center w-full">
                     <button onclick="showPage('feed')" class="nav-btn p-2 m-1 rounded-full bg-white dark:bg-white hover:bg-blue-100 transition-colors duration-200 shadow-lg min-w-[48px] max-w-[80px] flex-1 flex items-center justify-center">
@@ -926,6 +1574,169 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                 </div>
             </div>
         </div>
+        <script>
+            // SNAKE GAME LOGIC
+            (function() {
+                let modal, canvas, ctx, box = 40, snake, direction, food, score, interval, gameOver, gridSize = 16;
+                function getHighScore() {
+                    return parseInt(localStorage.getItem('snakeHighScore') || '0', 10);
+                }
+                function setHighScore(val) {
+                    localStorage.setItem('snakeHighScore', val);
+                }
+                function resetGame() {
+                    snake = [{x: 8, y: 8}];
+                    direction = 'RIGHT';
+                    food = {x: Math.floor(Math.random()*gridSize), y: Math.floor(Math.random()*gridSize)};
+                    score = 0;
+                    gameOver = false;
+                    document.getElementById('snake-game-over').classList.add('hidden');
+                }
+                function draw() {
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(0,0,canvas.width,canvas.height);
+                    // Draw snake
+                    for (let i=0; i<snake.length; i++) {
+                        ctx.fillStyle = i===0 ? '#22c55e' : '#4ade80';
+                        ctx.fillRect(snake[i].x*box, snake[i].y*box, box-2, box-2);
+                    }
+                    // Draw food
+                    ctx.fillStyle = '#f87171';
+                    ctx.fillRect(food.x*box, food.y*box, box-2, box-2);
+                    // Draw score and high score
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '24px Arial';
+                    ctx.fillText('Score: '+score, 16, 36);
+                    ctx.fillText('Recorde: '+getHighScore(), 16, 66);
+                }
+                function move() {
+                    if (gameOver) return;
+                    let head = {x: snake[0].x, y: snake[0].y};
+                    if (direction==='LEFT') head.x--;
+                    if (direction==='RIGHT') head.x++;
+                    if (direction==='UP') head.y--;
+                    if (direction==='DOWN') head.y++;
+                    // Wall or self collision
+                    if (head.x<0||head.x>=gridSize||head.y<0||head.y>=gridSize||snake.some((s,i)=>i>0&&s.x===head.x&&s.y===head.y)) {
+                        gameOver = true;
+                        clearInterval(interval);
+                        // Update high score if needed
+                        if (score > getHighScore()) setHighScore(score);
+                        document.getElementById('snake-game-over').classList.remove('hidden');
+                        draw(); // Redraw to update high score
+                        return;
+                    }
+                    snake.unshift(head);
+                    if (head.x===food.x && head.y===food.y) {
+                        score++;
+                        food = {x: Math.floor(Math.random()*gridSize), y: Math.floor(Math.random()*gridSize)};
+                    } else {
+                        snake.pop();
+                    }
+                    draw();
+                }
+                function startGame() {
+                    resetGame();
+                    draw();
+                    clearInterval(interval);
+                    interval = setInterval(move, 180); // SLOWER SPEED
+                }
+                function showModal() {
+                    modal.classList.remove('hidden');
+                    // Resize canvas to fit fullscreen
+                    setTimeout(() => {
+                        let size = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+                        size = Math.max(320, Math.min(size, 640));
+                        canvas.width = canvas.height = size;
+                        box = Math.floor(size / gridSize);
+                        draw();
+                    }, 50);
+                    startGame();
+                }
+                function hideModal() {
+                    modal.classList.add('hidden');
+                    clearInterval(interval);
+                }
+                window.addEventListener('resize', function() {
+                    if (!modal || modal.classList.contains('hidden')) return;
+                    let size = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+                    size = Math.max(320, Math.min(size, 640));
+                    canvas.width = canvas.height = size;
+                    box = Math.floor(size / gridSize);
+                    draw();
+                });
+                document.addEventListener('DOMContentLoaded', function() {
+                    modal = document.getElementById('snake-modal');
+                    canvas = document.getElementById('snake-canvas');
+                    ctx = canvas.getContext('2d');
+                    document.getElementById('play-snake-btn')?.addEventListener('click', showModal);
+                    document.getElementById('close-snake-modal')?.addEventListener('click', hideModal);
+                    document.getElementById('snake-restart-btn')?.addEventListener('click', startGame);
+                    document.addEventListener('keydown', function(e) {
+                        if (!modal || modal.classList.contains('hidden')) return;
+                        if (['ArrowLeft','a','A'].includes(e.key) && direction!=='RIGHT') direction='LEFT';
+                        else if (['ArrowUp','w','W'].includes(e.key) && direction!=='DOWN') direction='UP';
+                        else if (['ArrowRight','d','D'].includes(e.key) && direction!=='LEFT') direction='RIGHT';
+                        else if (['ArrowDown','s','S'].includes(e.key) && direction!=='UP') direction='DOWN';
+                    });
+                });
+            })();
+        // Exibe o menu inferior apenas após login
+        document.addEventListener('DOMContentLoaded', function() {
+            function toggleMainNav(page) {
+                var nav = document.getElementById('main-nav');
+                if (!nav) return;
+                // Mostra apenas nas páginas principais
+                if (["feed","profile","explore","create","communities"].includes(page)) {
+                    nav.style.display = '';
+                } else {
+                    nav.style.display = 'none';
+                }
+            }
+            // Hook no showPage
+            var _oldShowPage = window.showPage;
+            window.showPage = function(page) {
+                toggleMainNav(page);
+                if (_oldShowPage) _oldShowPage(page);
+            };
+            // Adiciona botão de mensagem privada ao entrar no perfil de outro usuário
+            window._oldShowPage = window._oldShowPage || window.showPage;
+            const _showPage = window.showPage;
+            window.showPage = function(page) {
+                if (_showPage) _showPage(page);
+                if (page === 'profile') {
+                    setTimeout(() => {
+                        const msgBtnContainer = document.getElementById('profile-message-btn-container');
+                        if (msgBtnContainer) {
+                            msgBtnContainer.innerHTML = '';
+                            // Só mostra se não for o próprio perfil
+                            if (window.viewingProfileUser && window.loggedInUser && window.viewingProfileUser !== window.loggedInUser) {
+                                const btn = document.createElement('button');
+                                btn.id = 'start-private-message-btn';
+                                btn.className = 'flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-2xl shadow hover:bg-blue-600 transition';
+                                btn.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-6 h-6'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z' /></svg> Mensagem`;
+                                btn.onclick = function() {
+                                    if (typeof startPrivateMessage === 'function') {
+                                        startPrivateMessage(window.viewingProfileUser);
+                                    } else {
+                                        alert('Função de mensagem privada não implementada.');
+                                    }
+                                };
+                                msgBtnContainer.appendChild(btn);
+                            }
+                        }
+                    }, 100);
+                }
+            };
+            // Função stub para iniciar mensagem privada
+            window.startPrivateMessage = window.startPrivateMessage || function(userId) {
+                showMessageBox('Iniciar mensagem privada com ' + (users[userId]?.name || userId));
+            };
+            // Inicializa correto ao carregar
+            var active = document.querySelector('.page.active');
+            if (active && active.dataset.page) toggleMainNav(active.dataset.page);
+        });
+        </script>
         
         <!-- Caixa de mensagem (substitui 'alert') -->
     <div id="message-box" class="fixed inset-0 z-[99999] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-opacity duration-300 opacity-0">
@@ -962,8 +1773,8 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                 bio: "Um olhar para o mundo da tecnologia.",
                 avatar: "https://placehold.co/150x150/A0B2C3/FFFFFF?text=EU",
                 posts: 0, // Inicia em 0, será atualizado dinamicamente
-                followers: 1234,
-                following: 567
+                followers: 0,
+                following: 0
             },
             "viajante_urbano": {
                 username: "viajante_urbano",
@@ -971,8 +1782,8 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                 bio: "Viajando e explorando as cidades do mundo. Sempre em busca da próxima aventura.",
                 avatar: "https://picsum.photos/200?random=1",
                 posts: 0,
-                followers: 2500,
-                following: 300
+                followers: 0,
+                following: 0
             },
             "arte_viva": {
                 username: "arte_viva",
@@ -980,8 +1791,8 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                 bio: "Arteterapia para a alma. Meus quadros são um reflexo do meu mundo interior.",
                 avatar: "https://picsum.photos/200?random=2",
                 posts: 0,
-                followers: 890,
-                following: 250
+                followers: 0,
+                following: 0
             },
             "tecnologo_futuro": {
                 username: "tecnologo_futuro",
@@ -989,8 +1800,8 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                 bio: "Entusiasta de novas tecnologias, IA e robótica. Construindo o futuro, um código de cada vez.",
                 avatar: "https://picsum.photos/200?random=3",
                 posts: 0,
-                followers: 5000,
-                following: 120
+                followers: 0,
+                following: 0
             },
             "sabores_do_mundo": {
                 username: "sabores_do_mundo",
@@ -998,8 +1809,8 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                 bio: "Explorando culinárias de todos os cantos do planeta. Receitas, dicas e delícias!",
                 avatar: "https://picsum.photos/200?random=4",
                 posts: 0,
-                followers: 1800,
-                following: 450
+                followers: 0,
+                following: 0
             },
             "musica_eterna": {
                 username: "musica_eterna",
@@ -1007,19 +1818,19 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                 bio: "A música é a trilha sonora da vida. Compartilhando minhas canções favoritas e descobrindo novos artistas.",
                 avatar: "https://picsum.photos/200?random=5",
                 posts: 0,
-                followers: 3200,
-                following: 200
+                followers: 0,
+                following: 0
             }
         };
 
         // Dados fictícios para as publicações (conectados aos usuários acima)
         let posts = [
-            {id: "post1", user: "viajante_urbano", type: "image", media: "https://picsum.photos/400/600?random=10", text: "Vista incrível do topo da montanha! A natureza é a melhor artista.", reactions: { views: 1200, likes: 350, shares: 45 }, timestamp: Date.now() - 1000 * 60 * 60 * 2},
-            {id: "post2", user: "arte_viva", type: "video", media: "placeholder", text: "Começando um novo projeto de arte abstrata. As cores estão fluindo!", reactions: { views: 850, likes: 210, shares: 28 }, timestamp: Date.now() - 1000 * 60 * 60 * 5},
-            {id: "post3", user: "tecnologo_futuro", type: "image", media: "https://picsum.photos/400/600?random=11", text: "O futuro da IA está em constante evolução. Animado para o que vem por aí!", reactions: { views: 2500, likes: 980, shares: 150 }, timestamp: Date.now() - 1000 * 60 * 60 * 24},
-            {id: "post4", user: "sabores_do_mundo", type: "audio", media: "placeholder", text: "Tudo pronto para um jantar especial. A culinária é uma forma de arte.", reactions: { views: 600, likes: 180, shares: 20 }, timestamp: Date.now() - 1000 * 60 * 30},
-            {id: "post5", user: "musica_eterna", type: "image", media: "https://picsum.photos/400/600?random=12", text: "Nada melhor que uma playlist relaxante para terminar o dia. Qual a sua favorita?", reactions: { views: 1500, likes: 450, shares: 60 }, timestamp: Date.now() - 1000 * 60 * 60 * 12},
-            {id: "post6", user: "usuario_glance", type: "image", media: "https://picsum.photos/400/600?random=13", text: "Meu primeiro post! Estou adorando o Glance!", reactions: { views: 100, likes: 25, shares: 3 }, timestamp: Date.now() - 1000 * 60 * 10},
+            {id: "post1", user: "viajante_urbano", type: "image", media: "https://picsum.photos/400/600?random=10", text: "Vista incrível do topo da montanha! A natureza é a melhor artista.", reactions: { views: 0, likes: 0, shares: 0 }, timestamp: Date.now() - 1000 * 60 * 60 * 2},
+            {id: "post2", user: "arte_viva", type: "video", media: "placeholder", text: "Começando um novo projeto de arte abstrata. As cores estão fluindo!", reactions: { views: 0, likes: 0, shares: 0 }, timestamp: Date.now() - 1000 * 60 * 60 * 5},
+            {id: "post3", user: "tecnologo_futuro", type: "image", media: "https://picsum.photos/400/600?random=11", text: "O futuro da IA está em constante evolução. Animado para o que vem por aí!", reactions: { views: 0, likes: 0, shares: 0 }, timestamp: Date.now() - 1000 * 60 * 60 * 24},
+            {id: "post4", user: "sabores_do_mundo", type: "audio", media: "placeholder", text: "Tudo pronto para um jantar especial. A culinária é uma forma de arte.", reactions: { views: 0, likes: 0, shares: 0 }, timestamp: Date.now() - 1000 * 60 * 30},
+            {id: "post5", user: "musica_eterna", type: "image", media: "https://picsum.photos/400/600?random=12", text: "Nada melhor que uma playlist relaxante para terminar o dia. Qual a sua favorita?", reactions: { views: 0, likes: 0, shares: 0 }, timestamp: Date.now() - 1000 * 60 * 60 * 12},
+            {id: "post6", user: "usuario_glance", type: "image", media: "https://picsum.photos/400/600?random=13", text: "Meu primeiro post! Estou adorando o Glance!", reactions: { views: 0, likes: 0, shares: 0 }, timestamp: Date.now() - 1000 * 60 * 10},
             {id: "post7", user: "viajante_urbano", type: "image", media: "https://picsum.photos/400/600?random=14", text: "Conhecendo mais uma cidade incrível. Cada esquina uma nova história.", reactions: { views: 0, likes: 0, shares: 0 }, timestamp: Date.now() - 1000 * 60 * 60 * 3}
         ];
         // Controle de likes e comentários por usuário
@@ -1133,16 +1944,7 @@ function showGlanceVideoModal(startIdx, videoPosts) {
 
             // Ao cadastrar, já atualiza nome do perfil
             const signupForm = document.querySelector('[data-page="signup_form"] form');
-            if (signupForm) {
-                signupForm.addEventListener('submit', function(e) {
-                    const nameInput = signupForm.querySelector('input[type="text"]');
-                    if (nameInput && nameInput.value.trim()) {
-                        if (window.loggedInUser && users[window.loggedInUser]) {
-                            users[window.loggedInUser].name = nameInput.value.trim();
-                        }
-                    }
-                });
-            }
+            // (Removido: listener duplicado de submit do formulário de cadastro)
             // Validação simples: só passa se todos os campos estiverem preenchidos
             function blockIfEmpty(formSelector) {
                 const form = document.querySelector(formSelector);
@@ -1196,7 +1998,6 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                     }
                     if (!valid || !emailValid) {
                         if (typeof showMessageBox === 'function') {
-                            showMessageBox('Preencha todos os campos corretamente. O email deve terminar com @gmail.com');
                         }
                         e.preventDefault();
                         return false;
@@ -1498,7 +2299,7 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                             return;
                         }
                         const descInput = document.getElementById('glance-desc-input');
-                        const desc = descInput?.value.trim() || 'Novo glance publicado!';
+                        const desc = descInput?.value.trim() || '';
                         if (window.uploadedFileType === 'image' && window.uploadedFileData) {
                             posts.push({
                                 id: 'post' + (Date.now() + Math.floor(Math.random()*10000)),
@@ -1580,7 +2381,7 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                             user: window.loggedInUser,
                             type: 'image',
                             media: uploadedFileData,
-                            text: desc || 'Novo glance publicado!',
+                            text: desc || '',
                             reactions: { views: 0, likes: 0, shares: 0 }
                         });
                     } else if (uploadedFileType === 'video' && uploadedFileData) {
@@ -1588,7 +2389,7 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                             user: window.loggedInUser,
                             type: 'video',
                             media: uploadedFileData,
-                            text: desc || 'Novo glance publicado!',
+                            text: desc || '',
                             reactions: { views: 0, likes: 0, shares: 0 }
                         });
                     } else if (uploadedFileType === 'audio' && uploadedFileData) {
@@ -1596,7 +2397,7 @@ function showGlanceVideoModal(startIdx, videoPosts) {
                             user: window.loggedInUser,
                             type: 'audio',
                             media: uploadedFileData,
-                            text: desc || 'Novo glance publicado!',
+                            text: desc || '',
                             reactions: { views: 0, likes: 0, shares: 0 }
                         });
                     } else if (uploadedFileType === 'text') {
@@ -1822,6 +2623,51 @@ function showVideoTrimModal(file, onTrimmed) {
             }
         }
         
+        // Função utilitária para gerar HTML e lógica dos métodos de pagamento premium
+        function renderPremiumPaymentOptions(onClose) {
+            // Cria container
+            const container = document.createElement('div');
+            container.className = 'flex flex-col md:flex-row gap-6';
+            // WhatsApp (MZN)
+            const whatsappCol = document.createElement('div');
+            whatsappCol.className = 'flex-1 flex flex-col items-center justify-center p-4 border rounded-2xl bg-gray-50 dark:bg-gray-800';
+            whatsappCol.innerHTML = `
+                <div class='text-3xl mb-2'>🇲🇿</div>
+                <div class='font-bold text-lg mb-1'>320 MZN</div>
+                <div class='text-gray-600 dark:text-gray-300 mb-4 text-center'>Pagamento via WhatsApp</div>
+                <button id='pay-whatsapp-btn' class='w-full px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl font-semibold text-lg shadow transition'>Pagar pelo WhatsApp</button>
+            `;
+            // PayPal (USD)
+            const paypalCol = document.createElement('div');
+            paypalCol.className = 'flex-1 flex flex-col items-center justify-center p-4 border rounded-2xl bg-gray-50 dark:bg-gray-800';
+            paypalCol.innerHTML = `
+                <div class='text-3xl mb-2'>💳</div>
+                <div class='font-bold text-lg mb-1'>5 USD</div>
+                <div class='text-gray-600 dark:text-gray-300 mb-4 text-center'>Pagamento via PayPal</div>
+                <button id='pay-paypal-btn' class='w-full px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold text-lg shadow transition'>Pagar pelo PayPal</button>
+            `;
+            container.appendChild(whatsappCol);
+            container.appendChild(paypalCol);
+            // Lógica dos botões
+            setTimeout(() => {
+                const whatsappBtn = container.querySelector('#pay-whatsapp-btn');
+                if (whatsappBtn) {
+                    whatsappBtn.onclick = () => {
+                        window.open('https://wa.me/258864813115?text=' + encodeURIComponent('Olá! Gostaria de pagar o pacote premium de 320MZN.'), '_blank');
+                        if (typeof onClose === 'function') onClose();
+                    };
+                }
+                const paypalBtn = container.querySelector('#pay-paypal-btn');
+                if (paypalBtn) {
+                    paypalBtn.onclick = () => {
+                        window.open('https://wa.me/258864813115?text=' + encodeURIComponent('Olá! Gostaria de pagar o premium via PayPal (5 USD).'), '_blank');
+                        if (typeof onClose === 'function') onClose();
+                    };
+                }
+            }, 100);
+            return container;
+        }
+
         // Função para atualizar a página de perfil com base no tipo de usuário
         function updateProfilePage(username) {
             const profile = users[username];
@@ -1830,10 +2676,34 @@ function showVideoTrimModal(file, onTrimmed) {
             const profileUsername = document.getElementById('profile-username');
             const profileBio = document.getElementById('profile-bio');
             const profileAvatar = document.getElementById('profile-avatar');
+            // Avatar com borda colorida única igual ao Explorer
+            const profileAvatarBorder = document.getElementById('profile-avatar-color-border');
+            if (profileAvatarBorder) {
+                // Determina cor única igual ao Explorer
+                const profileColors = [
+                    '#ec4899', // pink-400
+                    '#60a5fa', // blue-400
+                    '#4ade80', // green-400
+                    '#facc15', // yellow-400
+                    '#a78bfa', // purple-400
+                    '#f87171', // red-400
+                    '#818cf8', // indigo-400
+                    '#2dd4bf', // teal-400
+                    '#fb923c', // orange-400
+                    '#22d3ee', // cyan-400
+                    '#e879f9', // fuchsia-400
+                    '#a3e635'  // lime-400
+                ];
+                const userList = Object.values(users);
+                const idx = userList.findIndex(u => u.username === username);
+                const color = profileColors[idx % profileColors.length];
+                profileAvatarBorder.className = 'w-32 h-32 rounded-full border-4 shadow-lg flex items-center justify-center mb-4 overflow-hidden';
+                profileAvatarBorder.style.borderColor = color;
+            }
 
             // Função para checar se o perfil está configurado (nome e bio preenchidos)
             function isProfileConfigured() {
-                const user = users[window.loggedInUser];
+                const user = users[username];
                 // Só libera se o nome de usuário for diferente de 'usuario_glance'
                 return user && user.username && user.username.trim() !== '' && user.username !== 'usuario_glance';
             }
@@ -1855,6 +2725,86 @@ function showVideoTrimModal(file, onTrimmed) {
                 profileBio.textContent = profile.bio;
             }
             profileAvatar.src = profile.avatar;
+            // Renderiza botão de mensagem privada ao lado do botão de seguir
+            const msgBtnContainer = document.getElementById('profile-message-btn-container');
+            if (msgBtnContainer) {
+                msgBtnContainer.innerHTML = '';
+                if (username !== window.loggedInUser) {
+                    // Botão de seguir (já deve existir, mas garantir)
+                    let followBtn = document.getElementById('profile-follow-btn');
+                    if (!followBtn) {
+                        followBtn = document.createElement('button');
+                        followBtn.id = 'profile-follow-btn';
+                        followBtn.className = 'px-4 py-2 bg-green-500 text-white rounded-2xl shadow hover:bg-green-600 transition';
+                        followBtn.textContent = 'Seguir';
+                        followBtn.onclick = function() {
+                            showMessageBox('Seguir funcionalidade ainda não implementada.');
+                        };
+                        msgBtnContainer.appendChild(followBtn);
+                    }
+                    // Ícone de mensagem
+                    const btn = document.createElement('button');
+                    btn.id = 'start-private-message-btn';
+                    btn.className = 'flex items-center justify-center w-10 h-10 bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 transition';
+                    btn.innerHTML = `<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-6 h-6'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z' /></svg>`;
+                    btn.onclick = function() {
+                        openChatModal(username);
+                    };
+                    msgBtnContainer.appendChild(btn);
+                }
+            }
+            // Função para abrir modal de chat
+            window.openChatModal = function(userId) {
+                let oldModal = document.getElementById('chat-modal');
+                if (oldModal) oldModal.remove();
+                const modal = document.createElement('div');
+                modal.id = 'chat-modal';
+                modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center bg-black/90';
+                modal.innerHTML = `
+                    <div class='w-full max-w-md h-full flex flex-col bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-0 relative'>
+                        <div class='flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700'>
+                            <h2 class='text-xl font-bold text-black dark:text-white'>Conversando com ${(users[userId]?.name || '@'+(users[userId]?.username || userId))}</h2>
+                            <button id='close-chat-modal' class='text-gray-500 hover:text-red-500 text-2xl font-bold'>&times;</button>
+                        </div>
+                        <div id='chat-messages' class='flex-1 overflow-y-auto px-6 py-4 space-y-2'></div>
+                        <form id='chat-form' class='flex items-center gap-2 px-6 py-4 border-t border-gray-200 dark:border-gray-700'>
+                            <input id='chat-input' type='text' class='flex-1 p-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white' placeholder='Digite sua mensagem...' autocomplete='off' />
+                            <button type='submit' class='px-4 py-2 bg-blue-500 text-white rounded-xl font-semibold'>Enviar</button>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                document.getElementById('close-chat-modal').onclick = function() {
+                    modal.remove();
+                };
+                // Mensagens simuladas (array por usuário)
+                window._chatMessages = window._chatMessages || {};
+                const chatMessages = window._chatMessages[userId] || [];
+                const chatMessagesDiv = document.getElementById('chat-messages');
+                function renderMessages() {
+                    chatMessagesDiv.innerHTML = '';
+                    chatMessages.forEach(msg => {
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = 'w-fit max-w-[80%] px-4 py-2 rounded-xl mb-1 ' + (msg.from === window.loggedInUser ? 'bg-blue-500 text-white ml-auto' : 'bg-gray-200 text-black mr-auto');
+                        msgDiv.textContent = msg.text;
+                        chatMessagesDiv.appendChild(msgDiv);
+                    });
+                    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+                }
+                renderMessages();
+                // Envio de mensagem
+                document.getElementById('chat-form').onsubmit = function(e) {
+                    e.preventDefault();
+                    const input = document.getElementById('chat-input');
+                    const text = input.value.trim();
+                    if (text.length > 0) {
+                        chatMessages.push({ from: window.loggedInUser, to: userId, text });
+                        window._chatMessages[userId] = chatMessages;
+                        renderMessages();
+                        input.value = '';
+                    }
+                };
+            };
                 document.getElementById('profile-avatar-full').src = profile.avatar;
             function formatNumber(n) {
                 if (n >= 1e9) return (n/1e9).toFixed(1).replace(/\.0$/, '') + 'B';
@@ -1888,11 +2838,38 @@ function showVideoTrimModal(file, onTrimmed) {
             // Botão de seguir no perfil
             const followProfileContainer = document.getElementById('follow-profile-container');
             if (username !== loggedInUser) {
-                followProfileContainer.innerHTML = `<button id="profile-follow-btn" class="bg-blue-500 text-white text-xs font-semibold rounded-full px-4 py-1 shadow-md hover:bg-blue-600 transition-all duration-200">Seguir</button>`;
+                // Checa se já está seguindo
+                let following = JSON.parse(localStorage.getItem('following') || '{}');
+                let isFollowing = following[username] === true;
+                followProfileContainer.innerHTML = `<button id="profile-follow-btn" class="${isFollowing ? 'bg-green-500' : 'bg-blue-500'} text-white text-xs font-semibold rounded-full px-4 py-1 shadow-md hover:bg-blue-600 transition-all duration-200">${isFollowing ? 'Seguindo' : 'Seguir'}</button>`;
                 document.getElementById('profile-follow-btn').onclick = function() {
-                    this.textContent = this.textContent === 'Seguir' ? 'Seguindo' : 'Seguir';
-                    this.classList.toggle('bg-blue-500');
-                    this.classList.toggle('bg-green-500');
+                    let following = JSON.parse(localStorage.getItem('following') || '{}');
+                    let isFollowing = following[username] === true;
+                    if (isFollowing) {
+                        this.textContent = 'Seguir';
+                        this.classList.remove('bg-green-500');
+                        this.classList.add('bg-blue-500');
+                        following[username] = false;
+                        users[username].followers = Math.max(0, (users[username].followers || 0) - 1);
+                    } else {
+                        this.textContent = 'Seguindo';
+                        this.classList.remove('bg-blue-500');
+                        this.classList.add('bg-green-500');
+                        following[username] = true;
+                        users[username].followers = (users[username].followers || 0) + 1;
+                    }
+                    localStorage.setItem('following', JSON.stringify(following));
+                    // Atualiza número de seguidores
+                    document.getElementById('profile-followers-count').textContent = users[username].followers;
+                    // Atualiza botões do Explorer
+                    document.querySelectorAll(`.explore-follow-btn[data-username='${username}']`).forEach(b => {
+                        let isNowFollowing = JSON.parse(localStorage.getItem('following') || '{}')[username] === true;
+                        b.textContent = isNowFollowing ? 'Seguindo' : 'Seguir';
+                        b.classList.remove('bg-blue-500','hover:bg-blue-600','bg-green-500');
+                        b.classList.add(isNowFollowing ? 'bg-green-500' : 'bg-blue-500');
+                    });
+                    // Atualiza botões do feed
+                    if (typeof generateFeedContent === 'function') generateFeedContent();
                 };
             } else {
                 followProfileContainer.innerHTML = '';
@@ -1916,18 +2893,24 @@ function showVideoTrimModal(file, onTrimmed) {
             const userPosts = posts.filter(post => post.user === username);
             userPosts.forEach(post => {
                 const postElement = document.createElement('div');
-                postElement.className = 'w-full aspect-square max-w-[180px] h-[180px] bg-gray-300 dark:bg-gray-700 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center';
-                
+                postElement.className = 'w-full aspect-square max-w-[180px] h-[180px] bg-gray-300 dark:bg-gray-700 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center cursor-pointer';
+
                 if (post.type === 'image') {
                     postElement.style.backgroundImage = `url('${post.media}')`;
                     postElement.style.backgroundSize = 'cover';
                     postElement.style.backgroundPosition = 'center';
                 } else if (post.type === 'video') {
-                    // Placeholder para vídeo no perfil
                     postElement.innerHTML = `<span class="text-6xl">📹</span>`;
                 } else if (post.type === 'audio') {
-                    // Placeholder para áudio no perfil
                     postElement.innerHTML = `<span class="text-6xl">🎵</span>`;
+                }
+
+                // Permite abrir em tela cheia (exceto texto)
+                if (post.type !== 'text') {
+                    postElement.onclick = function() {
+                        const idx = posts.findIndex(p => p.id === post.id);
+                        if (typeof showFullPost === 'function' && idx !== -1) showFullPost(idx);
+                    };
                 }
 
                 gridContainer.appendChild(postElement);
@@ -1982,10 +2965,6 @@ function showVideoTrimModal(file, onTrimmed) {
                             <div class='flex items-center justify-center w-full' style='background:black;'>
                                 <video id='fullpost-video' src='${post.media}' controls autoplay playsinline style='width:100vw;max-width:420px;height:80vh;max-height:80vh;aspect-ratio:9/16;display:block;margin:auto;background:black;' class='rounded-xl object-contain'></video>
                             </div>
-                            <div class='w-full max-w-md mt-4 px-4'>
-                                <h2 class='text-xl font-bold mb-2 text-center text-white'>${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h2>
-                                <p class='text-base text-white mb-2'>${post.text}</p>
-                            </div>
                         </div>
                     ` : ''}
                     ${post.type === 'image' ? `
@@ -1994,15 +2973,11 @@ function showVideoTrimModal(file, onTrimmed) {
                                 <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' class='w-7 h-7'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 19l-7-7 7-7' /></svg>
                             </button>
                             <img src='${post.media}' class='w-full max-h-[80vh] rounded-xl object-contain' />
-                            <div class='w-full max-w-md mt-4 px-4'>
-                                <h2 class='text-xl font-bold mb-2 text-center text-white'>${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h2>
-                                <p class='text-base text-white mb-2'>${post.text}</p>
-                            </div>
                         </div>
                     ` : ''}
                     ${post.type === 'audio' ? audioModalHtml : ''}
-                    ${post.type === 'text' ? `<div class='w-full max-w-md bg-gray-200 dark:bg-gray-800 p-4 rounded-xl'><pre>${post.text}</pre></div>` : ''}
-                    ${post.type !== 'image' && post.type !== 'audio' && post.type !== 'video' ? `<div class='w-full max-w-md mt-4 px-4'><h2 class='text-xl font-bold mb-2 text-center text-black dark:text-white'>${(users[post.user]?.name && users[post.user]?.name !== '@usuario_glance') ? users[post.user].name : '@'+(users[post.user]?.username || post.user)}</h2><p class='text-base text-black dark:text-white mb-2'>${post.text}</p></div>` : ''}
+                    ${post.type === 'text' ? '' : ''}
+                    ${post.type !== 'image' && post.type !== 'audio' && post.type !== 'video' ? '' : ''}
                 `;
                 document.body.appendChild(modal);
                 // Botão fechar
@@ -2213,40 +3188,42 @@ function showVideoTrimModal(file, onTrimmed) {
                         </div>
                     `;
                 } else if (post.type === 'text') {
-                    // Text post: use same size as image, but with centered, prominent text
+                    // Post de texto estilo Threads
                     mediaContent = `
-                        <div class="w-full h-full flex flex-col items-center justify-center rounded-3xl absolute inset-0 z-0 bg-gradient-to-br from-blue-100 via-white to-blue-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-700">
-                            <div class="flex flex-col items-center justify-center w-full h-full px-6">
-                                <span class="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white break-words" style="word-break:break-word;">${post.text}</span>
+                        <div class="w-full flex flex-col items-start justify-center rounded-2xl bg-white dark:bg-gray-900 p-4 border border-gray-200 dark:border-gray-800 mb-2">
+                            <div class="flex items-center gap-3 mb-2">
+                                <img src='${users[post.user]?.avatar || 'https://ui-avatars.com/api/?name=' + (users[post.user]?.name || 'Usuário')}' class='w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 object-cover' />
+                                <div>
+                                    <div class='font-bold text-black dark:text-white'>${users[post.user]?.name || 'Usuário'}</div>
+                                    <div class='text-xs text-gray-500 dark:text-gray-400'>@${users[post.user]?.username || post.user}</div>
+                                </div>
                             </div>
+                            <div class='text-lg font-medium text-black dark:text-white whitespace-pre-line mb-2'>${post.text}</div>
                         </div>
                     `;
                 }
 
-                // Comentários
-                let commentsHtml = '';
+                // Comentários: apenas contador, sem lista inline
                 const commentsArr = postComments[postIdx] || [];
-                if (commentsArr.length > 0) {
-                    const showCount = 1;
-                    const hiddenCount = commentsArr.length - showCount;
-                    const visibleComments = commentsArr.slice(-showCount);
-                    commentsHtml = `<div class='mt-2 space-y-2 comments-list' data-postidx='${postIdx}'>`;
-                    if (hiddenCount > 0) {
-                        commentsHtml += `<button class='show-all-comments text-xs text-blue-600 underline mb-1' data-postidx='${postIdx}'>Ver todos os ${commentsArr.length} comentários</button>`;
-                    }
-                    visibleComments.forEach(c => {
-                        commentsHtml += `<div class='bg-white/80 dark:bg-black/80 rounded-xl px-3 py-2 text-sm text-black dark:text-white'><b>${c.user}:</b> ${c.text}</div>`;
-                    });
-                    commentsHtml += `</div>`;
-                }
+                commentsHtml = `<div class='mt-4 comments-section' data-postidx='${postIdx}'>`;
+                // O ícone de comentário será movido para a linha das reações
+                // Input de novo comentário
+                commentsHtml += `
+                    <form class='flex items-center mt-2 comment-form' autocomplete='off' onsubmit='return false;'>
+                        <input type='text' class='flex-1 p-2 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 mr-2 comment-input' placeholder='Escreva um comentário...'/>
+                        <button type='submit' class='py-2 px-4 bg-blue-500 text-white rounded-xl font-semibold send-comment-btn' style='display:none;'>Enviar</button>
+                    </form>
+                </div>`;
 
                 // Tempo de publicação no topo
                 const timeHtml = `<div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-black/70 dark:bg-white/80 text-white dark:text-black text-xs font-semibold px-4 py-1 rounded-full shadow-lg select-none" style="backdrop-filter: blur(4px);">${typeof post.timestamp !== 'undefined' ? timeAgo(post.timestamp) : ''}</div>`;
 
                 postElement.innerHTML = `
-                    <div class="relative z-10 flex items-center space-x-2 p-2 rounded-full bg-black/50 dark:bg-white/50 backdrop-blur-md w-fit self-start mb-2 cursor-pointer" data-profile="${post.user}">
-                        <span style="position:relative;display:inline-block;">
-                            <img src="${users[post.user].avatar}" class="w-8 h-8 rounded-full border-2 border-white" />
+                    <div class="relative z-10 flex items-center space-x-2 p-2 rounded-full bg-black/50 dark:bg-white/50 backdrop-blur-md w-fit self-start mb-2" data-profile="${post.user}">
+                        <span style="position:relative;display:inline-block;cursor:pointer;" class="feed-profile-avatar">
+                            <span class="w-8 h-8 rounded-full border-2 shadow flex items-center justify-center overflow-hidden" style="display:inline-flex;border-color:${['#ec4899','#60a5fa','#4ade80','#facc15','#a78bfa','#f87171','#818cf8','#2dd4bf','#fb923c','#22d3ee','#e879f9','#a3e635'][Object.values(users).findIndex(u => u.username === post.user)%12]}">
+                                <img src="${users[post.user].avatar}" class="w-full h-full object-cover rounded-full" />
+                            </span>
                             <span style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:#22c55e;border:2px solid #fff;border-radius:50%;display:block;z-index:10;"></span>
                         </span>
                         <div class="flex flex-col">
@@ -2256,13 +3233,17 @@ function showVideoTrimModal(file, onTrimmed) {
                     </div>
                     ${mediaContent}
                     ${timeHtml}
-                    <button class="follow-btn absolute top-4 right-4 bg-blue-500 text-white text-xs font-semibold rounded-full px-4 py-1 shadow-md hover:bg-blue-600 transition-all duration-200" style="${isOwnPost ? 'display:none;' : ''}">Seguir</button>
+                    <button class="follow-btn absolute top-4 right-4 text-white text-xs font-semibold rounded-full px-4 py-1 shadow-md hover:bg-blue-600 transition-all duration-200" style="${isOwnPost ? 'display:none;' : ''}"></button>
+                    <!-- Botão de mensagens no canto superior direito -->
+                    <button class='message-btn absolute top-4 right-16 text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/80 dark:bg-black/80 border border-blue-400 shadow-lg p-2 flex items-center z-30' title='Conversar' data-user='${users[post.user]?.username || post.user}' style='backdrop-filter: blur(4px);${isOwnPost ? 'display:none;' : ''}'>
+                        <span style="font-size:2rem;">💬</span>
+                    </button>
                     <div class="relative z-10 flex flex-col space-y-4">
                         <div class="bg-black/50 dark:bg-white/50 text-white dark:text-black p-4 rounded-xl shadow-inner backdrop-blur-md">
                             <p class="text-sm">${post.text}</p>
                         </div>
                         <div class="flex justify-end space-x-4 items-center">
-                            <!-- Botão Olhos com contador -->
+                            <!-- O placeholder do feed será inserido via JS apenas se não houver posts -->
                             <button class="reaction-btn reaction-views text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full border border-blue-300 shadow-md p-2 flex items-center ${userViews[window.loggedInUser] && userViews[window.loggedInUser][postIdx] ? 'bg-green-400 text-white' : 'bg-white/60 dark:bg-black/60'}" title="Olhei">
                                 <span class="text-lg sm:text-xl md:text-2xl">👀</span>
                                 <span class="ml-1 text-base font-bold">${formatNumber(post.reactions.views)}</span>
@@ -2289,11 +3270,11 @@ function showVideoTrimModal(file, onTrimmed) {
                                     <button class="share-opt flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900" data-share="facebook"><span>🔵</span> Facebook</button>
                                 </div>
                             </div>
-                            <!-- Comentar -->
-                            <button class="comment-btn ml-2 text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center" title="Comentar" data-postidx="${postIdx}">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7">
-                                    <path stroke="currentColor" stroke-width="2" d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                                </svg>
+                            <!-- ...existing code... -->
+                            <!-- Comentário alinhado com as reações -->
+                            <button class='comment-btn ml-0 text-2xl transform hover:scale-110 transition-transform duration-200 rounded-full bg-white/60 dark:bg-black/60 border border-red-300 shadow-md p-2 flex items-center' title='Ver comentários' data-postidx='${postIdx}'>
+                                <span style="font-size:1.7rem;">🗨️</span>
+                                <span class='ml-1 text-base font-bold'>${commentsArr.length}</span>
                             </button>
                         </div>
                         ${commentsHtml}
@@ -2301,12 +3282,36 @@ function showVideoTrimModal(file, onTrimmed) {
                 `;
                 // Clique no post abre em tela cheia
                 postElement.onclick = function(e) {
-                    // Evita abrir ao clicar em botões internos
-                    if (e.target.closest('.reaction-btn') || e.target.closest('.comment-btn') || e.target.closest('.follow-btn')) return;
+                    // Se clicar na foto de perfil, abre o perfil do usuário correto
+                    if (e.target.closest('.feed-profile-avatar')) {
+                        showPage('profile', post.user);
+                        if (typeof updateProfilePage === 'function') updateProfilePage(post.user);
+                        return;
+                    }
+                    // Evita abrir ao clicar em botões internos ou na área de comentários
+                    if (
+                        e.target.closest('.reaction-btn') ||
+                        e.target.closest('.comment-btn') ||
+                        e.target.closest('.follow-btn') ||
+                        e.target.closest('.comments-section') ||
+                        e.target.closest('.comment-form') ||
+                        e.target.classList.contains('comment-input') ||
+                        e.target.classList.contains('send-comment-btn')
+                    ) return;
                     // Não permite abrir texto em fullscreen
                     if (post.type === 'text') return;
                     // Se clicar no vídeo, abre em tela cheia
                     if (e.target.tagName && e.target.tagName.toLowerCase() === 'video') {
+                        // Verifica se o vídeo está mutado
+                        const videoEl = e.target;
+                        if (!videoEl.muted && videoEl.volume > 0) {
+                            if (typeof showMessageBox === 'function') {
+                                showMessageBox('Desative o som do vídeo antes de abrir em tela cheia para evitar interferência de áudio.');
+                            } else {
+                                alert('Desative o som do vídeo antes de abrir em tela cheia para evitar interferência de áudio.');
+                            }
+                            return; // Não permite abrir
+                        }
                         showFullPost(postIdx);
                         return;
                     }
@@ -2399,36 +3404,356 @@ function showVideoTrimModal(file, onTrimmed) {
             }, 0);
             });
             // Delegação para botões de perfil e reações
-            // Botão para expandir comentários (abre modal fullscreen glass)
-            feedContainer.querySelectorAll('.show-all-comments').forEach(btn => {
-                btn.onclick = () => {
+            // Comentários inline: adicionar evento para envio de comentário
+            feedContainer.querySelectorAll('.comment-form').forEach((form, i) => {
+                const postIdx = parseInt(form.closest('.comments-section').getAttribute('data-postidx'));
+                const input = form.querySelector('.comment-input');
+                const btn = form.querySelector('.send-comment-btn');
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    if (!window.loggedInUser) {
+                        showMessageBox('Você precisa estar logado para comentar!');
+                        return;
+                    }
+                    if (typeof isProfileConfigured === 'function' && !isProfileConfigured()) {
+                        showMessageBox('Configure seu perfil para liberar os comentários!');
+                        return;
+                    }
+                    const text = input.value.trim();
+                    if (text) {
+                        if (!postComments[postIdx]) postComments[postIdx] = [];
+                        postComments[postIdx].push({ user: window.loggedInUser, text });
+                        input.value = '';
+                        generateFeedContent();
+                    }
+                };
+                // Enter envia comentário
+                input.onkeydown = function(ev) {
+                    if (ev.key === 'Enter' && !ev.shiftKey) {
+                        ev.preventDefault();
+                        btn.click();
+                    }
+                };
+            });
+
+            // Evento para abrir modal de comentários ao clicar no ícone
+            feedContainer.querySelectorAll('.comment-btn').forEach(btn => {
+            // Botão de mensagens: abre modal de chat em tela cheia
+            feedContainer.querySelectorAll('.message-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const authorUsername = btn.getAttribute('data-user');
+                    if (!authorUsername || !users[authorUsername]) return;
+                    const author = users[authorUsername];
+                    let oldModal = document.getElementById('chat-modal');
+                    if (oldModal) oldModal.remove();
+                    const userA = users[window.loggedInUser]?.username || window.loggedInUser;
+                    const userB = authorUsername;
+                    const chatKey = 'chat_' + (userA < userB ? userA + '_' + userB : userB + '_' + userA);
+                    const themeKey = 'chat_theme_' + (userA < userB ? userA + '_' + userB : userB + '_' + userA);
+                    const modal = document.createElement('div');
+                    modal.id = 'chat-modal';
+                    modal.className = 'fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-2xl';
+                    modal.innerHTML = `
+                        <div class='w-full h-full max-w-2xl bg-white dark:bg-gray-900 rounded-none md:rounded-2xl p-0 md:p-8 shadow-2xl flex flex-col items-center border-2 border-white/40 relative' id='chat-theme-container'>
+                            <div class='flex items-center justify-between w-full p-4 border-b border-gray-200 dark:border-gray-700'>
+                                <div class='flex items-center gap-3'>
+                                    <img src='${author.avatar}' class='w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 object-cover' />
+                                    <div>
+                                        <div class='font-bold text-black dark:text-white'>${author.name}</div>
+                                        <div class='text-xs text-gray-500 dark:text-gray-400'>@${author.username}</div>
+                                    </div>
+                                </div>
+                                <button id='close-chat-modal' class='py-2 px-6 bg-blue-500 text-white rounded-full font-semibold'>Fechar</button>
+                            </div>
+                            <!-- Seleção de tema do chat -->
+                            <div class='w-full flex items-center justify-center gap-2 py-2 px-2 border-b border-gray-100 dark:border-gray-800 bg-white/60 dark:bg-gray-800/60'>
+                                <span class='text-xs font-semibold text-gray-500 mr-2'>Tema:</span>
+                                <button class='chat-theme-btn rounded-full w-7 h-7 border-2 border-blue-400' data-theme='default' style='background:linear-gradient(135deg,#fff,#e0e7ff);'></button>
+                                <button class='chat-theme-btn rounded-full w-7 h-7 border-2 border-pink-400' data-theme='pink' style='background:linear-gradient(135deg,#ffe0f0,#ffb6d5);'></button>
+                                <button class='chat-theme-btn rounded-full w-7 h-7 border-2 border-green-400' data-theme='green' style='background:linear-gradient(135deg,#e0ffe0,#b6ffd5);'></button>
+                                <button class='chat-theme-btn rounded-full w-7 h-7 border-2 border-yellow-400' data-theme='yellow' style='background:linear-gradient(135deg,#fffde0,#fff6b6);'></button>
+                                <button class='chat-theme-btn rounded-full w-7 h-7 border-2 border-purple-400' data-theme='purple' style='background:linear-gradient(135deg,#f0e0ff,#d5b6ff);'></button>
+                            </div>
+                            <div id='chat-messages' class='flex-1 w-full p-4 overflow-y-auto space-y-2'></div>
+                            <form id='chat-form' class='w-full flex items-center p-4 border-t border-gray-200 dark:border-gray-700 gap-2' autocomplete='off' onsubmit='return false;'>
+                                <button type='button' id='emoji-btn' class='text-2xl px-2 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800' title='Emojis'>😊</button>
+                                <button type='button' id='sticker-btn' class='text-2xl px-2 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800' title='Stickers'>🌟</button>
+                                <button type='button' id='voice-btn' class='text-2xl px-2 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800' title='Mensagem de voz'>🎤</button>
+                                <input type='text' id='chat-input' class='flex-1 p-2 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 mr-2' placeholder='Digite sua mensagem...'/>
+                                <button type='submit' class='py-2 px-4 bg-blue-500 text-white rounded-xl font-semibold'>Enviar</button>
+                            </form>
+                            <div id='emoji-picker' class='hidden absolute bottom-24 left-8 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-lg p-2 flex flex-wrap gap-2 z-50' style='min-width:220px;'></div>
+                            <div id='sticker-picker' class='hidden absolute bottom-24 left-32 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-lg p-2 flex flex-wrap gap-2 z-50' style='min-width:220px;'></div>
+                            <div id='voice-recorder' class='hidden absolute bottom-24 left-56 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-lg p-4 flex flex-col items-center gap-2 z-50' style='min-width:220px;'>
+                                <span class='font-semibold text-gray-700 dark:text-gray-200 mb-2'>Gravando...</span>
+                                <button id='stop-voice-btn' class='py-2 px-6 bg-red-500 text-white rounded-full font-semibold'>Parar</button>
+                            </div>
+                        </div>
+                    `;
+                    // Voice message logic
+                    const voiceBtn = modal.querySelector('#voice-btn');
+                    const voiceRecorder = modal.querySelector('#voice-recorder');
+                    let mediaRecorder = null;
+                    let audioChunks = [];
+                    let isRecording = false;
+                    voiceBtn.onclick = async (e) => {
+                        e.preventDefault();
+                        if (isRecording) return;
+                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                            alert('Seu navegador não suporta gravação de áudio.');
+                            return;
+                        }
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            mediaRecorder = new MediaRecorder(stream);
+                            audioChunks = [];
+                            mediaRecorder.ondataavailable = event => {
+                                if (event.data.size > 0) audioChunks.push(event.data);
+                            };
+                            mediaRecorder.onstop = () => {
+                                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                                const audioUrl = URL.createObjectURL(audioBlob);
+                                chatMessages.push({ user: window.loggedInUser, audio: audioUrl, isVoice: true });
+                                localStorage.setItem(chatKey, JSON.stringify(chatMessages));
+                                renderMessages();
+                                setTimeout(() => URL.revokeObjectURL(audioUrl), 60000); // libera memória depois
+                            };
+                            mediaRecorder.start();
+                            isRecording = true;
+                            voiceRecorder.classList.remove('hidden');
+                        } catch (err) {
+                            alert('Erro ao acessar o microfone.');
+                        }
+                    };
+                    modal.querySelector('#stop-voice-btn').onclick = (e) => {
+                        e.preventDefault();
+                        if (mediaRecorder && isRecording) {
+                            mediaRecorder.stop();
+                            isRecording = false;
+                            voiceRecorder.classList.add('hidden');
+                        }
+                    };
+                    document.body.appendChild(modal);
+                    document.getElementById('close-chat-modal').onclick = () => modal.remove();
+                    // Emoji e sticker picker
+                    const emojiBtn = modal.querySelector('#emoji-btn');
+                    const emojiPicker = modal.querySelector('#emoji-picker');
+                    const stickerBtn = modal.querySelector('#sticker-btn');
+                    const stickerPicker = modal.querySelector('#sticker-picker');
+                    const chatInput = modal.querySelector('#chat-input');
+                    // Lista de emojis e stickers
+                    const emojis = ['😀','😂','😍','😎','😭','😡','👍','🙏','🎉','🔥','💯','🥳','😅','😏','😱','😇','😜','🤩','😬','😴'];
+                    const stickers = [
+                        '🐱','🐶','🦄','🐼','🐸','🐵','🦊','🐻','🐯','🐰','🦁','🐮','🐷','🐔','🐧','🐢','🐙','🦋','🐝','🐞',
+                        '🍕','🍔','🍟','🍣','🍦','🍩','🍿','🍉','🍓','🍌','🍒','🍇','🍍','🥑','🥕','🌽','🍔','🍰','🍫','🍭'
+                    ];
+                    emojiBtn.onclick = (e) => {
+                        e.preventDefault();
+                        emojiPicker.innerHTML = emojis.map(e => `<button type='button' class='emoji-item text-2xl p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded'>${e}</button>`).join('');
+                        emojiPicker.classList.toggle('hidden');
+                        stickerPicker.classList.add('hidden');
+                    };
+                    stickerBtn.onclick = (e) => {
+                        e.preventDefault();
+                        stickerPicker.innerHTML = stickers.map(s => `<button type='button' class='sticker-item text-2xl p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded'>${s}</button>`).join('');
+                        stickerPicker.classList.toggle('hidden');
+                        emojiPicker.classList.add('hidden');
+                    };
+                    emojiPicker.onclick = (e) => {
+                        if (e.target.classList.contains('emoji-item')) {
+                            chatInput.value += e.target.textContent;
+                            emojiPicker.classList.add('hidden');
+                            chatInput.focus();
+                        }
+                    };
+                    stickerPicker.onclick = (e) => {
+                        if (e.target.classList.contains('sticker-item')) {
+                            // Envia sticker como mensagem
+                            chatMessages.push({ user: window.loggedInUser, text: e.target.textContent, isSticker: true });
+                            localStorage.setItem(chatKey, JSON.stringify(chatMessages));
+                            renderMessages();
+                            stickerPicker.classList.add('hidden');
+                            chatInput.focus();
+                        }
+                    };
+                    // Fecha pickers ao clicar fora
+                    document.addEventListener('click', function pickerClose(ev) {
+                        if (!modal.contains(ev.target)) {
+                            emojiPicker.classList.add('hidden');
+                            stickerPicker.classList.add('hidden');
+                            document.removeEventListener('click', pickerClose);
+                        }
+                    });
+                    // Lógica de seleção de tema do chat
+                    const themeContainer = document.getElementById('chat-theme-container');
+                    const themeBtns = modal.querySelectorAll('.chat-theme-btn');
+                    let selectedTheme = localStorage.getItem(themeKey) || 'default';
+                    function applyTheme(theme) {
+                        if(theme === 'pink') themeContainer.style.background = 'linear-gradient(135deg,#ffe0f0,#ffb6d5)';
+                        else if(theme === 'green') themeContainer.style.background = 'linear-gradient(135deg,#e0ffe0,#b6ffd5)';
+                        else if(theme === 'yellow') themeContainer.style.background = 'linear-gradient(135deg,#fffde0,#fff6b6)';
+                        else if(theme === 'purple') themeContainer.style.background = 'linear-gradient(135deg,#f0e0ff,#d5b6ff)';
+                        else themeContainer.style.background = 'linear-gradient(135deg,#fff,#e0e7ff)';
+                    }
+                    applyTheme(selectedTheme);
+                    themeBtns.forEach(btn => {
+                        btn.onclick = function() {
+                            selectedTheme = btn.getAttribute('data-theme');
+                            localStorage.setItem(themeKey, selectedTheme);
+                            applyTheme(selectedTheme);
+                        };
+                    });
+                    // Mensagens simuladas (localStorage por chatKey)
+                    let chatMessages = [];
+                    try { chatMessages = JSON.parse(localStorage.getItem(chatKey) || '[]'); } catch { chatMessages = []; }
+                    const chatMessagesDiv = document.getElementById('chat-messages');
+                    function renderMessages() {
+                        chatMessagesDiv.innerHTML = chatMessages.length === 0
+                            ? `<div class='text-gray-500 text-center'>Nenhuma mensagem ainda.</div>`
+                            : chatMessages.map((m, i) => {
+                                // Mostra apenas os contadores de reação, não os botões
+                                const reactions = m.reactions || {};
+                                const reactionTypes = [
+                                    { type: 'like', emoji: '👍' },
+                                    { type: 'love', emoji: '❤️' },
+                                    { type: 'laugh', emoji: '😂' },
+                                    { type: 'wow', emoji: '😮' },
+                                    { type: 'sad', emoji: '😢' },
+                                    { type: 'angry', emoji: '😡' }
+                                ];
+                                let countersHtml = '';
+                                let totalReactions = 0;
+                                reactionTypes.forEach(rt => {
+                                    const count = reactions[rt.type]?.length || 0;
+                                    if (count > 0) {
+                                        countersHtml += `<span class='msg-reaction-counter' data-msgidx='${i}' data-reaction='${rt.type}' style='font-size:1.1em;margin-left:2px;user-select:none;'>${rt.emoji}<span class='text-xs font-bold ml-0.5'>${count}</span></span>`;
+                                        totalReactions += count;
+                                    }
+                                });
+                                // Mensagem clicável para abrir reações
+                                let msgClass = m.user === window.loggedInUser ? 'text-right' : 'text-left';
+                                let msgContent = '';
+                                if (m.isVoice && m.audio) {
+                                    msgContent = `<audio controls src='${m.audio}' class='inline-block my-1' style='max-width:180px;vertical-align:middle;'></audio>`;
+                                } else if (m.isSticker) {
+                                    msgContent = `<span class='inline-block px-3 py-2 rounded-xl bg-white dark:bg-gray-800 text-3xl'>${m.text}</span>`;
+                                } else {
+                                    msgContent = `<span class='inline-block px-3 py-2 rounded-xl ${m.user === window.loggedInUser ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white'}'>${m.user === window.loggedInUser ? 'Você' : author.name}: ${m.text}</span>`;
+                                }
+                                return `<div class='chat-msg-row ${msgClass}' data-msgidx='${i}' style='position:relative;cursor:pointer;'>${msgContent}${countersHtml ? `<span class='ml-2 align-middle'>${countersHtml}</span>` : ''}<div class='msg-reaction-popup hidden absolute z-50 left-1/2 -translate-x-1/2 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-lg p-1 flex gap-1'></div></div>`;
+                            }).join('');
+                        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+                        // Evento: ao clicar na mensagem, mostra popup de reações
+                        chatMessagesDiv.querySelectorAll('.chat-msg-row').forEach(row => {
+                            row.onclick = function(ev) {
+                                // Evita abrir múltiplos popups
+                                chatMessagesDiv.querySelectorAll('.msg-reaction-popup').forEach(p => p.classList.add('hidden'));
+                                const popup = row.querySelector('.msg-reaction-popup');
+                                if (!popup) return;
+                                // Preenche popup com botões de reação
+                                const msgIdx = parseInt(row.getAttribute('data-msgidx'));
+                                const m = chatMessages[msgIdx];
+                                const reactions = m.reactions || {};
+                                const reactionTypes = [
+                                    { type: 'like', emoji: '👍' },
+                                    { type: 'love', emoji: '❤️' },
+                                    { type: 'laugh', emoji: '😂' },
+                                    { type: 'wow', emoji: '😮' },
+                                    { type: 'sad', emoji: '😢' },
+                                    { type: 'angry', emoji: '😡' }
+                                ];
+                                popup.innerHTML = reactionTypes.map(rt => {
+                                    const reacted = reactions[rt.type]?.includes(window.loggedInUser);
+                                    return `<button class='msg-reaction-btn' data-msgidx='${msgIdx}' data-reaction='${rt.type}' style='background:none;border:none;cursor:pointer;outline:none;font-size:1.5em;${reacted ? 'filter:brightness(1.5);' : ''}' title='${rt.type}'>${rt.emoji}</button>`;
+                                }).join('');
+                                popup.classList.remove('hidden');
+                                // Fecha popup ao clicar fora
+                                setTimeout(() => {
+                                    function closePopup(ev2) {
+                                        if (!row.contains(ev2.target)) {
+                                            popup.classList.add('hidden');
+                                            document.removeEventListener('click', closePopup);
+                                        }
+                                    }
+                                    document.addEventListener('click', closePopup);
+                                }, 10);
+                            };
+                        });
+                        // Evento: ao clicar em um emoji do popup, reage e fecha popup
+                        chatMessagesDiv.querySelectorAll('.msg-reaction-popup').forEach(popup => {
+                            popup.onclick = function(ev) {
+                                if (ev.target.classList.contains('msg-reaction-btn')) {
+                                    const btn = ev.target;
+                                    const msgIdx = parseInt(btn.getAttribute('data-msgidx'));
+                                    const reaction = btn.getAttribute('data-reaction');
+                                    if (isNaN(msgIdx) || !reaction) return;
+                                    if (!chatMessages[msgIdx].reactions) chatMessages[msgIdx].reactions = {};
+                                    if (!chatMessages[msgIdx].reactions[reaction]) chatMessages[msgIdx].reactions[reaction] = [];
+                                    const arr = chatMessages[msgIdx].reactions[reaction];
+                                    const userIdx = arr.indexOf(window.loggedInUser);
+                                    if (userIdx === -1) {
+                                        arr.push(window.loggedInUser);
+                                    } else {
+                                        arr.splice(userIdx, 1);
+                                    }
+                                    localStorage.setItem(chatKey, JSON.stringify(chatMessages));
+                                    renderMessages();
+                                }
+                                // Sempre fecha popup ao clicar em qualquer emoji
+                                popup.classList.add('hidden');
+                                ev.stopPropagation();
+                            };
+                        });
+                    }
+                    renderMessages();
+                    document.getElementById('chat-form').onsubmit = function(ev) {
+                        ev.preventDefault();
+                        const input = document.getElementById('chat-input');
+                        const text = input.value.trim();
+                        if (text) {
+                            chatMessages.push({ user: window.loggedInUser, text });
+                            localStorage.setItem(chatKey, JSON.stringify(chatMessages));
+                            input.value = '';
+                            renderMessages();
+                        }
+                    };
+                };
+            });
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const postIdx = parseInt(btn.getAttribute('data-postidx'));
-                    let oldModal = document.getElementById('comments-glass-modal');
+                    let oldModal = document.getElementById('comments-modal');
                     if (oldModal) oldModal.remove();
                     const modal = document.createElement('div');
-                    modal.id = 'comments-glass-modal';
-                    modal.className = 'fixed inset-0 z-[300] flex items-center justify-center bg-black/40 backdrop-blur-2xl';
+                    modal.id = 'comments-modal';
+                    modal.className = 'fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-md';
+                    const commentsArr = postComments[postIdx] || [];
                     modal.innerHTML = `
-                        <div class="w-full max-w-lg bg-white/30 dark:bg-gray-900/30 rounded-2xl p-8 space-y-4 shadow-2xl flex flex-col items-center border-2 border-white/40 backdrop-blur-2xl">
-                            <h2 class="text-xl font-bold mb-2 text-center text-black dark:text-white">Todos os comentários</h2>
-                            <div class="w-full max-h-[60vh] overflow-y-auto space-y-2">
-                                ${postComments[postIdx].map(c => `<div class='bg-white/80 dark:bg-black/80 rounded-xl px-3 py-2 text-sm text-black dark:text-white'><b>${c.user}:</b> ${c.text}</div>`).join('')}
+                        <div class='w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 space-y-4 shadow-2xl flex flex-col items-center border-2 border-white/40'>
+                            <h2 class='text-xl font-bold mb-2 text-center text-black dark:text-white'>Comentários</h2>
+                            <div class='w-full max-h-[60vh] overflow-y-auto space-y-2'>
+                                ${commentsArr.length === 0 ? `<div class='text-gray-500 text-center'>Nenhum comentário ainda.</div>` : commentsArr.map(c => `<div class='bg-white/80 dark:bg-black/80 rounded-xl px-3 py-2 text-sm text-black dark:text-white'><b>${c.user}:</b> ${c.text}</div>`).join('')}
                             </div>
-                            <button id="collapse-comments-btn" class="mt-4 py-2 px-6 bg-blue-500 text-white rounded-full font-semibold">Colapsar</button>
+                            <button id='close-comments-modal' class='mt-4 py-2 px-6 bg-blue-500 text-white rounded-full font-semibold'>Fechar</button>
                         </div>
                     `;
                     document.body.appendChild(modal);
-                    document.getElementById('collapse-comments-btn').onclick = () => modal.remove();
+                    document.getElementById('close-comments-modal').onclick = () => modal.remove();
                 };
             });
             feedContainer.querySelectorAll('[data-profile]').forEach(el => {
-                el.onclick = () => showPage('profile', el.getAttribute('data-profile'));
+                // Remove o handler duplicado para evitar conflito
+                el.onclick = null;
             });
             // Reações: Olhei, Amei, Re-glance
             feedContainer.querySelectorAll('.reaction-views').forEach((btn, i) => {
                 btn.onclick = () => {
                     const user = window.loggedInUser;
-                    if (user === 'usuario_glance' || users[user].username === 'usuario_glance') {
+                    // Usa a função de verificação já existente para consistência
+                    if (typeof isProfileConfigured === 'function' && !isProfileConfigured()) {
                         showMessageBox('Configure seu perfil para liberar as reações!');
                         return;
                     }
@@ -2447,7 +3772,7 @@ function showVideoTrimModal(file, onTrimmed) {
             feedContainer.querySelectorAll('.reaction-likes').forEach((btn, i) => {
                 btn.onclick = () => {
                     const user = window.loggedInUser;
-                    if (user === 'usuario_glance' || users[user].username === 'usuario_glance') {
+                    if (typeof isProfileConfigured === 'function' && !isProfileConfigured()) {
                         showMessageBox('Configure seu perfil para liberar as reações!');
                         return;
                     }
@@ -2466,62 +3791,48 @@ function showVideoTrimModal(file, onTrimmed) {
                 // Não faz nada! O compartilhamento é tratado pelo menu customizado.
                 btn.onclick = function(e) { e.preventDefault(); };
             });
-            // Comentário: abre modal
-            feedContainer.querySelectorAll('.comment-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    const postIdx = parseInt(btn.getAttribute('data-postidx'));
-                    showCommentModal(postIdx);
-                };
-            });
-        // Modal de comentário
-        function showCommentModal(postIdx) {
-            // Remove modal anterior se existir
-            let oldModal = document.getElementById('comment-modal');
-            if (oldModal) oldModal.remove();
-            // Cria modal
-            const modal = document.createElement('div');
-            modal.id = 'comment-modal';
-            modal.className = 'fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm';
-            modal.innerHTML = `
-                <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl p-8 space-y-6 shadow-2xl flex flex-col items-center">
-                    <h2 class="text-xl font-bold mb-2 text-center text-black dark:text-white">Comentar</h2>
-                    <textarea id="comment-input" rows="3" class="w-full p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 mb-2" placeholder="Escreva seu comentário..."></textarea>
-                    <div class="flex w-full justify-end">
-                        <button id="send-comment-btn" class="py-2 px-6 bg-blue-500 text-white rounded-full font-semibold flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 mr-2">
-                                <path stroke="currentColor" stroke-width="2" d="M10 14L21 3m0 0l-6.5 6.5M21 3l-6.5 6.5M3 21v-4.5a2 2 0 012-2h4.5" />
-                            </svg>
-                            Enviar
-                        </button>
-                        <button id="close-comment-btn" class="ml-2 py-2 px-4 bg-gray-300 dark:bg-gray-700 text-black dark:text-white rounded-full font-semibold">Cancelar</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            document.getElementById('close-comment-btn').onclick = () => modal.remove();
-            document.getElementById('send-comment-btn').onclick = () => {
-                const user = window.loggedInUser;
-                if (user === 'usuario_glance' || users[user].username === 'usuario_glance') {
-                    showMessageBox('Configure seu perfil para liberar os comentários!');
-                    return;
-                }
-                const text = document.getElementById('comment-input').value.trim();
-                if (text) {
-                    if (!postComments[postIdx]) postComments[postIdx] = [];
-                    postComments[postIdx].push({ user: user, text });
-                    modal.remove();
-                    generateFeedContent();
-                }
-            };
-        }
+            // Comentário: não abre mais modal, será inline
             // Botão de seguir
             feedContainer.querySelectorAll('.follow-btn').forEach(btn => {
                 btn.onclick = (e) => {
                     e.stopPropagation();
-                    btn.textContent = btn.textContent === 'Seguir' ? 'Seguindo' : 'Seguir';
-                    btn.classList.toggle('bg-blue-500');
-                    btn.classList.toggle('bg-green-500');
+                    const username = btn.closest('[data-profile]')?.getAttribute('data-profile');
+                    if (!username) return;
+                    let following = JSON.parse(localStorage.getItem('following') || '{}');
+                    let isFollowing = following[username] === true;
+                    if (isFollowing) {
+                        btn.textContent = 'Seguir';
+                        btn.classList.remove('bg-green-500');
+                        btn.classList.add('bg-blue-500');
+                        following[username] = false;
+                        users[username].followers = Math.max(0, (users[username].followers || 0) - 1);
+                    } else {
+                        btn.textContent = 'Seguindo';
+                        btn.classList.remove('bg-blue-500');
+                        btn.classList.add('bg-green-500');
+                        following[username] = true;
+                        users[username].followers = (users[username].followers || 0) + 1;
+                    }
+                    localStorage.setItem('following', JSON.stringify(following));
+                    // Atualiza número de seguidores no perfil se estiver aberto
+                    if (document.getElementById('profile-username') && document.getElementById('profile-username').textContent === '@'+username) {
+                        document.getElementById('profile-followers-count').textContent = users[username].followers;
+                        // Atualiza botão do perfil
+                        if (typeof updateProfilePage === 'function') updateProfilePage(username);
+                    }
+                    // Atualiza todos os botões do feed
+                    if (typeof generateFeedContent === 'function') generateFeedContent();
                 };
+            });
+            // Atualiza o texto e cor do botão de seguir do feed conforme o estado salvo
+            feedContainer.querySelectorAll('.follow-btn').forEach(btn => {
+                const username = btn.closest('[data-profile]')?.getAttribute('data-profile');
+                if (!username) return;
+                let following = JSON.parse(localStorage.getItem('following') || '{}');
+                let isFollowing = following[username] === true;
+                btn.textContent = isFollowing ? 'Seguindo' : 'Seguir';
+                btn.classList.remove('bg-blue-500', 'bg-green-500');
+                btn.classList.add(isFollowing ? 'bg-green-500' : 'bg-blue-500');
             });
             // Botão de comentar
             // (Removido: sobrescrita do evento de comentar)
@@ -2642,7 +3953,7 @@ function showVideoTrimModal(file, onTrimmed) {
                     uploadedTextContent = null;
                 };
                 document.getElementById('glance-publish-btn').onclick = () => {
-                    const desc = document.getElementById('glance-desc-input').value.trim() || 'Novo glance publicado!';
+                    const desc = document.getElementById('glance-desc-input').value.trim() || '';
                     if (uploadedFileType === 'image' && uploadedFileData) {
                         posts.push({
                             user: window.loggedInUser,
@@ -2868,4 +4179,218 @@ function showVideoTrimModal(file, onTrimmed) {
         };
     </script>
 </body>
+<script>
+// Placeholder do feed só aparece se não houver posts
+document.addEventListener('DOMContentLoaded', function() {
+    function showFeedPlaceholderIfEmpty() {
+        const feedContainer = document.getElementById('feed-scroll-container');
+        if (!feedContainer) return;
+        // Remove placeholder antigo
+        const old = document.getElementById('feed-placeholder');
+        if (old) old.remove();
+        // Verifica se há posts
+        const posts = feedContainer.querySelectorAll('.post, .publicacao, .feed-post');
+        if (posts.length === 0) {
+            const div = document.createElement('div');
+            div.id = 'feed-placeholder';
+            div.className = 'text-center text-gray-500 mt-10';
+            div.innerHTML = '🚀 Seu feed está vazio.<br>Siga pessoas ou publique algo para começar.';
+            feedContainer.appendChild(div);
+        }
+    }
+    // Chama ao carregar e sempre que atualizar o feed
+    showFeedPlaceholderIfEmpty();
+    // Se houver função de renderização do feed, conecte aqui:
+    if (window.renderFeed) {
+        const oldRenderFeed = window.renderFeed;
+        window.renderFeed = function() {
+            oldRenderFeed.apply(this, arguments);
+            showFeedPlaceholderIfEmpty();
+        };
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slides = document.querySelectorAll('[data-onboard-page]');
+    const nextBtn = document.getElementById('onboard-next');
+    let current = 1;
+
+    if (nextBtn) {
+        nextBtn.onclick = function() {
+            // esconde o slide atual
+            const active = document.querySelector(`[data-onboard-page="${current}"]`);
+            if (active) active.style.opacity = 0;
+
+            current++;
+            if (current <= slides.length) {
+                const nextSlide = document.querySelector(`[data-onboard-page="${current}"]`);
+                if (nextSlide) nextSlide.style.opacity = 1;
+            } else {
+                showPage('onboarding-final');
+            }
+        };
+    }
+
+    const finalBtn = document.getElementById('onboarding-final-btn');
+    if (finalBtn) {
+        finalBtn.onclick = function() {
+            showPage('feed');
+        };
+    }
+});
+</script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script>
+    // Firebase config fornecido pelo usuário
+    const firebaseConfig = {
+        apiKey: "AIzaSyBxHaqFiI7ywn6oGglgpwdHFIX5SQl1P3M",
+        authDomain: "moneynap-8147b.firebaseapp.com",
+        projectId: "moneynap-8147b",
+        storageBucket: "moneynap-8147b.firebasestorage.app",
+        messagingSenderId: "651518519582",
+        appId: "1:651518519582:web:a1221a9a6e2faec88cc10f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- AUTENTICAÇÃO FIREBASE --- //
+    // Troca de telas SPA
+    function showPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelector(`[data-page="${page}"]`).classList.add('active');
+    }
+
+    // Cadastro
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = signupForm.querySelector('input[type="email"]').value;
+            const senha = signupForm.querySelector('input[type="password"]').value;
+            const submitBtn = signupForm.querySelector('button[type="submit"]');
+            try {
+                const cred = await firebase.auth().createUserWithEmailAndPassword(email, senha);
+                if (cred && cred.user) {
+                    showPage('onboarding');
+                }
+            } catch (err) {
+                if (err.code === 'auth/email-already-in-use') {
+                    alert('Este e-mail já está em uso. Use outro ou faça login.');
+                    if (submitBtn) submitBtn.disabled = true;
+                    signupForm.reset();
+                    showPage('login');
+                    return false;
+                } else {
+                    alert('Erro ao cadastrar: ' + (err.message || err));
+                    return false;
+                }
+            }
+        });
+    }
+
+    // Login
+    const loginBtn = document.getElementById('login-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', async function() {
+            const loginForm = loginBtn.closest('.page');
+            const email = loginForm.querySelector('input[type="email"]').value;
+            const senha = loginForm.querySelector('input[type="password"]').value;
+            try {
+                await firebase.auth().signInWithEmailAndPassword(email, senha);
+                showPage('feed');
+            } catch (err) {
+                alert('Erro ao entrar: ' + (err.message || err));
+            }
+        });
+    }
+
+    // Manter usuário logado
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            showPage('feed');
+        } else {
+            showPage('login');
+        }
+    });
+</script>
+<script>
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('comment-input')) {
+        const form = e.target.closest('form');
+        if (!form) return;
+        const sendBtn = form.querySelector('.send-comment-btn');
+        if (sendBtn) {
+            if (e.target.value.trim().length > 0) {
+                sendBtn.style.display = 'inline-flex';
+            } else {
+                sendBtn.style.display = 'none';
+            }
+        }
+    }
+});
+</script>
+    <!-- Modal de Mensagens (fora do feed-scroll-container) -->
+    <div id="messages-modal" class="fixed inset-0 z-[9999] hidden items-start justify-center bg-black/60 backdrop-blur-sm">
+        <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-2xl mt-10 flex flex-col mx-auto">
+            <div class="flex items-center p-4 border-b border-gray-200 dark:border-gray-700">
+                <input id="messages-search" type="text" placeholder="Pesquisar pessoas..." class="flex-1 p-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" />
+                <button id="close-messages-modal" class="ml-2 text-gray-600 dark:text-gray-300 hover:text-red-500 text-2xl font-bold">&times;</button>
+            </div>
+            <div id="messages-search-results" class="p-4 max-h-96 overflow-y-auto"></div>
+        </div>
+    </div>
+    <script>
+    function setupMessagesModal() {
+        const msgBtn = document.getElementById('feed-messages-btn');
+        const modal = document.getElementById('messages-modal');
+        const closeModal = document.getElementById('close-messages-modal');
+        const searchInput = document.getElementById('messages-search');
+        const resultsDiv = document.getElementById('messages-search-results');
+        // Exemplo de lista de pessoas (substitua por sua lógica real)
+        const people = (window.users ? Object.values(window.users) : []).map(u => u.name || u.username || '').filter(Boolean);
+        if(msgBtn && modal && closeModal && searchInput && resultsDiv) {
+            msgBtn.onclick = function() {
+                modal.classList.remove('hidden');
+                searchInput.value = '';
+                resultsDiv.innerHTML = '';
+                searchInput.focus();
+            };
+            closeModal.onclick = function() {
+                modal.classList.add('hidden');
+            };
+            searchInput.oninput = function() {
+                const q = searchInput.value.trim().toLowerCase();
+                resultsDiv.innerHTML = '';
+                if(q.length > 0) {
+                    const found = people.filter(p => p.toLowerCase().includes(q));
+                    if(found.length) {
+                        found.forEach(name => {
+                            const btn = document.createElement('button');
+                            btn.className = 'block w-full text-left py-2 px-4 rounded hover:bg-blue-100 dark:hover:bg-gray-800';
+                            btn.textContent = name;
+                            btn.onclick = () => alert('Iniciar conversa com ' + name);
+                            resultsDiv.appendChild(btn);
+                        });
+                    } else {
+                        resultsDiv.innerHTML = '<div class="text-gray-500">Nenhum nome encontrado.</div>';
+                    }
+                }
+            };
+        }
+    }
+    document.addEventListener('DOMContentLoaded', setupMessagesModal);
+    // Se usar navegação SPA, reative ao trocar de página:
+    if(window.showPage) {
+        const oldShowPage = window.showPage;
+        window.showPage = function(page) {
+            if (oldShowPage) oldShowPage.apply(this, arguments);
+            setTimeout(setupMessagesModal, 100);
+        };
+    }
+    </script>
 </html>
